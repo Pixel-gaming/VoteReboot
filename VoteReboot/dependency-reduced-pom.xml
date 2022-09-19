@@ -18,9 +18,6 @@
     </resources>
     <directory>../target</directory>
     <finalName>VoteReboot</finalName>
-    <filters>
-      <filter>votereboot.properties</filter>
-    </filters>
     <plugins>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>

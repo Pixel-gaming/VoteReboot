@@ -32,8 +32,6 @@ vote:
     rebootCommand: votereboot.reboot
     #Can that person reload configs?
     reload: votereboot.reboot.reload
-    #Can that person cancel a planned restart?
-    cancel: votereboot.reboot.cancel
     #Can a vote be registered at all?
     registervote: votereboot.reboot.vote.vote
     vote:
