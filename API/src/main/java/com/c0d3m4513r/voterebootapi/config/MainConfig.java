@@ -8,4 +8,5 @@ public abstract class MainConfig implements IConfigLoadableSaveable {
     public MainConfig(){
         loadValue();
     }
+    public abstract void main();
 }

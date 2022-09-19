@@ -21,5 +21,6 @@ public class APIImpl extends API {
         }catch (Exception e){
             logger.fatal("Could not load main Config Class. Plugin Loading is now impossible. The Exception is:",e);
         }
+        config.main();
     }
 }

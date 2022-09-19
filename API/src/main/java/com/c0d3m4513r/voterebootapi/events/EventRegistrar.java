@@ -13,7 +13,7 @@ public class EventRegistrar {
     EventType event;
     int TTL = 0;
 
-    public EventRegistrar(Runnable runnable, EventType eventType){
+    private EventRegistrar(Runnable runnable, EventType eventType){
         this.runnable=runnable;
         this.event=eventType;
         events.add(this);

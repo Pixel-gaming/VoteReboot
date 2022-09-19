@@ -14,6 +14,7 @@ import java.util.List;
 public class VoteConfig implements IConfigLoadableSaveable {
     public  VoteConfigPermission voteConfigPermission;
     public  VoteConfigStrings voteConfigStrings;
+    private ConfigEntry<List<String>> aliasList = new ConfigEntry<>(Arrays.asList("reboot", "restart"),"votereboot.vote.aliasList");
     private  ConfigEntry<Double> percentToRestart = new ConfigEntry<>(100.0,"votereboot.vote.percentToRestart");
     private  ConfigEntry<Integer> minAgree = new ConfigEntry<>(Integer.MAX_VALUE,"votereboot.vote.minAgree");
     private  ConfigEntry<Integer> votingTime = new ConfigEntry<>(100,"votereboot.vote.votingTime");
