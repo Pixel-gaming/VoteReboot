@@ -10,35 +10,35 @@ public class VoteConfig {
     @Getter
     public static VoteConfigStrings voteConfigStrings;
     @Getter
-    private static ConfigEntry<Double> percentToRestart = new ConfigEntry<>(100.0,"votereboot.reboot.percentToRestart");
+    private static ConfigEntry<Double> percentToRestart = new ConfigEntry<>(100.0,"votereboot.vote.percentToRestart");
     @Getter
-    private static ConfigEntry<Integer> minAgree = new ConfigEntry<>(Integer.MAX_VALUE,"votereboot.reboot.minAgree");
+    private static ConfigEntry<Integer> minAgree = new ConfigEntry<>(Integer.MAX_VALUE,"votereboot.vote.minAgree");
     @Getter
-    private static ConfigEntry<Integer> votingTime = new ConfigEntry<>(100,"votereboot.reboot.votingTime");
+    private static ConfigEntry<Integer> votingTime = new ConfigEntry<>(100,"votereboot.vote.votingTime");
 
     @Getter
     private static ConfigEntry<List<String>> yesList = new ConfigEntry<>(Arrays.asList("yes", "ye", "y","t","true"),
-            "votereboot.reboot.yesList");
+            "votereboot.vote.yesList");
 
     @Getter
     private static ConfigEntry<List<String>> noList = new ConfigEntry<>(Arrays.asList("no", "n","f","false"),
-            "votereboot.reboot.noList");
+            "votereboot.vote.noList");
     @Getter
     private static ConfigEntry<List<String>> noneList = new ConfigEntry<>(Arrays.asList("null", "none"),
-            "votereboot.reboot.noneList");
+            "votereboot.vote.noneList");
     @Getter
-    private static ConfigEntry<Boolean> kickEnabled = new ConfigEntry<>(true, "votereboot.reboot.kick.enabled");
+    private static ConfigEntry<Boolean> kickEnabled = new ConfigEntry<>(true, "votereboot.vote.kick.enabled");
     @Getter
-    private static ConfigEntry<Boolean> useCustomMessage = new ConfigEntry<>(false, "votereboot.reboot.kick.useCustomMessage");
+    private static ConfigEntry<Boolean> useCustomMessage = new ConfigEntry<>(false, "votereboot.vote.kick.useCustomMessage");
 
     @Getter
     private static ConfigEntry<String> customMessage = new ConfigEntry<>(
             "The Server is Restarting!",
-            "votereboot.reboot.kick.useCustomMessage");
+            "votereboot.vote.kick.customMessage");
     @Getter
-    private static ConfigEntry<Boolean> actionsEnabled = new ConfigEntry<>(true,"votereboot.reboot.actions.enabled");
+    private static ConfigEntry<Boolean> actionsEnabled = new ConfigEntry<>(true,"votereboot.vote.actions.enabled");
     @Getter
-    private static ConfigEntry<String[]> rebootCommands = new ConfigEntry<>(new String[]{"save-all"},"votereboot.reboot.actions.commands");
+    private static ConfigEntry<String[]> rebootCommands = new ConfigEntry<>(new String[]{"save-all"},"votereboot.vote.actions.commands");
 
     public VoteConfigPermission getVoteConfigPermission() {
         return VoteConfig.voteConfigPermission;

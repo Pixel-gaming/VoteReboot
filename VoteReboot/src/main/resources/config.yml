@@ -1,38 +1,75 @@
 vote:
   #The minimum percent of people required to restart the server (This gets parsed as a float)
-  percentToRestart:100
+  percentToRestart: 100
   #The minimum amount of people, that have to agree to restart the server.
   #Setting this to 0 will effectively disable this check (This gets parsed as an int)
-  minAgree:2147483647
+  minAgree: 2147483647
   #Time for people to vote in seconds (This gets parsed as an int)
-  votingTime:100
-  #What message should be printed, when no Vote is running.  
-  noVoteActive:No vote was running. To start a vote just type /reboot vote
-  #What message sould be printed, when no "yes" or "no" after `/reboot vote something` is recognised.
-  voteYesNoError:The vote answer was not recognised as either yes or no. Please try again.
-  voteNoPermission:You do not have permission to vote %answer%.
+  votingTime: 100
+  #Vote yes
   yesList:
     - yes
     - ye
     - y
+  #Vote no
   noList:
     - no
     - n
+  #Allows users to exclude their vote after they already voted
   noneList:
     - null
     - none
+  kick:
+    enabled: true
+    useCustomMessage: false
+    customMessage: The Server is Restarting!
+  actions:
+    enabled: true
+    commands:
+      - save-all
   permission:
     #Can that person execute any subcommands at all?
-    rebootCommand:votereboot.reboot
+    rebootCommand: votereboot.reboot
     #Can that person reload configs?
-    reload:votereboot.reboot.reload
+    reload: votereboot.reboot.reload
     #Can that person cancel a planned restart?
-    cancel:votereboot.reboot.cancel
-    #Can that person start a vote to restart the server
-    startvote:votereboot.reboot.vote
+    cancel: votereboot.reboot.cancel
     #Can a vote be registered at all?
-    registervote:votereboot.reboot.vote.vote
-    #Can a yes vote be registered?
-    voteno:votereboot.reboot.vote.no
-    #Can a no vote be registered?
-    voteyes:votereboot.reboot.vote.yes
+    registervote: votereboot.reboot.vote.vote
+    vote:
+      #This is currently unused (I think)
+      read: votereboot.reboot.vote.read
+      #Can that person start a vote to restart the server
+      start: votereboot.reboot.vote.start
+      #Allows extension or shortening of the current vote timer
+      modify: votereboot.reboot.vote.modify
+      #Allows to cancel a vote
+      cancel: votereboot.reboot.vote.cancel
+    manual:
+      #Allows to view(list) manually scheduled reboots
+      read: votereboot.reboot.manual.read
+      #Allow to start manual reboots via /reboot start
+      start: votereboot.reboot.manual.start
+      #Allows extension or shortening of the current manual reboot timer
+      modify: votereboot.reboot.manual.modify
+      #Allows cancelling manually scheduled reboots
+      cancel: votereboot.reboot.manual.cancel
+    scheduled:
+      #Allow to view(list) manually scheduled reboots
+      read: votereboot.reboot.scheduled.read
+      #Allows to start scheduled reboots
+      #(this doesn't make sense currently. It is the same as manual start perm)
+      #(unused)
+      start: votereboot.reboot.scheduled.start
+      #Allows extension or shortening of the current scheduled reboot timer
+      modify: votereboot.reboot.scheduled.modify
+      #Allows to cancel scheduled reboots
+      cancel: votereboot.reboot.scheduled.cancel
+
+  translate:
+    #What message should be printed, when no Vote is running.
+    noVoteActive: No vote was running. To start a vote just type /reboot vote
+    #What message sould be printed, when no "yes" or "no" after `/reboot vote something` is recognised.
+    voteYesNoError: The vote answer was not recognised as either yes, no or none/null. Please try again.
+    noPermission: The Action failed, or you did not have enough permissions.
+    requiredArgs: Some required Arguments were missing
