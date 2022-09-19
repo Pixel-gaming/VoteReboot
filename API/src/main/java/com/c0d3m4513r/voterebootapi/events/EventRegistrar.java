@@ -1,12 +1,17 @@
 package com.c0d3m4513r.voterebootapi.events;
 
-import java.util.Vector;
+import lombok.AllArgsConstructor;
 
+import java.util.Vector;
+import java.util.stream.Collectors;
+
+@AllArgsConstructor
 public class EventRegistrar {
     private static Vector<EventRegistrar> events = new Vector<>();
 
     Runnable runnable;
     EventType event;
+    int TTL = 0;
 
     public EventRegistrar(Runnable runnable, EventType eventType){
         this.runnable=runnable;
@@ -19,6 +24,11 @@ public class EventRegistrar {
     }
 
     public static void submitEvent(EventType type){
-        events.stream().filter(e -> e.event==type).forEach(e -> e.runnable.run());
+        events.removeAll(
+                events.stream().filter(e -> e.event==type).filter(e -> {
+                    e.runnable.run();
+                    e.TTL-=1;
+                    return e.TTL<0;
+                }).collect(Collectors.toList()));
     }
 }
