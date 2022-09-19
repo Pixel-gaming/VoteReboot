@@ -59,5 +59,11 @@
             <artifactId>configurate-yaml</artifactId>
             <version>4.1.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.c0d3m4513r</groupId>
+            <artifactId>plugin-def</artifactId>
+            <version>0.0.1</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

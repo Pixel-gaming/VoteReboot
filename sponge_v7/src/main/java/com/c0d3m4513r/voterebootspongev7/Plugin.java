@@ -21,7 +21,7 @@ import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 import java.io.File;
 
 
-@org.spongepowered.api.plugin.Plugin(id = "votereboot",name = "VoteReboot", description = "A Plugin to allow to VoteRestart and AutoRestart a server", authors = {"C0D3 M4513R"})
+@org.spongepowered.api.plugin.Plugin(id = com.c0d3m4513r.plugindef.Plugin.id,name = com.c0d3m4513r.plugindef.Plugin.name, description = com.c0d3m4513r.plugindef.Plugin.description, version = "${versionName}")
 public class Plugin implements IConfigLoaderSaver {
     @Inject
     @DefaultConfig(sharedRoot = false)
