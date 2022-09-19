@@ -1,0 +1,38 @@
+vote:
+  #The minimum percent of people required to restart the server (This gets parsed as a float)
+  percentToRestart:100
+  #The minimum amount of people, that have to agree to restart the server.
+  #Setting this to 0 will effectively disable this check (This gets parsed as an int)
+  minAgree:2147483647
+  #Time for people to vote in seconds (This gets parsed as an int)
+  votingTime:100
+  #What message should be printed, when no Vote is running.  
+  noVoteActive:No vote was running. To start a vote just type /reboot vote
+  #What message sould be printed, when no "yes" or "no" after `/reboot vote something` is recognised.
+  voteYesNoError:The vote answer was not recognised as either yes or no. Please try again.
+  voteNoPermission:You do not have permission to vote %answer%.
+  yesList:
+    - yes
+    - ye
+    - y
+  noList:
+    - no
+    - n
+  noneList:
+    - null
+    - none
+  permission:
+    #Can that person execute any subcommands at all?
+    rebootCommand:votereboot.reboot
+    #Can that person reload configs?
+    reload:votereboot.reboot.reload
+    #Can that person cancel a planned restart?
+    cancel:votereboot.reboot.cancel
+    #Can that person start a vote to restart the server
+    startvote:votereboot.reboot.vote
+    #Can a vote be registered at all?
+    registervote:votereboot.reboot.vote.vote
+    #Can a yes vote be registered?
+    voteno:votereboot.reboot.vote.no
+    #Can a no vote be registered?
+    voteyes:votereboot.reboot.vote.yes

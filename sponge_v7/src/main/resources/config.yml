@@ -1,0 +1,72 @@
+vote:
+  #The minimum percent of people required to restart the server (This gets parsed as a float)
+  percentToRestart: 100
+  #The minimum amount of people, that have to agree to restart the server.
+  #Setting this to 0 will effectively disable this check (This gets parsed as an int)
+  minAgree: 2147483647
+  #Time for people to vote in seconds (This gets parsed as an int)
+  votingTime: 100
+  yesList:
+    - yes
+    - ye
+    - y
+    - t
+    - true
+  noList:
+    - no
+    - n
+    - f
+    - false
+  kick:
+    #Should the plugin manually kick all players before doing a restart?
+    enabled: true
+    #Should the custom message below be displayed, or should it be the default (whatever that is for that api)?
+    useCustomMessage: false
+    customMessage: The Server is Restarting!
+  actions:
+    #Execute the Following commands as Console, just before restarting
+    enabled: true
+    commands:
+      - save-all
+  permission:
+    #Can that person execute any subcommands at all?
+    rebootCommand: votereboot.reboot
+    #Can that person reload configs?
+    reload: votereboot.reboot.reload
+    #Can that person cancel a planned restart?
+    cancel: votereboot.reboot.cancel
+    #Can a vote be registered at all?
+    registervote: votereboot.reboot.vote.vote
+    vote:
+      #Permission to view which people voted for what
+      #Everyone can see when a vote has been started. That will also not change.
+      read: votereboot.reboot.vote.read
+      #Permission to start a vote
+      start: votereboot.reboot.vote.start
+      #Permission to extend the timer for the vote
+      modify: votereboot.reboot.vote.modify
+      #Permission to terminate vote-restart
+      cancel: votereboot.reboot.vote.cancel
+    manual:
+      #Permission to see if a manual restart has been issued.
+      read: votereboot.reboot.manual.read
+      start: votereboot.reboot.manual.start
+      #Permission to extend the timer for the manual restart
+      modify: votereboot.reboot.manual.modify
+      #Permission to terminate manual restart
+      cancel: votereboot.reboot.manual.cancel
+    scheduled:
+      #Permission to see if a scheduled restart has been started
+      read: votereboot.reboot.scheduled.read
+      start: votereboot.reboot.scheduled.start
+      #Permission to modify the timer for a manual restart
+      modify: votereboot.reboot.scheduled.modify
+      #Permission to cancel a manual restart
+      cancel: votereboot.reboot.scheduled.cancel
+  translation:
+    #What message should be printed, when no Vote is running.
+    noVoteActive: No vote was running. To start a vote just type /reboot vote
+    #What message sould be printed, when no "yes" or "no" after `/reboot vote something` is recognised.
+    voteYesNoError: The vote answer was not recognised as either yes or no. Please try again.
+    noPermission: The Action failed, or you did not have enough permissions.
+    requiredArgs: Some required Arguments were missing

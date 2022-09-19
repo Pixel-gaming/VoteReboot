@@ -1,0 +1,11 @@
+id: com.c0d3m4513r.votereboot
+name: VoteReboot
+version: ${versionName}
+api-version: 1.12
+description: A simple plugin to Vote to Restart a Minecraft Server
+main: com.c0d3m4513r.votereboot.VoteReboot
+
+commands:
+  reboot:
+    description: Vote to reboot the Minecraft server
+    permission-message: You do not have sufficient permission, to invoke that action.

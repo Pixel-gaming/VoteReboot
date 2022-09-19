@@ -1,0 +1,47 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.c0d3m4513r</groupId>
+    <artifactId>votereboot-parent</artifactId>
+    <!-- Artifact ID doesn't matter for anything but the final product
+         At least, it doesn't matter externally to this setup -->
+    <packaging>pom</packaging>
+    <!-- Packaging? POM -->
+    <version>parent</version>
+    <!-- I keep my versions of the internal projects static, so I don't have to rename them all the time. -->
+    <name>VoteReboot Parent</name>
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <modules>
+        <module>API</module>
+        <module>spigot_v112</module>
+        <module>sponge_v7</module>
+        <module>VoteReboot</module>
+    </modules>
+
+    <!-- Define the repo here since multiple modules will be using it -->
+    <repositories>
+<!--        <repository>-->
+<!--            <id>bukkit-repo</id>-->
+<!--            <url>https://repo.bukkit.org/content/groups/public</url>-->
+<!--            <blocked>true</blocked>-->
+<!--        </repository>-->
+        <repository>
+            <id>maven-central</id>
+            <url>https://repo1.maven.org/maven2/</url>
+        </repository>
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+        <repository>
+            <id>sponge</id>
+            <url>https://nexus.velocitypowered.com/repository/sponge/</url>
+        </repository>
+    </repositories>
+
+</project>
