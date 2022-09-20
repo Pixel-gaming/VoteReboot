@@ -1,20 +1,35 @@
 package com.c0d3m4513r.voterebootapi.config;
 
-import lombok.AllArgsConstructor;
+import com.c0d3m4513r.voterebootapi.API;
+import com.c0d3m4513r.voterebootapi.config.iface.IConfigLoadableSaveable;
+import io.leangen.geantyref.TypeToken;
 import lombok.Data;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 @Data
-@AllArgsConstructor
-public class ConfigEntry<T extends Object> {
+@RequiredArgsConstructor
+/***
+ * @type v This is the regular type, e.g. List with String type Parameter
+ * @type t This is the due to type erasure
+ */
+public class ConfigEntry<V> implements IConfigLoadableSaveable {
     @NonNull
-    public T value;
+    public ClassValue<V> value;
+    @NonNull
     public String configPath;
 
-    //todo: tbh, I don't know how many rules I'm breaking here, but I'm sure spongeforge, spigot, bukkit and forge break more
-    //      Either way, this is not pretty. Is there a better solution?
-    @SuppressWarnings("unchecked")
-    public void setValue(Object value) {
-        this.value = (T)value;
+    public void saveValue(){
+        API.getConfigLoader().saveConfigKey(value.getValue(),TypeToken.get(value.getClazz()), configPath);
     }
+
+    public void loadValue(){
+        V val = API.getConfigLoader().loadConfigKey(configPath,TypeToken.get(value.getClazz()));
+        if(val!=null){
+            value.setValue(val);
+        }else{
+            saveValue();
+        }
+    }
+
 }

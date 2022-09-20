@@ -37,11 +37,6 @@
     </dependencies>
 
     <build>
-        <filters>
-            <filter>
-                votereboot.properties
-            </filter>
-        </filters>
         <directory>../target</directory> <!-- Build it one level up, because it is the one we care about -->
         <finalName>VoteReboot</finalName>
         <!-- Define filtering for the inclusion of plugin.yml, so we can utilize the pom.xml version in it -->
@@ -66,6 +61,21 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <!--No Signatures please. They cause Sponge to complain-->
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <!--No Multi realease jars please. They cause bytecode to break-->
+                                        <exclude>META-INF/versions/**</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
