@@ -42,11 +42,7 @@
             <groupId>com.c0d3m4513r</groupId>
             <artifactId>plugin-def</artifactId>
             <version>0.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>2.18.0</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -57,13 +53,7 @@
         <dependency>
             <groupId>org.spongepowered</groupId>
             <artifactId>configurate-yaml</artifactId>
-            <version>4.1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.c0d3m4513r</groupId>
-            <artifactId>plugin-def</artifactId>
-            <version>0.0.1</version>
-            <scope>compile</scope>
+            <version>4.0.0</version>
         </dependency>
     </dependencies>
 </project>

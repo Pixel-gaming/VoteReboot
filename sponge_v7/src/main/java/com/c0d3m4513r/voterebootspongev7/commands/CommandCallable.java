@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.spongepowered.api.command.CommandException;
-import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
@@ -22,20 +21,24 @@ public class CommandCallable implements org.spongepowered.api.command.CommandCal
     Command command;
 
     @Override
-    public CommandResult process(CommandSource source, String arguments) throws CommandException {
+    public org.spongepowered.api.command.CommandResult process(CommandSource source, String arguments) throws CommandException {
         try {
-            return (CommandResult) command.process((com.c0d3m4513r.voterebootapi.command.CommandSource) source,arguments);
-        }catch (com.c0d3m4513r.voterebootapi.command.CommandException ce){
-            throw new CommandException(Text.of(ce.getMessage()),ce.getE());
+            return ((com.c0d3m4513r.voterebootspongev7.commands.CommandResult)
+                    command.process(
+                            (com.c0d3m4513r.voterebootapi.command.CommandSource) source,
+                            arguments)
+            ).getComandResult();
+        } catch (com.c0d3m4513r.voterebootapi.command.CommandException ce) {
+            throw new CommandException(Text.of(ce.getMessage()), ce.getE());
         }
     }
 
     @Override
     public List<String> getSuggestions(CommandSource source, String arguments, @Nullable Location<World> targetPosition) throws CommandException {
         try {
-            return command.getSuggestions((com.c0d3m4513r.voterebootapi.command.CommandSource) source,arguments);
-        }catch (com.c0d3m4513r.voterebootapi.command.CommandException ce){
-            throw new CommandException(Text.of(ce.getMessage()),ce.getE());
+            return command.getSuggestions((com.c0d3m4513r.voterebootapi.command.CommandSource) source, arguments);
+        } catch (com.c0d3m4513r.voterebootapi.command.CommandException ce) {
+            throw new CommandException(Text.of(ce.getMessage()), ce.getE());
         }
     }
 

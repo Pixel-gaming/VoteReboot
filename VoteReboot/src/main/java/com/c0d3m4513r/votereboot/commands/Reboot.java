@@ -1,9 +1,11 @@
 package com.c0d3m4513r.votereboot.commands;
 
+import com.c0d3m4513r.voterebootapi.API;
 import com.c0d3m4513r.voterebootapi.command.Command;
 import com.c0d3m4513r.voterebootapi.command.CommandException;
 import com.c0d3m4513r.voterebootapi.command.CommandResult;
 import com.c0d3m4513r.voterebootapi.command.CommandSource;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +14,8 @@ public class Reboot implements Command {
 
     @Override
     public CommandResult process(CommandSource source, String arguments) throws CommandException {
-        return null;
+        source.sendMessage("Pong");
+        return API.getCommandResult().success();
     }
 
     @Override
