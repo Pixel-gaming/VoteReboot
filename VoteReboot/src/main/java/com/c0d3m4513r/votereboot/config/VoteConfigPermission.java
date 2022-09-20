@@ -1,25 +1,35 @@
 package com.c0d3m4513r.votereboot.config;
 
+import com.c0d3m4513r.voterebootapi.config.ClassValue;
 import com.c0d3m4513r.voterebootapi.config.ConfigEntry;
 import com.c0d3m4513r.voterebootapi.config.iface.IConfigLoadableSaveable;
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.Setter;
 
 @Data
 @Setter(AccessLevel.NONE)
 public class VoteConfigPermission implements IConfigLoadableSaveable {
+    @NonNull
     private  ConfigEntry<String> rebootCommand = new ConfigEntry<>(
-            "votereboot.reboot",
+            new ClassValue<>("votereboot.reboot",String.class),
             "votereboot.vote.permission.reboot");
+    @NonNull
     private  ConfigEntry<String> reload = new ConfigEntry<>(
-            "votereboot.reboot.reload",
+            new ClassValue<>("votereboot.reboot.reload",String.class),
             "votereboot.vote.permission.reload");
-    private ActionConfig voteAction = new ActionConfig("votereboot.reboot.vote","votereboot.vote.permission.vote");
+    @NonNull
+    private ActionConfig voteAction = new ActionConfig(
+            "votereboot.reboot.vote"
+            ,"votereboot.vote.permission.vote");
+    @NonNull
     private ActionConfig manualAction = new ActionConfig("votereboot.reboot.manual","votereboot.vote.permission.manual");
+    @NonNull
     private ActionConfig scheduledAction = new ActionConfig("votereboot.reboot.scheduled","votereboot.vote.permission.scheduled");
+    @NonNull
     private  ConfigEntry<String> voteRegister = new ConfigEntry<>(
-            "votereboot.reboot.vote.vote",
+            new ClassValue<>("votereboot.reboot.vote.vote",String.class),
             "votereboot.vote.permission.registervote");
 
 

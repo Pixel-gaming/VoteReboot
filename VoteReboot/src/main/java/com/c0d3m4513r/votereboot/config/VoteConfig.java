@@ -1,40 +1,57 @@
 package com.c0d3m4513r.votereboot.config;
 
+import com.c0d3m4513r.voterebootapi.config.ClassValue;
 import com.c0d3m4513r.voterebootapi.config.ConfigEntry;
 import com.c0d3m4513r.voterebootapi.config.iface.IConfigLoadableSaveable;
+import io.leangen.geantyref.TypeToken;
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.Setter;
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.Arrays;
 import java.util.List;
-
 @Data
 @Setter(AccessLevel.NONE)
 public class VoteConfig implements IConfigLoadableSaveable {
-    public  VoteConfigPermission voteConfigPermission;
-    public  VoteConfigStrings voteConfigStrings;
-    private ConfigEntry<List<String>> aliasList = new ConfigEntry<>(Arrays.asList("reboot", "restart"),"votereboot.vote.aliasList");
-    private  ConfigEntry<Double> percentToRestart = new ConfigEntry<>(100.0,"votereboot.vote.percentToRestart");
-    private  ConfigEntry<Integer> minAgree = new ConfigEntry<>(Integer.MAX_VALUE,"votereboot.vote.minAgree");
-    private  ConfigEntry<Integer> votingTime = new ConfigEntry<>(100,"votereboot.vote.votingTime");
+    public static final Class<String[]> stringlist = String[].class;
 
-    private  ConfigEntry<List<String>> yesList = new ConfigEntry<>(Arrays.asList("yes", "ye", "y","t","true"),
-            "votereboot.vote.yesList");
-
-    private  ConfigEntry<List<String>> noList = new ConfigEntry<>(Arrays.asList("no", "n","f","false"),
-            "votereboot.vote.noList");
-    private  ConfigEntry<List<String>> noneList = new ConfigEntry<>(Arrays.asList("null", "none"),
-            "votereboot.vote.noneList");
-    private  ConfigEntry<Boolean> kickEnabled = new ConfigEntry<>(true, "votereboot.vote.kick.enabled");
-    private  ConfigEntry<Boolean> useCustomMessage = new ConfigEntry<>(false, "votereboot.vote.kick.useCustomMessage");
-
-    private  ConfigEntry<String> customMessage = new ConfigEntry<>(
-            "The Server is Restarting!",
+    @NonNull
+    public  VoteConfigPermission voteConfigPermission=new VoteConfigPermission();
+    @NonNull
+    public  VoteConfigStrings voteConfigStrings=new VoteConfigStrings();
+    @NonNull
+    private ConfigEntry<String[]> aliasList = new ConfigEntry<>(new ClassValue<>(new String[]{"reboot", "restart"}, stringlist)
+            ,"votereboot.vote.aliasList");
+    @NonNull
+    private  ConfigEntry<Double> percentToRestart = new ConfigEntry<>(new ClassValue<>(100.0,Double.class),"votereboot.vote.percentToRestart");
+    @NonNull
+    private  ConfigEntry<Integer> minAgree = new ConfigEntry<>(new ClassValue<>(Integer.MAX_VALUE,Integer.class),"votereboot.vote.minAgree");
+    @NonNull
+    private  ConfigEntry<Integer> votingTime = new ConfigEntry<>(new ClassValue<>(100,Integer.class),"votereboot.vote.votingTime");
+    @NonNull
+    private  ConfigEntry<String[]> yesList = new ConfigEntry<>(new ClassValue<>(new String[]{"yes", "ye", "y","t","true"}, stringlist)
+            ,"votereboot.vote.yesList");
+    @NonNull
+    private  ConfigEntry<String[]> noList = new ConfigEntry<>(new ClassValue<>(new String[]{"no", "n","f","false"},stringlist)
+            ,"votereboot.vote.noList");
+    @NonNull
+    private  ConfigEntry<String[]> noneList = new ConfigEntry<>(new ClassValue<>(new String[]{"null", "none"},stringlist)
+            ,"votereboot.vote.noneList");
+    @NonNull
+    private  ConfigEntry<Boolean> kickEnabled = new ConfigEntry<>(new ClassValue<>(true,Boolean.class), "votereboot.vote.kick.enabled");
+    @NonNull
+    private  ConfigEntry<Boolean> useCustomMessage = new ConfigEntry<>(new ClassValue<>(false,Boolean.class), "votereboot.vote.kick.useCustomMessage");
+    @NonNull
+    private  ConfigEntry<String> customMessage = new ConfigEntry<>(new ClassValue<>(
+            "The Server is Restarting!",String.class),
             "votereboot.vote.kick.customMessage");
-    private  ConfigEntry<Boolean> actionsEnabled = new ConfigEntry<>(true,"votereboot.vote.actions.enabled");
-    private  ConfigEntry<String[]> rebootCommands = new ConfigEntry<>(new String[]{"save-all"},"votereboot.vote.actions.commands");
-
+    @NonNull
+    private  ConfigEntry<Boolean> actionsEnabled = new ConfigEntry<>(new ClassValue<>(true,Boolean.class),"votereboot.vote.actions.enabled");
+    @NonNull
+    private  ConfigEntry<String[]> rebootCommands = new ConfigEntry<>(new ClassValue<>(new String[]{"save-all"},stringlist)
+            ,"votereboot.vote.actions.commands");
     @Override
     public void loadValue() {
         voteConfigPermission.loadValue();

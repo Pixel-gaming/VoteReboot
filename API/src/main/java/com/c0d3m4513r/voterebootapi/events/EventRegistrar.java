@@ -1,11 +1,13 @@
 package com.c0d3m4513r.voterebootapi.events;
 
+import com.c0d3m4513r.voterebootapi.API;
 import lombok.AllArgsConstructor;
 
+import java.util.List;
 import java.util.Vector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-@AllArgsConstructor
 public class EventRegistrar {
     private static Vector<EventRegistrar> events = new Vector<>();
 
@@ -19,16 +21,21 @@ public class EventRegistrar {
         events.add(this);
     }
 
+    public EventRegistrar(Runnable runnable, EventType eventType,int ttl){
+        this(runnable,eventType);
+        TTL=ttl;
+    }
+
     public void unregister(){
         EventRegistrar.events.remove(this);
     }
 
     public static void submitEvent(EventType type){
-        events.removeAll(
-                events.stream().filter(e -> e.event==type).filter(e -> {
-                    e.runnable.run();
-                    e.TTL-=1;
-                    return e.TTL<0;
-                }).collect(Collectors.toList()));
+        Stream<EventRegistrar> stream = events.stream().filter(e -> e.event==type);
+        API.getLogger().info("[API] Running event '"+type.toString()+"'.");
+        stream.forEach(e->{e.TTL-=1;e.runnable.run();});
+        List<EventRegistrar> list = events.stream().filter(e -> e.TTL<0).collect(Collectors.toList());
+        API.getLogger().info("[API] Removing "+list.size()+" events from the event listener, since the TTL ran out.");
+        events.removeAll(list);
     }
 }

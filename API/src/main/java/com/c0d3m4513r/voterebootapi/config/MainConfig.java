@@ -5,8 +5,6 @@ import lombok.Data;
 
 @Data
 public abstract class MainConfig implements IConfigLoadableSaveable {
-    public MainConfig(){
-        loadValue();
-    }
+    public MainConfig(){}
     public abstract void main();
 }

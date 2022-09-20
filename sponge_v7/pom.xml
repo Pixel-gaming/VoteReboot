@@ -34,7 +34,7 @@
         </dependency>
         <dependency>
             <groupId>com.c0d3m4513r</groupId>
-            <artifactId>votereboot-api</artifactId> <!-- Depend on the API! -->
+            <artifactId>votereboot-api</artifactId>
             <version>0.0.1</version>
             <type>jar</type>
         </dependency>
@@ -53,7 +53,7 @@
         <dependency>
             <groupId>org.spongepowered</groupId>
             <artifactId>configurate-yaml</artifactId>
-            <version>4.0.0</version>
+            <version>4.1.2</version>
         </dependency>
     </dependencies>
 </project>

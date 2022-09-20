@@ -1,28 +1,30 @@
 package com.c0d3m4513r.votereboot.config;
 
+import com.c0d3m4513r.voterebootapi.config.ClassValue;
 import com.c0d3m4513r.voterebootapi.config.ConfigEntry;
 import com.c0d3m4513r.voterebootapi.config.iface.IConfigLoadableSaveable;
 import lombok.Getter;
-
+import lombok.NonNull;
+@Getter
 public class VoteConfigStrings implements IConfigLoadableSaveable {
-    @Getter
+    @NonNull
     private static ConfigEntry<String> noVoteActive = new ConfigEntry<>(
-            "No vote was running. To start a vote just type /reboot vote",
+            new ClassValue<>("No vote was running. To start a vote just type /reboot vote",String.class),
             "votereboot.vote.translate.noVoteActive"
     );
-    @Getter
+    @NonNull
     private static ConfigEntry<String> voteYesNoError = new ConfigEntry<>(
-            "The vote answer was not recognised as either yes or no. Please try again.",
+            new ClassValue<>("The vote answer was not recognised as either yes or no. Please try again.",String.class),
             "votereboot.vote.translate.voteYesNoError");
 
-    @Getter
+    @NonNull
     private static ConfigEntry<String> noPermission = new ConfigEntry<>(
-            "The Action failed, or you did not have enough permissions.",
+            new ClassValue<>("The Action failed, or you did not have enough permissions.",String.class),
             "votereboot.vote.translate.noPermission");
 
-    @Getter
+    @NonNull
     private static ConfigEntry<String> requiredArgs = new ConfigEntry<>(
-            "Some required Arguments were missing",
+            new ClassValue<>("Some required Arguments were missing",String.class),
             "votereboot.vote.translate.requiredArgs");
 
     @Override

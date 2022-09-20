@@ -25,7 +25,7 @@ public class CommandCallable implements org.spongepowered.api.command.CommandCal
         try {
             return ((com.c0d3m4513r.voterebootspongev7.commands.CommandResult)
                     command.process(
-                            (com.c0d3m4513r.voterebootapi.command.CommandSource) source,
+                            new com.c0d3m4513r.voterebootspongev7.commands.CommandSource(source),
                             arguments)
             ).getComandResult();
         } catch (com.c0d3m4513r.voterebootapi.command.CommandException ce) {
@@ -36,7 +36,9 @@ public class CommandCallable implements org.spongepowered.api.command.CommandCal
     @Override
     public List<String> getSuggestions(CommandSource source, String arguments, @Nullable Location<World> targetPosition) throws CommandException {
         try {
-            return command.getSuggestions((com.c0d3m4513r.voterebootapi.command.CommandSource) source, arguments);
+            return command.getSuggestions(
+                    new com.c0d3m4513r.voterebootspongev7.commands.CommandSource(source),
+                    arguments);
         } catch (com.c0d3m4513r.voterebootapi.command.CommandException ce) {
             throw new CommandException(Text.of(ce.getMessage()), ce.getE());
         }
@@ -44,23 +46,31 @@ public class CommandCallable implements org.spongepowered.api.command.CommandCal
 
     @Override
     public boolean testPermission(CommandSource source) {
-        return command.testPermission((com.c0d3m4513r.voterebootapi.command.CommandSource) source);
+        return command.testPermission(
+                new com.c0d3m4513r.voterebootspongev7.commands.CommandSource(source)
+        );
     }
 
     @Override
     public Optional<Text> getShortDescription(CommandSource source) {
-        Optional<String> ostr = command.getShortDescription((com.c0d3m4513r.voterebootapi.command.CommandSource) source);
+        Optional<String> ostr = command.getShortDescription(
+                new com.c0d3m4513r.voterebootspongev7.commands.CommandSource(source)
+        );
         return ostr.map(Text::of);
     }
 
     @Override
     public Optional<Text> getHelp(CommandSource source) {
-        Optional<String> ostr = command.getHelp((com.c0d3m4513r.voterebootapi.command.CommandSource) source);
+        Optional<String> ostr = command.getHelp(
+                new com.c0d3m4513r.voterebootspongev7.commands.CommandSource(source)
+        );
         return ostr.map(Text::of);
     }
 
     @Override
     public Text getUsage(CommandSource source) {
-        return Text.of(command.getUsage((com.c0d3m4513r.voterebootapi.command.CommandSource) source));
+        return Text.of(command.getUsage(
+                new com.c0d3m4513r.voterebootspongev7.commands.CommandSource(source)
+        ));
     }
 }

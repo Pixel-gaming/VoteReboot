@@ -2,6 +2,7 @@ package com.c0d3m4513r.votereboot.config;
 
 import com.c0d3m4513r.votereboot.Action;
 import com.c0d3m4513r.votereboot.ActionPerm;
+import com.c0d3m4513r.voterebootapi.config.ClassValue;
 import com.c0d3m4513r.voterebootapi.config.ConfigEntry;
 import com.c0d3m4513r.voterebootapi.config.iface.IConfigLoadableSaveable;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,7 @@ public class ActionConfig implements IConfigLoadableSaveable, ActionPerm {
         ConfigEntry<String> action;
         Action type;
         public SinglularActionPerm(String permRoot, String configRoot, Action action){
-            this.action=new ConfigEntry<String>(permRoot+"."+action.toString(action),configRoot+"."+action.toString(action));
+            this.action=new ConfigEntry<>(new ClassValue<>(permRoot+"."+action.toString(action),String.class),configRoot+"."+action.toString(action));
             type=action;
         }
 
@@ -37,7 +38,7 @@ public class ActionConfig implements IConfigLoadableSaveable, ActionPerm {
 
     @Override
     public String getPermission(Action action) {
-        return actionPerms[(int) action.id].getAction().getValue();
+        return actionPerms[(int) action.id].getAction().getValue().getValue();
     }
 
     public ActionConfig(String permRoot, String configRoot){

@@ -66,9 +66,12 @@
                                 <filter>
                                     <artifact>*:*</artifact>
                                     <excludes>
+                                        <!--No Signatures please. They cause Sponge to complain-->
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
+                                        <!--No Multi realease jars please. They cause bytecode to break-->
+                                        <exclude>META-INF/versions/**</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
