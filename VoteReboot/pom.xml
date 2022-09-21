@@ -62,6 +62,27 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <relocations>
+                                <relocation>
+                                    <pattern>com.c0d3m4513r.*</pattern>
+                                    <shadedPattern>com.c0d3m4513r.shaded.votereboot.com.c0d3m4513r.*</shadedPattern>
+                                    <excludes>
+                                        <exclude>com.c0d3m4513r.votereboot.*</exclude>
+                                    </excludes>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.slf4j</pattern>
+                                    <shadedPattern>com.c0d3m4513r.shaded.votereboot.org.slf4j</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>io.leangen.geantyref</pattern>
+                                    <shadedPattern>com.c0d3m4513r.shaded.votereboot.io.leangen.geantyref</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.spongepowered</pattern>
+                                    <shadedPattern>com.c0d3m4513r.shaded.votereboot.org.spongepowered</shadedPattern>
+                                </relocation>
+                            </relocations>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>

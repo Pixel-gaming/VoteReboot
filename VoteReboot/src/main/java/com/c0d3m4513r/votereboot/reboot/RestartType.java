@@ -2,8 +2,7 @@ package com.c0d3m4513r.votereboot.reboot;
 
 import com.c0d3m4513r.votereboot.ActionPerm;
 import com.c0d3m4513r.votereboot.config.Config;
-import com.c0d3m4513r.votereboot.config.VoteConfigPermission;
-import com.c0d3m4513r.voterebootapi.API;
+import com.c0d3m4513r.pluginapi.API;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 

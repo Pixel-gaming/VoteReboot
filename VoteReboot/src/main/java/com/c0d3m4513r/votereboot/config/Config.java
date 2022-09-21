@@ -2,23 +2,20 @@ package com.c0d3m4513r.votereboot.config;
 
 
 import com.c0d3m4513r.votereboot.commands.Reboot;
-import com.c0d3m4513r.voterebootapi.API;
-import com.c0d3m4513r.voterebootapi.config.MainConfig;
-import com.c0d3m4513r.voterebootapi.config.iface.IConfigLoadableSaveable;
-import com.c0d3m4513r.voterebootapi.events.EventRegistrar;
-import com.c0d3m4513r.voterebootapi.events.EventType;
+import com.c0d3m4513r.pluginapi.API;
+import com.c0d3m4513r.pluginapi.config.MainConfig;
+import com.c0d3m4513r.pluginapi.config.iface.IConfigLoadableSaveable;
+import com.c0d3m4513r.pluginapi.events.EventRegistrar;
+import com.c0d3m4513r.pluginapi.events.EventType;
 import lombok.*;
-import org.checkerframework.checker.units.qual.C;
 
 import java.io.*;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.c0d3m4513r.voterebootapi.API.getLogger;
+import static com.c0d3m4513r.pluginapi.API.getLogger;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

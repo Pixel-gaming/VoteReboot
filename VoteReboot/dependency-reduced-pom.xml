@@ -37,7 +37,14 @@
                     <exclude>META-INF/*.DSA</exclude>
                     <exclude>META-INF/*.RSA</exclude>
                     <exclude>META-INF/versions/**</exclude>
+                    <exclude>META-INF/MANIFEST.MF</exclude>
                   </excludes>
+                </filter>
+                <filter>
+                  <artifact>com.c0d3m4513r:*</artifact>
+                  <includes>
+                    <include>META-INF/MANIFEST.MF</include>
+                  </includes>
                 </filter>
               </filters>
             </configuration>

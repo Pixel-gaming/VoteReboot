@@ -1,6 +1,6 @@
 package com.c0d3m4513r.votereboot.reboot;
 
-import com.c0d3m4513r.voterebootapi.Nullable;
+import com.c0d3m4513r.pluginapi.Nullable;
 import lombok.*;
 
 import java.util.concurrent.TimeUnit;

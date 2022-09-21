@@ -1,8 +1,8 @@
 package com.c0d3m4513r.votereboot.reboot;
 
 import com.c0d3m4513r.votereboot.config.Config;
-import com.c0d3m4513r.voterebootapi.API;
-import com.c0d3m4513r.voterebootapi.Permission;
+import com.c0d3m4513r.pluginapi.API;
+import com.c0d3m4513r.pluginapi.Permission;
 import lombok.Getter;
 import lombok.NonNull;
 
