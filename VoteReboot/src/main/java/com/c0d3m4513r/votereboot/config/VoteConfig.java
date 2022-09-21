@@ -3,24 +3,25 @@ package com.c0d3m4513r.votereboot.config;
 import com.c0d3m4513r.voterebootapi.config.ClassValue;
 import com.c0d3m4513r.voterebootapi.config.ConfigEntry;
 import com.c0d3m4513r.voterebootapi.config.iface.IConfigLoadableSaveable;
-import io.leangen.geantyref.TypeToken;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.NonNull;
-import lombok.Setter;
-import org.checkerframework.checker.units.qual.C;
+import lombok.*;
 
-import java.util.Arrays;
-import java.util.List;
 @Data
 @Setter(AccessLevel.NONE)
 public class VoteConfig implements IConfigLoadableSaveable {
+    public static VoteConfig getInstance(){
+        return Config.getInstance().getVoteConfig();
+    }
     public static final Class<String[]> stringlist = String[].class;
 
     @NonNull
     public  VoteConfigPermission voteConfigPermission=new VoteConfigPermission();
     @NonNull
     public  VoteConfigStrings voteConfigStrings=new VoteConfigStrings();
+
+    @NonNull
+    public  VoteConfigCommandStrings voteConfigCommandStrings=new VoteConfigCommandStrings();
+
+
     @NonNull
     private ConfigEntry<String[]> aliasList = new ConfigEntry<>(new ClassValue<>(new String[]{"reboot", "restart"}, stringlist)
             ,"votereboot.vote.aliasList");

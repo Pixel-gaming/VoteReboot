@@ -1,5 +1,6 @@
 package com.c0d3m4513r.voterebootspongev7;
 
+import com.c0d3m4513r.voterebootapi.API;
 import com.c0d3m4513r.voterebootapi.Nullable;
 import com.c0d3m4513r.voterebootapi.config.iface.IConfigLoaderSaver;
 import com.c0d3m4513r.voterebootapi.events.EventRegistrar;
@@ -9,7 +10,9 @@ import io.leangen.geantyref.TypeToken;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
+import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
@@ -20,9 +23,11 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 import org.slf4j.Logger;
 
+import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 
 @org.spongepowered.api.plugin.Plugin(
@@ -32,26 +37,66 @@ import java.nio.file.Paths;
         version = com.c0d3m4513r.plugindef.Plugin.version
 )
 public class Plugin implements IConfigLoaderSaver {
-    @Inject
+    @NonNull
+    @Inject(optional = true)
     @ConfigDir(sharedRoot = false)
     private Path configDir;
 
-    private Path configFile = Paths.get(configDir + "/config.yml");
+    @NonNull
+    @Inject(optional = true)
+    @DefaultConfig(sharedRoot = false)
+    private Path configFile;
 
-    private YamlConfigurationLoader configurationLoader = YamlConfigurationLoader.builder().indent(2).path(configFile).build();
+    @NonNull
+    private YamlConfigurationLoader configurationLoader;
     private ConfigurationNode root;
     @Getter(AccessLevel.PUBLIC)
+    @NonNull
     final Logger logger;
-    final PluginContainer container;
     private final APIImpl api;
 
     @Inject
-    Plugin(final PluginContainer container, final Logger logger) throws ConfigurateException {
+    Plugin(@NonNull PluginContainer container,@NonNull final Logger logger) throws ConfigurateException, IOException {
         logger.info("[sponge-v7] Construct start");
-        this.container=container;
+        //Init config stuff
+        if (configDir==null){
+            logger.warn("[sponge-v7] Manually getting config-dir from sponge, because the Injector did not inject the config dir");
+            configDir = Sponge.getConfigManager().getPluginConfig(container).getDirectory();
+        }
+        configDir.toFile().mkdirs();
+        if (configFile==null){
+            logger.warn("[sponge-v7] Manually constructing config-file, because the Injector did not inject the config dir");
+            configFile = configDir.resolve("config.yml");
+        }
+        logger.info("[sponge-v7] The Plugin Config directory is '"+configDir.toString()+"'.");
+        logger.info("[sponge-v7] The Plugin Config File is '"+configFile.toString()+"'.");
+        //Init config loader
         this.logger=logger;
-        root=configurationLoader.load();
+        //init api, register events
         api=new APIImpl(this);
+        {
+            File configFileFile = new File(configFile.toUri());
+            if (configFileFile.createNewFile()) {
+                logger.info("[spring-v7] The Config file is missing. Creating new config-file");
+                FileWriter fw = new FileWriter(configFileFile);
+                BufferedWriter writer = new BufferedWriter(fw);
+                logger.info("[spring-v7] Created Writers");
+                Optional<String> os = API.getConfig().getDefaultConfigContents();
+                if (os.isPresent()){
+                    logger.info("[spring-v7] Got default String");
+                    writer.write(os.get());
+                    writer.flush();
+                    logger.info("[spring-v7] Wrote default Config");
+                }else {
+                    logger.info("[spring-v7] Got no String from the getDefaultConfigContents method.");
+                }
+                writer.close();
+                fw.close();
+            }
+        }
+
+        configurationLoader = YamlConfigurationLoader.builder().indent(2).path(configFile).build();
+        root=configurationLoader.load();
         logger.info("[sponge-v7] Construct end");
     }
 

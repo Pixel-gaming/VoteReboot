@@ -20,12 +20,12 @@
     <dependencies>
         <dependency>
             <groupId>com.c0d3m4513r</groupId>
-            <artifactId>votereboot-api</artifactId>
+            <artifactId>plugin-api</artifactId>
             <version>0.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.c0d3m4513r</groupId>
-            <artifactId>votereboot-sponge-v7</artifactId>
+            <artifactId>api-impl-sponge-v7</artifactId>
             <version>0.0.1</version>
         </dependency>
         <dependency>
@@ -46,7 +46,7 @@
                 <filtering>true</filtering>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>plugin.yml</include>
+                    <include>config.yml</include>
                 </includes>
             </resource>
         </resources>

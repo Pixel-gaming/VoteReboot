@@ -3,18 +3,18 @@ package com.c0d3m4513r.voterebootapi.config;
 import com.c0d3m4513r.voterebootapi.API;
 import com.c0d3m4513r.voterebootapi.config.iface.IConfigLoadableSaveable;
 import io.leangen.geantyref.TypeToken;
-import lombok.Data;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @Data
 @RequiredArgsConstructor
+@Setter(AccessLevel.NONE)
 /***
  * @type v This is the regular type, e.g. List with String type Parameter
  * @type t This is the due to type erasure
  */
 public class ConfigEntry<V> implements IConfigLoadableSaveable {
     @NonNull
+    @Getter(AccessLevel.NONE)
     public ClassValue<V> value;
     @NonNull
     public String configPath;
@@ -30,6 +30,9 @@ public class ConfigEntry<V> implements IConfigLoadableSaveable {
         }else{
             saveValue();
         }
+    }
+    public V getValue(){
+        return value.getValue();
     }
 
 }

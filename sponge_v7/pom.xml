@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>votereboot-sponge-v7</artifactId>
+    <artifactId>api-impl-sponge-v7</artifactId>
     <packaging>jar</packaging>
-    <name>VoteReboot Plugin API implementation Sponge v7</name>
+    <name>Plugin API implementation Sponge v7</name>
     <version>0.0.1</version>
 
     <build>
@@ -11,6 +11,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
                 <configuration>
                     <source>8</source>
                     <target>8</target>
@@ -34,7 +35,7 @@
         </dependency>
         <dependency>
             <groupId>com.c0d3m4513r</groupId>
-            <artifactId>votereboot-api</artifactId>
+            <artifactId>plugin-api</artifactId>
             <version>0.0.1</version>
             <type>jar</type>
         </dependency>

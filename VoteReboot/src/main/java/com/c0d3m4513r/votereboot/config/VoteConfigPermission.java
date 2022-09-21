@@ -11,6 +11,9 @@ import lombok.Setter;
 @Data
 @Setter(AccessLevel.NONE)
 public class VoteConfigPermission implements IConfigLoadableSaveable {
+    public static VoteConfigPermission getInstance(){
+        return VoteConfig.getInstance().getVoteConfigPermission();
+    }
     @NonNull
     private  ConfigEntry<String> rebootCommand = new ConfigEntry<>(
             new ClassValue<>("votereboot.reboot",String.class),
