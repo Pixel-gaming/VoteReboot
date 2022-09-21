@@ -17,6 +17,7 @@ import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
+import org.spongepowered.api.event.game.state.GameLoadCompleteEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 import ninja.leaping.configurate.yaml.YAMLConfigurationLoader;
@@ -25,6 +26,7 @@ import org.slf4j.Logger;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 
 @org.spongepowered.api.plugin.Plugin(
@@ -101,13 +103,22 @@ public class Plugin implements IConfigLoaderSaver {
     public void PreInit(GamePreInitializationEvent event){
         logger.info("[sponge-v7] PreInit start");
         APIImpl.getConfig().loadValue();
+        EventRegistrar.submitEvent(EventType.preinit);
         logger.info("[sponge-v7] PreInit end");
     }
     @Listener
     public void Init(GameInitializationEvent event){
         logger.info("[sponge-v7] Init start");
         EventRegistrar.submitEvent(EventType.commandRegister);
+        EventRegistrar.submitEvent(EventType.init);
         logger.info("[sponge-v7] Init end");
+    }
+
+    @Listener
+    public void load(GameLoadCompleteEvent event){
+        logger.info("[sponge-v7] LoadComplete start");
+        EventRegistrar.submitEvent(EventType.load_complete);
+        logger.info("[sponge-v7] LoadComplete end");
     }
 
     @Override

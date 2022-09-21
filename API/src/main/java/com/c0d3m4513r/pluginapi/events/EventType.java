@@ -5,5 +5,8 @@ import lombok.ToString;
 @ToString
 public enum EventType {
     onReboot,
+    preinit,
+    init,
+    load_complete,
     commandRegister,
 }

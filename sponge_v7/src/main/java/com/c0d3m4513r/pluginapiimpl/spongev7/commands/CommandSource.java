@@ -21,4 +21,9 @@ public class CommandSource implements com.c0d3m4513r.pluginapi.command.CommandSo
     public void sendMessage(@NonNull String message) {
         commandSource.sendMessage(Text.of(message));
     }
+
+    @Override
+    public String getIdentifier() {
+        return commandSource.getIdentifier();
+    }
 }

@@ -1,16 +1,53 @@
 votereboot:
+  #The format here is like (long,TimeUnit)[+(long,TimeUnit)]*
+  scheduledRestarts:
+    - 3,h
+    - 3,h+30,m
+    - 4,h
+  announceRestarts:
+    #Should restarts be announced.
+    enabled: true
+    #This list should be ordered earliest to latest announce.
+    #The format here is like (long,TimeUnit)[+(long,TimeUnit)]*
+    at:
+      - 10,m
+      - 5,m
+      - 2,m
+      - 1,m
+      - 30,s
+      - 20,s
+      - 10,s
+      - 5,s
+      - 4,s
+      - 3,s
+      - 2,s
+      - 1,s
+  #Requires restart to apply, because the commands need to be re-registered.
+  aliasList:
+    - reboot
+    - restart
+  actions:
+    enabled: true
+    commands:
+      - save-all
+      - say test
+  kick:
+    enabled: true
+    useCustomMessage: false
+    customMessage: The Server is Restarting!
   vote:
-    #Requires restart to apply, because the commands need to be re-registered.
-    aliasList:
-      - reboot
-      - restart
     #The minimum percent of people required to restart the server (This gets parsed as a float)
     percentToRestart: 100
     #The minimum amount of people, that have to agree to restart the server.
     #Setting this to 0 will effectively disable this check (This gets parsed as an int)
     minAgree: 2147483647
     #Time for people to vote in seconds (This gets parsed as an int)
+    #todo: add time unit
     votingTime: 100
+    #Time after a vote has concluded, but before Server is restarted.
+    #The timer can also be cancelled and modified, but only with permission specified in 'votereboot.vote.permissions.type.all'
+    #todo: add time unit
+    voteRestartTime: 30
     #Vote yes
     yesList:
       - yes
@@ -24,78 +61,101 @@ votereboot:
     noneList:
       - null
       - none
-    kick:
-      enabled: true
-      useCustomMessage: false
-      customMessage: The Server is Restarting!
-    actions:
-      enabled: true
-      commands:
-        - save-all
-    permission:
-      #Can that person execute any subcommands at all?
-      rebootCommand: votereboot.reboot
-      #Can that person reload configs?
-      reload: votereboot.reboot.reload
-      #Can a vote be registered at all?
-      registervote: votereboot.reboot.vote.vote
+  permission:
+    #Can that person execute any subcommands at all?
+    rebootCommand: votereboot.reboot
+    #Can that person reload configs?
+    reload: votereboot.reboot.reload
+    #Can a vote be registered at all?
+    registervote: votereboot.reboot.vote
+    type:
       vote:
         #This is currently unused (I think)
-        read: votereboot.reboot.vote.read
+        read: votereboot.reboot.type.vote.read
         #Can that person start a vote to restart the server
-        start: votereboot.reboot.vote.start
+        start: votereboot.reboot.type.vote.start
         #Allows extension or shortening of the current vote timer
-        modify: votereboot.reboot.vote.modify
+        modify: votereboot.reboot.type.vote.modify
         #Allows to cancel a vote
         cancel: votereboot.reboot.vote.cancel
       manual:
         #Allows to view(list) manually scheduled reboots
-        read: votereboot.reboot.manual.read
+        read: votereboot.reboot.type.manual.read
         #Allow to start manual reboots via /reboot start
-        start: votereboot.reboot.manual.start
+        start: votereboot.reboot.type.manual.start
         #Allows extension or shortening of the current manual reboot timer
-        modify: votereboot.reboot.manual.modify
+        modify: votereboot.reboot.type.manual.modify
         #Allows cancelling manually scheduled reboots
-        cancel: votereboot.reboot.manual.cancel
+        cancel: votereboot.reboot.type.manual.cancel
       scheduled:
         #Allow to view(list) manually scheduled reboots
-        read: votereboot.reboot.scheduled.read
+        read: votereboot.reboot.type.scheduled.read
         #Allows to start scheduled reboots
         #(this doesn't make sense currently. It is the same as manual start perm)
         #(unused)
-        start: votereboot.reboot.scheduled.start
+        start: votereboot.reboot.type.scheduled.start
         #Allows extension or shortening of the current scheduled reboot timer
-        modify: votereboot.reboot.scheduled.modify
+        modify: votereboot.reboot.type.scheduled.modify
         #Allows to cancel scheduled reboots
-        cancel: votereboot.reboot.scheduled.cancel
-
-    translate:
-      #What message should be printed, when no Vote is running.
-      noVoteActive: No vote was running. To start a vote just type /reboot vote
-      #What message sould be printed, when no "yes" or "no" after `/reboot vote something` is recognised.
-      voteYesNoError: The vote answer was not recognised as either yes, no or none/null. Please try again.
-      noPermission: The Action failed, or you did not have enough permissions.
-      requiredArgs: Some required Arguments were missing
-      shortDescription: Vote to Reboot the server
-      #https://yaml-multiline.info/
-      help:
-        rebootCommand: "This is the main command for managing server restarts."
-        reload: " - reload This will reload all of the configs from disk again, and apply them."
-        registervote: " - vote [yes/no/null/none] This will add a vote, on weather the server should be restarted or not."
-        #All read actions will be bunched together in one command
-        read: " - time This will List all visible reboots, that are currently scheduled"
+        cancel: votereboot.reboot.type.scheduled.cancel
+      all:
+        #Allow to view(list) ALL scheduled reboots
+        read: votereboot.reboot.type.all.read
+        #Allows to start ANY type of reboots
+        start: votereboot.reboot.type.all.start
+        #Allows extension or shortening of ALL reboot timers
+        modify: votereboot.reboot.type.all.modify
+        #Allows to cancel ANY type of planned reboot
+        cancel: votereboot.reboot.type.all.cancel
+  translate:
+    #What message should be printed, when no Vote is running.
+    noVoteActive: No vote was running. To start a vote just type /reboot vote
+    voteStartedReply: Succesfully started a new Vote to restart the Server.
+    voteStartedAnnouncement: A Vote to restart the Server has been started. Type /reboot vote yes or /reboot vote no to vote.
+    voteRestartSuccess: It has been voted, that the server should be restarted. The server will restart in {} {}.
+    voteRestartFailed: It has been voted, that the server should not be restarted.
+    #What message sould be printed, when no "yes" or "no" after `/reboot vote something` is recognised.
+    voteYesNoError: The vote answer was not recognised as either yes, no or none/null. Please try again.
+    voteSuccess: Successfully voted '{}'.
+    #End vote stuff
+    nowCommandResponse: Server will restart now!
+    serverRestartAnnouncement: Server will restart in {} {}.
+    #Permission stuff
+    noPermission: The Action failed, or you did not have enough permissions.
+    requiredArgs: Some required Arguments were missing
+    unrecognisedArgs: Some Arguments were unrecognised. The Action cannot continue.
+    error: There was an internal error whilst trying to execute the Command. Please refer to the usage again.
+    shortDescription: Vote to Reboot the server
+    #https://yaml-multiline.info/
+    help:
+      rebootCommand: "This is the main command for managing server restarts.
+        Arguments with <> are optional, whilst ones with [] are mandatory"
+      reload: " - reload This will reload all of the configs from disk again, and apply them."
+      registervote: " - vote [yes/no/null/none] This will add a vote, on weather the server should be restarted or not."
+      #All read actions will be bunched together in one command
+      general:
+        read: " - time <Action> This will List all visible reboots, that are currently scheduled"
+        start: "" #todo: This differs widely on the action type. Don't include it for now, until start [Action] is implemented
+        modify: "Not user callable yet!"
+        cancel: " - cancel [Action] <Timed> <limit:uint> This will cancel the last limit(or all, if unspecified), starting from <Timed>,  reboots of type Action"
+      type:
         vote:
           read: ""
-          start: "Insert help about the commands usage here."
-          modify: "Not user callable yet!"
-          cancel: "Insert help about the commands usage here."
+          start: "- vote start This will start a Vote, to restart the server"
+          modify: ""
+          cancel: ""
         manual:
           read: ""
           start: "Insert help about the commands usage here."
-          modify: "Not user callable yet!"
-          cancel: "Insert help about the commands usage here."
+          modify: ""
+          cancel: ""
         scheduled:
           read: ""
           start: "Insert help about the commands usage here."
-          modify: "Not user callable yet!"
-          cancel: "Insert help about the commands usage here."
+          modify: ""
+          cancel: ""
+        all:
+          read: ""
+          start: "Insert help about the commands usage here."
+          modify: ""
+          cancel: ""

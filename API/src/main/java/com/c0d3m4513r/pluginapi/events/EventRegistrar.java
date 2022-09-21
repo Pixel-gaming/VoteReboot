@@ -1,6 +1,7 @@
 package com.c0d3m4513r.pluginapi.events;
 
 import com.c0d3m4513r.pluginapi.API;
+import lombok.val;
 
 import java.util.List;
 import java.util.Vector;
@@ -29,12 +30,23 @@ public class EventRegistrar {
         EventRegistrar.events.remove(this);
     }
 
+    /**
+     * Execution of this function assumes, that we are on the main server thread.
+     */
     public static void submitEvent(EventType type){
-        Stream<EventRegistrar> stream = events.stream().filter(e -> e.event==type);
-        API.getLogger().info("[API] Running event '"+type.toString()+"'.");
-        stream.forEach(e->{e.TTL-=1;e.runnable.run();});
-        List<EventRegistrar> list = events.stream().filter(e -> e.TTL<0).collect(Collectors.toList());
-        API.getLogger().info("[API] Removing "+list.size()+" events from the event listener, since the TTL ran out.");
-        events.removeAll(list);
+        List<EventRegistrar> stream = events.stream().filter(e -> e.event==type).collect(Collectors.toList());
+        API.getLogger().info("[API] Running event '"+type.toString()+"' for "+stream.size()+" Events.");
+        //Note: Do not work with streams, because of funny concurrent modification exceptions.
+        int removed=0;
+        for (int i = 0; i<stream.size();i++){
+            val e = stream.get(i-removed);
+            e.TTL-=1;
+            e.runnable.run();
+            if (e.TTL>=0){
+                events.remove(e);
+                removed+=1;
+            }
+        }
+        API.getLogger().info("[API] Removing "+removed+" events from the event listener, since the TTL ran out.");
     }
 }

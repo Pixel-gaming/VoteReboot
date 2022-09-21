@@ -10,20 +10,13 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class Server implements MessageReceiver {
 
-    public void onRestart(){
+    public void onRestart(Optional<String> reason){
         EventRegistrar.submitEvent(EventType.onReboot);
-        restart(Optional.empty());
+        restart(reason);
     }
 
     public abstract void execCommand(@NonNull String cmd);
 
-    public abstract boolean restart(Optional<String> reason);
-    void voteRestart(){
-        sendMessage("A Vote has determined, that the server should be restarted");
-        API.builder.deferred(1, TimeUnit.SECONDS).executer(this::onRestart).build();
-    }
-    void voteFailed(){
-        sendMessage("A Vote has determined, that the server should not be restarted");
-    }
+    protected abstract boolean restart(Optional<String> reason);
 
 }

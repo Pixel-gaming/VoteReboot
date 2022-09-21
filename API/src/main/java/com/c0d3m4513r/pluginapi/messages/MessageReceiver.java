@@ -5,6 +5,7 @@ import lombok.val;
 
 /**
  * Represents something that can receive (and send) messages.
+ * All functions need to be async safe.
  */
 public interface MessageReceiver {
 
@@ -14,6 +15,7 @@ public interface MessageReceiver {
      * <p>If text formatting is not supported in the implementation
      * it will be displayed as plain text.</p>
      *
+     * This needs to be async safe
      * @param message The message
      */
     void sendMessage(@NonNull String message);
@@ -24,6 +26,8 @@ public interface MessageReceiver {
      *
      * <p>If text formatting is not supported in the implementation
      * it will be displayed as plain text.</p>
+     *
+     * This needs to be async safe
      *
      * @param messages The message(s)
      */
@@ -38,6 +42,8 @@ public interface MessageReceiver {
      *
      * <p>If text formatting is not supported in the implementation
      * it will be displayed as plain text.</p>
+     *
+     * This needs to be async safe
      *
      * @param messages The messages
      */

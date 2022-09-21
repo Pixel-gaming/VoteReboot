@@ -83,6 +83,6 @@ public class TaskBuilder implements com.c0d3m4513r.pluginapi.TaskBuilder {
         if (this.deferred) builder1=builder1.delay(deferredTimeAmount,deferredTimeValue);
         if (this.timer) builder1=builder1.interval(timerTimeAmount,timerTimeValue);
         if (this.run==null) throw new IllegalArgumentException("Expected to have a non-null Runnable");
-        return (Task) builder1.execute(this.run).submit(plugin);
+        return new com.c0d3m4513r.pluginapiimpl.spongev7.Task(builder1.execute(this.run).submit(plugin));
     }
 }

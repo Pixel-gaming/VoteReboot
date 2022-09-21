@@ -1,9 +1,10 @@
 package com.c0d3m4513r.votereboot.commands;
 
 import com.c0d3m4513r.votereboot.Action;
-import com.c0d3m4513r.votereboot.config.VoteConfigPermission;
+import com.c0d3m4513r.votereboot.config.ConfigPermission;
 import com.c0d3m4513r.pluginapi.command.CommandResult;
 import com.c0d3m4513r.pluginapi.command.CommandSource;
+import com.c0d3m4513r.votereboot.reboot.RestartType;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -15,17 +16,17 @@ import java.util.function.Function;
 @ToString
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum RebootSubcommands {
-    help(VoteConfigPermission.getInstance().getRebootCommand().getValue(),r->r::help),
-    usage(VoteConfigPermission.getInstance().getRebootCommand().getValue(),r->r::usage),
+    help(ConfigPermission.getInstance().getRebootCommand().getValue(), r->r::help),
+    usage(ConfigPermission.getInstance().getRebootCommand().getValue(), r->r::usage),
     //this needs some more in-detail checks, depending on if we are starting a vote, or just registering one.
-    vote(VoteConfigPermission.getInstance().getRebootCommand().getValue(),r->r::vote),
-    start(VoteConfigPermission.getInstance().getManualAction().getPermission(Action.Start),r->r::start),
-    now(VoteConfigPermission.getInstance().getManualAction().getPermission(Action.Start),r->r::now),
+    vote(ConfigPermission.getInstance().getRebootCommand().getValue(), r->r::vote),
+    start(ConfigPermission.getInstance().getRestartTypeAction().getAction(RestartType.ManualRestart).getPermission(Action.Start), r->r::start),
+    now(ConfigPermission.getInstance().getRestartTypeAction().getAction(RestartType.ManualRestart).getPermission(Action.Start), r->r::now),
     //this needs some more in-detail checks, depending on what type of action we are cancelling
-    cancel(VoteConfigPermission.getInstance().getRebootCommand().getValue(),r->r::cancel),
-    reloadConfig(VoteConfigPermission.getInstance().getReload().getValue(),r->r::reload),
+    cancel(ConfigPermission.getInstance().getRebootCommand().getValue(), r->r::cancel),
+    reloadConfig(ConfigPermission.getInstance().getReload().getValue(), r->r::reload),
     //todo: testing only. remove once I know, that the config saves!
-    saveConfig(VoteConfigPermission.getInstance().getReload().getValue(),r->r::saveConfig);
+    saveConfig(ConfigPermission.getInstance().getReload().getValue(), r->r::saveConfig);
     @NonNull
     public final String perm;
     @NonNull

@@ -37,7 +37,7 @@ public class ActionConfig implements IConfigLoadableSaveable, ActionPerm {
             action.saveValue();
         }
     }
-    protected final SinglularActionPerm[] actionPerms = new SinglularActionPerm[(int) Action.MAX_ID];
+    protected final SinglularActionPerm[] actionPerms = new SinglularActionPerm[(int) Action.getMaxId()];
 
     @Override
     public String getPermission(Action action) {
