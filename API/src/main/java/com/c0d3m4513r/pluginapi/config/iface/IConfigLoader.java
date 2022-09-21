@@ -1,7 +1,6 @@
 package com.c0d3m4513r.pluginapi.config.iface;
 
 import com.c0d3m4513r.pluginapi.Nullable;
-import io.leangen.geantyref.TypeToken;
 
 public interface IConfigLoader {
     /***
@@ -13,5 +12,5 @@ public interface IConfigLoader {
      * @throws . this will throw an exception, if the value in the config could not be parsed to the requested type
      * @param <T> Type of Data stored in the config
      */
-    <T> @Nullable T loadConfigKey(String path, TypeToken<T> type);
+    <T> @Nullable T loadConfigKey(String path, Class<T> type);
 }

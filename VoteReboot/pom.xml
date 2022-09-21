@@ -29,6 +29,12 @@
             <version>0.0.1</version>
         </dependency>
         <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.24</version>
@@ -39,7 +45,6 @@
     <build>
         <directory>../target</directory> <!-- Build it one level up, because it is the one we care about -->
         <finalName>VoteReboot</finalName>
-        <!-- Define filtering for the inclusion of plugin.yml, so we can utilize the pom.xml version in it -->
         <resources>
             <resource>
                 <targetPath>.</targetPath>
@@ -64,23 +69,11 @@
                         <configuration>
                             <relocations>
                                 <relocation>
-                                    <pattern>com.c0d3m4513r.*</pattern>
-                                    <shadedPattern>com.c0d3m4513r.shaded.votereboot.com.c0d3m4513r.*</shadedPattern>
+                                    <pattern>com.c0d3m4513r</pattern>
+                                    <shadedPattern>com.c0d3m4513r.shaded.votereboot</shadedPattern>
                                     <excludes>
                                         <exclude>com.c0d3m4513r.votereboot.*</exclude>
                                     </excludes>
-                                </relocation>
-                                <relocation>
-                                    <pattern>org.slf4j</pattern>
-                                    <shadedPattern>com.c0d3m4513r.shaded.votereboot.org.slf4j</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>io.leangen.geantyref</pattern>
-                                    <shadedPattern>com.c0d3m4513r.shaded.votereboot.io.leangen.geantyref</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>org.spongepowered</pattern>
-                                    <shadedPattern>com.c0d3m4513r.shaded.votereboot.org.spongepowered</shadedPattern>
                                 </relocation>
                             </relocations>
                             <filters>

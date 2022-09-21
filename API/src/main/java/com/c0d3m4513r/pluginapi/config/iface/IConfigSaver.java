@@ -1,7 +1,6 @@
 package com.c0d3m4513r.pluginapi.config.iface;
 
 import com.c0d3m4513r.pluginapi.Nullable;
-import io.leangen.geantyref.TypeToken;
 import lombok.NonNull;
 
 public interface IConfigSaver {
@@ -15,5 +14,5 @@ public interface IConfigSaver {
      * @throws . this will throw an exception, if the value could not be serialised
      * @param <T> Type of Data stored in the config
      */
-    <T> boolean saveConfigKey(@Nullable T value, @NonNull TypeToken<T> typeToken, @NonNull String path);
+    <T> boolean saveConfigKey(@Nullable T value, @NonNull Class<T> typeToken, @NonNull String path);
 }

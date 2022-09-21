@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import static com.c0d3m4513r.pluginapi.API.getLogger;
 
 public class Reboot implements Command {

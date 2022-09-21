@@ -5,11 +5,13 @@ import com.c0d3m4513r.pluginapi.Nullable;
 import com.c0d3m4513r.pluginapi.config.iface.IConfigLoaderSaver;
 import com.c0d3m4513r.pluginapi.events.EventRegistrar;
 import com.c0d3m4513r.pluginapi.events.EventType;
+import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
-import io.leangen.geantyref.TypeToken;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
@@ -17,12 +19,9 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.ConfigurationNode;
-import org.spongepowered.configurate.serialize.SerializationException;
-import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
-import org.slf4j.Logger;
+import ninja.leaping.configurate.yaml.YAMLConfigurationLoader;
 
+import org.slf4j.Logger;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -46,7 +45,7 @@ public class Plugin implements IConfigLoaderSaver {
     private Path configFile;
 
     @NonNull
-    private YamlConfigurationLoader configurationLoader;
+    private YAMLConfigurationLoader configurationLoader;
     private ConfigurationNode root;
     @Getter(AccessLevel.PUBLIC)
     @NonNull
@@ -54,7 +53,7 @@ public class Plugin implements IConfigLoaderSaver {
     private final APIImpl api;
 
     @Inject
-    Plugin(@NonNull PluginContainer container,@NonNull final Logger logger) throws ConfigurateException, IOException {
+    public Plugin(@NonNull PluginContainer container,@NonNull final Logger logger) throws IOException {
         logger.info("[sponge-v7] Construct start");
         //Init config stuff
         if (configDir==null){
@@ -93,7 +92,7 @@ public class Plugin implements IConfigLoaderSaver {
             }
         }
 
-        configurationLoader = YamlConfigurationLoader.builder().indent(2).path(configFile).build();
+        configurationLoader = YAMLConfigurationLoader.builder().setIndent(2).setPath(configFile).build();
         root=configurationLoader.load();
         logger.info("[sponge-v7] Construct end");
     }
@@ -112,20 +111,20 @@ public class Plugin implements IConfigLoaderSaver {
     }
 
     @Override
-    public @Nullable <T> T loadConfigKey(String path, TypeToken<T> type){
+    public <T> @Nullable T loadConfigKey(String path, Class<T> type){
         try{
-            return root.node((Object[]) path.split("\\.")).get(type);
-        }catch (SerializationException e){
+            return root.getNode((Object[]) path.split("\\.")).getValue(TypeToken.of(type));
+        }catch (ObjectMappingException e){
             logger.error("Failed to serialise Path:'" + path + "' because of", e);
             return null;
         }
     }
 
     @Override
-    public <T> boolean saveConfigKey(@Nullable T value, @NonNull TypeToken<T> type, @NonNull String path) {
+    public <T> boolean saveConfigKey(@Nullable T value, @NonNull Class<T> typeToken, @NonNull String path) {
         try {
-            root.node((Object[]) path.split("\\.")).set(type,value);
-        } catch (SerializationException e) {
+            root.getNode((Object[]) path.split("\\.")).getValue(TypeToken.of(typeToken),value);
+        } catch (ObjectMappingException e) {
             logger.error("Could not save config at Path:'"+path+"', because of",e);
             return false;
         }

@@ -2,7 +2,6 @@ package com.c0d3m4513r.pluginapi.config;
 
 import com.c0d3m4513r.pluginapi.API;
 import com.c0d3m4513r.pluginapi.config.iface.IConfigLoadableSaveable;
-import io.leangen.geantyref.TypeToken;
 import lombok.*;
 
 @Data
@@ -20,11 +19,11 @@ public class ConfigEntry<V> implements IConfigLoadableSaveable {
     public String configPath;
 
     public void saveValue(){
-        API.getConfigLoader().saveConfigKey(value.getValue(),TypeToken.get(value.getClazz()), configPath);
+        API.getConfigLoader().saveConfigKey(value.getValue(),value.getClazz(), configPath);
     }
 
     public void loadValue(){
-        V val = API.getConfigLoader().loadConfigKey(configPath,TypeToken.get(value.getClazz()));
+        V val = API.getConfigLoader().loadConfigKey(configPath,value.getClazz());
         if(val!=null){
             value.setValue(val);
         }else{
