@@ -21,7 +21,7 @@ public class ConfigCommandStrings implements IConfigLoadableSaveable {
             "votereboot.translate.shortDescription");
     @NonNull
     private ConfigEntry<String> helpBase = new ConfigEntry<>(
-            new ClassValue<>("This is the main command for managing server restarts.\n Arguments with <> are optional, whilst ones with [] are mandatory", String.class),
+            new ClassValue<>("This is the main command for managing server restarts.\n Arguments with <> are optional, whilst ones with [] are mandatory. \n - stands for the main command alias. By default /reboot or /restart", String.class),
             "votereboot.translate.help.rebootCommand");
     @NonNull
     private ConfigEntry<String> helpReload = new ConfigEntry<>(new ClassValue<>(

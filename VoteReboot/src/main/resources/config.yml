@@ -77,7 +77,7 @@ votereboot:
         #Allows extension or shortening of the current vote timer
         modify: votereboot.reboot.type.vote.modify
         #Allows to cancel a vote
-        cancel: votereboot.reboot.vote.cancel
+        cancel: votereboot.reboot.type.vote.cancel
       manual:
         #Allows to view(list) manually scheduled reboots
         read: votereboot.reboot.type.manual.read
@@ -109,9 +109,10 @@ votereboot:
         cancel: votereboot.reboot.type.all.cancel
   translate:
     #What message should be printed, when no Vote is running.
-    noVoteActive: No vote was running. To start a vote just type /reboot vote
+    noVoteActive: No vote was running. To start a vote just type run this command with the arguments vote start
+    voteAlreadyActive: A vote was already running.
     voteStartedReply: Succesfully started a new Vote to restart the Server.
-    voteStartedAnnouncement: A Vote to restart the Server has been started. Type /reboot vote yes or /reboot vote no to vote.
+    voteStartedAnnouncement: A Vote to restart the Server has been started. Type - vote yes or - vote no to vote.
     voteRestartSuccess: It has been voted, that the server should be restarted. The server will restart in {} {}.
     voteRestartFailed: It has been voted, that the server should not be restarted.
     #What message sould be printed, when no "yes" or "no" after `/reboot vote something` is recognised.
@@ -119,7 +120,12 @@ votereboot:
     voteSuccess: Successfully voted '{}'.
     #End vote stuff
     nowCommandResponse: Server will restart now!
-    serverRestartAnnouncement: Server will restart in {} {}.
+    serverRestartAnnouncement:
+      vote: A Vote to restart the Server will close in {} {}.
+      manual: Server will restart in {} {}.
+      scheduled: Server will restart in {} {}.
+      #This is a backup, in case any of the above stings are empty, but also for when a vote restart succeeds
+      all: Server will restart in {} {}.
     #Permission stuff
     noPermission: The Action failed, or you did not have enough permissions.
     requiredArgs: Some required Arguments were missing
@@ -129,8 +135,9 @@ votereboot:
     #https://yaml-multiline.info/
     help:
       rebootCommand: "This is the main command for managing server restarts.
-        Arguments with <> are optional, whilst ones with [] are mandatory"
-      reload: " - reload This will reload all of the configs from disk again, and apply them."
+        Arguments with <> are optional, whilst ones with [] are mandatory.
+        - stands for the main command alias. By default /reboot or /restart"
+      reload: " - reloadConfig This will reload all of the configs from disk again, and apply them."
       registervote: " - vote [yes/no/null/none] This will add a vote, on weather the server should be restarted or not."
       #All read actions will be bunched together in one command
       general:

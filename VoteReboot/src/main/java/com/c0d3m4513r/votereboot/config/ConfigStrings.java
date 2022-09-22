@@ -13,8 +13,13 @@ public class ConfigStrings implements IConfigLoadableSaveable {
     }
     @NonNull
     private ConfigEntry<String> noVoteActive = new ConfigEntry<>(
-            new ClassValue<>("No vote was running. To start a vote just type /reboot vote",String.class),
+            new ClassValue<>("No vote was running. To start a vote just type run this command with the arguments vote start",String.class),
             "votereboot.translate.noVoteActive"
+    );
+    @NonNull
+    private ConfigEntry<String> voteAlreadyActive = new ConfigEntry<>(
+            new ClassValue<>("A vote was already running.",String.class),
+            "votereboot.translate.voteAlreadyActive"
     );
     @NonNull
     private ConfigEntry<String> voteStartedReply = new ConfigEntry<>(
@@ -38,7 +43,7 @@ public class ConfigStrings implements IConfigLoadableSaveable {
     );
     @NonNull
     private ConfigEntry<String> voteYesNoError = new ConfigEntry<>(
-            new ClassValue<>("The vote answer was not recognised as either yes or no. Please try again.",String.class),
+            new ClassValue<>("The vote answer was not recognised as either yes, no or none/null. Please try again.",String.class),
             "votereboot.translate.voteYesNoError");
 
     @NonNull
@@ -52,10 +57,12 @@ public class ConfigStrings implements IConfigLoadableSaveable {
             new ClassValue<>("Server will restart now!",String.class),
             "votereboot.translate.nowCommandResponse");
     @NonNull
-    private ConfigEntry<String> serverRestartAnnouncement = new ConfigEntry<>(
-            new ClassValue<>("Server will restart in {} {}.",String.class),
+    private RestartTypeConfig serverRestartAnnouncement = new RestartTypeConfig(
+            "A Vote to restart the Server will close in {} {}.",
+            "Server will restart in {} {}.",
+            "Server will restart in {} {}.",
+            "Server will restart in {} {}.",
             "votereboot.translate.serverRestartAnnouncement");
-
 
 
     //-------------------------------Generic Command Arg errors ----------------------
@@ -81,6 +88,7 @@ public class ConfigStrings implements IConfigLoadableSaveable {
     @Override
     public void loadValue() {
         noVoteActive.loadValue();
+        voteAlreadyActive.loadValue();
         voteStartedReply.loadValue();
         voteStartedAnnouncement.loadValue();
         voteRestartSuccess.loadValue();
@@ -97,6 +105,7 @@ public class ConfigStrings implements IConfigLoadableSaveable {
     @Override
     public void saveValue() {
         noVoteActive.saveValue();
+        voteAlreadyActive.saveValue();
         voteStartedReply.saveValue();
         voteStartedAnnouncement.saveValue();
         voteRestartSuccess.saveValue();

@@ -25,6 +25,7 @@ public class ConfigEntry<V> implements IConfigLoadableSaveable {
     public void loadValue(){
         V val = API.getConfigLoader().loadConfigKey(configPath,value.getClazz());
         if(val!=null){
+            if (!value.getValue().equals(val)) API.getLogger().info("For config string '{}' replacing '{}' with new Value '{}'",configPath,value.getValue(),val);
             value.setValue(val);
         }else{
             saveValue();

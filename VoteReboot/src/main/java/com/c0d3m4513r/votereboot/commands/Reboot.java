@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import static com.c0d3m4513r.pluginapi.API.getLogger;
@@ -52,10 +53,29 @@ public class Reboot implements Command {
         }
     }
 
+    CommandResult timers(CommandSource source,String[] arguments) {
+        API.getServer().getTasks().forEach(t->{
+            source.sendMessage((t.isAsynchronous()?"Async":"Sync")+" Task '"+t.getName()+"' with "+t.getDelay()+"ms delay and a Interval of "+t.getInterval()+"ms");
+        });
+        return API.getCommandResult().success();
+    }
+
     CommandResult help(CommandSource source,String[] arguments) {
-        if (source.hasPerm(ConfigPermission.getInstance().getRebootCommand().getValue())) source.sendMessage(ConfigCommandStrings.getInstance().getHelpBase().getValue());
-        if (source.hasPerm(ConfigPermission.getInstance().getReload().getValue())) source.sendMessage(ConfigCommandStrings.getInstance().getHelpReload().getValue());
-        if (source.hasPerm(ConfigPermission.getInstance().getVoteRegister().getValue())) source.sendMessage(ConfigCommandStrings.getInstance().getHelpRegisterVote().getValue());
+        BiConsumer<String,String> sendHelp = (perm,str) -> {
+            if (source.hasPerm(perm)) if (!str.isEmpty()) source.sendMessage(str);
+        };
+        sendHelp.accept(
+            ConfigPermission.getInstance().getRebootCommand().getValue(),
+            ConfigCommandStrings.getInstance().getHelpBase().getValue()
+        );
+        sendHelp.accept(
+            ConfigPermission.getInstance().getReload().getValue(),
+            ConfigCommandStrings.getInstance().getHelpReload().getValue()
+        );
+        sendHelp.accept(
+            ConfigPermission.getInstance().getVoteRegister().getValue(),
+            ConfigCommandStrings.getInstance().getHelpRegisterVote().getValue()
+        );
 
         RestartTypeActionConfig perm = ConfigPermission.getInstance().getRestartTypeAction();
         RestartTypeActionConfig str = ConfigCommandStrings.getInstance().getHelpRestartTypeAction();
@@ -64,12 +84,12 @@ public class Reboot implements Command {
         for (val a:Action.values()){
             boolean include = false;
             for (val t: RestartType.values()){
+                sendHelp.accept(perm.getAction(t).getPermission(a),str.getAction(t).getPermission(a));
                 if (source.hasPerm(perm.getAction(t).getPermission(a))){
-                    source.sendMessage(str.getAction(t).getPermission(a));
                     include=true;
                 }
             }
-            if (include) source.sendMessage(strGeneral.getPermission(a));
+            if (include && !strGeneral.getPermission(a).isEmpty()) source.sendMessage(strGeneral.getPermission(a));
         }
 
         return API.getCommandResult().success();
@@ -81,7 +101,7 @@ public class Reboot implements Command {
      CommandResult reload(CommandSource source,String[] arguments) {
          getLogger().info("[VoteReboot] Explicit Config load was requested. Loading configs in new async thread");
          try {
-             API.getBuilder().async(true).executer(()->Config.getInstance().loadValue()).build();
+             API.getBuilder().reset().async(true).name("votereboot-A-loadConfig").executer(()->Config.getInstance().loadValue()).build();
              //todo: Move the string to config
              source.sendMessage("Configs have been requested to reload in an async thread.");
          } catch (OutOfMemoryError oom){
@@ -112,6 +132,18 @@ public class Reboot implements Command {
         return API.getCommandResult().success();
     }
     CommandResult vote(CommandSource source,String[] args){
+        if (args.length<1){
+            source.sendMessage(ConfigStrings.getInstance().getRequiredArgs().getValue());
+            if (source.hasPerm(ConfigPermission.getInstance().getVoteRegister().getValue()))
+                source.sendMessage(ConfigCommandStrings.getInstance().getHelpRegisterVote().getValue());
+            if (source.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(RestartType.Vote).getPermission(Action.Start))
+                || source.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(RestartType.All).getPermission(Action.Start)))
+                source.sendMessage(ConfigCommandStrings.getInstance().getHelpRestartTypeAction().getAction(RestartType.Vote).getPermission(Action.Start));
+            return API.getCommandResult().error();
+        }
+
+
+
         //noinspection OptionalAssignedToNull//
         Optional<Boolean> vote = null;
         {
@@ -134,29 +166,30 @@ public class Reboot implements Command {
                 }
             }
         }
-        if (args.length<1){
-            source.sendMessage(ConfigStrings.getInstance().getRequiredArgs().getValue());
-            if (source.hasPerm(ConfigPermission.getInstance().getVoteRegister().getValue()))
-                source.sendMessage(ConfigCommandStrings.getInstance().getHelpRegisterVote().getValue());
-            return API.getCommandResult().error();
-        }else if (args[0].equals( "start")){
+
+        if (args[0].equals( "start")){
             if (voteAction==null) voteAction = new VoteAction();
+
             if (!voteAction.isVoteInProgress()){
                 if (voteAction.start(source)) {
+                    getLogger().debug("Started vote.");
                     source.sendMessage(ConfigStrings.getInstance().getVoteStartedReply().getValue());
                     API.getServer().sendMessage(ConfigStrings.getInstance().getVoteStartedAnnouncement().getValue());
                     return API.getCommandResult().success();
                 }else{
+                    getLogger().debug("Start vote failed");
                     source.sendMessage(ConfigStrings.getInstance().getNoPermission().getValue());
                     return API.getCommandResult().error();
                 }
+            }else{
+                source.sendMessage(ConfigStrings.getInstance().getVoteAlreadyActive().getValue());
+                return API.getCommandResult().error();
             }
-            return API.getCommandResult().success();
         }else //noinspection OptionalAssignedToNull//
             if (vote!=null){
             if (voteAction!=null && voteAction.isVoteInProgress()){
                 if (voteAction.addVote(source,source.getIdentifier(),vote)){
-                    source.sendMessage(ConfigStrings.getInstance().getVoteSuccess().getValue());
+                    source.sendMessage(ConfigStrings.getInstance().getVoteSuccess().getValue().replaceFirst("\\{\\}", vote.map(Object::toString).orElse("none")));
                     return API.getCommandResult().success();
                 }
                 //fallthrough
@@ -214,8 +247,12 @@ public class Reboot implements Command {
                 long timeAmount = Long.parseLong(arg[1]);
                 String reason = String.join(" ",Arrays.copyOfRange(arg,2,arg.length));
                 if(new ManualAction(reason,timeAmount,timeUnit.get()).start(source)){
-                    source.sendMessage(ConfigStrings.getInstance().getServerRestartAnnouncement()
-                            .getValue().replaceFirst("\\{\\}",Long.toString(timeAmount)).replaceFirst("\\{\\}",timeUnit.get().toString()));
+
+                    String announcement = ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(RestartType.ManualRestart);
+                    if (announcement.isEmpty()) announcement=ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(RestartType.All);
+                    source.sendMessage(announcement.replaceFirst("\\{\\}",Long.toString(timeAmount))
+                            .replaceFirst("\\{\\}", timeUnit.get().toString()));
+
                     return API.getCommandResult().success();
                 }else {
                     source.sendMessage(ConfigStrings.getInstance().getNoPermission().getValue());
@@ -274,5 +311,10 @@ public class Reboot implements Command {
         List<String> subcommands = Arrays.stream(RebootSubcommands.values()).filter(sc -> source.hasPerm(sc.perm))
                 .map(RebootSubcommands::asString).collect(Collectors.toList());
         return "Valid Subcommands are '"+ subcommands +"'.";
+    }
+
+    public CommandResult getConfig(CommandSource commandSource, String[] strings) {
+        getLogger().info(Config.getInstance().toString());
+        return API.getCommandResult().success();
     }
 }

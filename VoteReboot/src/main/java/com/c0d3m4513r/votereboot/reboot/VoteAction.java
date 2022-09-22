@@ -10,26 +10,35 @@ import lombok.Getter;
 import lombok.NonNull;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
+import static com.c0d3m4513r.pluginapi.API.getLogger;
 public class VoteAction extends RestartAction {
 
     @Getter
     private HashMap<String, Optional<Boolean>> votes = new HashMap<>();
-    private final AtomicLong no = new AtomicLong();
-    private final AtomicLong yes = new AtomicLong();
+    private AtomicLong no = new AtomicLong();
+    private AtomicLong yes = new AtomicLong();
 
     public VoteAction() {
         super(RestartType.Vote);
-        timer.set(((Config)API.getConfig()).getVoteConfig().getVotingTime().getValue());
+    }
+
+    @Override
+    protected void intStart(){
+        timer.set(VoteConfig.getInstance().getVotingTime().getValue());
         timerUnit.set(TimeUnit.SECONDS);
+        super.intStart();
     }
 
     public boolean addVote(@NonNull Permission perm, @NonNull String src, @NonNull Optional<Boolean> vote) {
         if (perm.hasPerm(ConfigPermission.getInstance().getVoteRegister().getValue())){
+            getLogger().info("{} voted {}",src,vote.isPresent()?vote.get():"none");
             votes.put(src, vote);
             return true;
         }
@@ -39,14 +48,19 @@ public class VoteAction extends RestartAction {
     @Override
     protected void doReset() {
         votes = new HashMap<>();
-        yes.set(0);
-        no.set(0);
+        yes=new AtomicLong(0);
+        no=new AtomicLong(0);
         super.doReset();
     }
 
     @Override
     protected void timerDone() {
         if (restartType==RestartType.Vote){
+            votes.values().stream().filter(Optional::isPresent).map(Optional::get)
+                    .forEach(v->{if(v) yes.incrementAndGet();else no.incrementAndGet();});
+            getLogger().info("{} yes, {} no", yes.get(),no.get());
+            getLogger().info("Votes: {}",votes.values().stream().map(e-> e.map(aBoolean -> aBoolean ? "true" : "false").orElse("none")).collect(Collectors.toList()));
+            getLogger().info("Voters: {}",votes.keySet());
             if (yes.get() >= ((Config) API.getConfig()).getVoteConfig().getMinAgree().getValue() &&
                     yes.get() / 1.0 / (yes.get() + no.get()) * 100.0 < ((Config) API.getConfig()).getVoteConfig().getPercentToRestart().getValue()) {
                 restartType=RestartType.All;
@@ -55,7 +69,7 @@ public class VoteAction extends RestartAction {
                 API.getServer().sendMessage(ConfigStrings.getInstance().getVoteRestartSuccess().getValue().replaceFirst("\\{\\}",Long.toString(votingRestartTime)).replaceFirst("\\{\\}","s"));
             }else {
                 API.getServer().sendMessage(ConfigStrings.getInstance().getVoteRestartFailed().getValue());
-                cancelTimer();
+                cancelTimer(true);
             }
         }else{
             //The timer was done once, and the vote was successful
@@ -64,7 +78,7 @@ public class VoteAction extends RestartAction {
     }
 
     public boolean isVoteInProgress() {
-        return timer.get()>=0;
+        return task.isPresent() && timer.get()>=0;
     }
 
 

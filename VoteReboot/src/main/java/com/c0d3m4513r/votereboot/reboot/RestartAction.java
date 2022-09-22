@@ -1,6 +1,8 @@
 package com.c0d3m4513r.votereboot.reboot;
 
 import com.c0d3m4513r.pluginapi.config.TimeEntry;
+import com.c0d3m4513r.pluginapi.config.TimeUnitValue;
+import com.c0d3m4513r.pluginapi.convert.Convert;
 import com.c0d3m4513r.votereboot.Action;
 import com.c0d3m4513r.pluginapi.API;
 import com.c0d3m4513r.pluginapi.Permission;
@@ -27,7 +29,8 @@ public abstract class RestartAction implements Runnable{
     @NonNull
     public static Vector<RestartAction> actions = new Vector<>();
     @NonNull
-    protected Optional<Task> task;
+    //Invariant: If this is not-empty, the timer has to be started.
+    protected Optional<Task> task = Optional.empty();;
     @NonNull
     protected volatile AtomicLong timer = new AtomicLong();
     @NonNull
@@ -57,21 +60,22 @@ public abstract class RestartAction implements Runnable{
      * Cancels the timer. This needs to be async safe.
      * @return Returns true, if the timer was successfully cancelled.
      */
-    protected boolean cancelTimer(){
-        actions.remove(this);
+    private boolean cancelTimer(){
         if (task.isPresent()){
-            if (!task.get().cancel()){
-                //Please collect me gc!
-                //I beg you
+            if (task.get().cancel()){
                 getLogger().error("[VoteReboot] A timer could not be cancelled.");
-                task = Optional.empty();
                 return false;
             }else{
+                task = Optional.empty();
                 return true;
             }
         }else{
             return false;
         }
+    }
+    protected boolean cancelTimer(boolean del){
+        if (del) actions.remove(this);
+        return cancelTimer();
     }
 
     /***
@@ -83,13 +87,15 @@ public abstract class RestartAction implements Runnable{
         if ((perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(restartType).getPermission(Action.Cancel))||
                 perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(RestartType.All).getPermission(Action.Cancel)))
                 && task.isPresent()
-        ) return cancelTimer();
+        ) return cancelTimer(true);
         else return false;
     }
 
     protected void doReset(){
+        cancelTimer(false);
+        //we requested a timer cancel. to uphold the invariant, we are going to cancel anyways (even if the cancel was not successful).
         task=Optional.empty();
-        timer=new AtomicLong();
+        timer.set(0);
         timerUnit.set(TimeUnit.SECONDS);
     }
     //todo: does this even make sense?
@@ -104,7 +110,17 @@ public abstract class RestartAction implements Runnable{
         } else return false;
     }
 
+    private void convertTimeLower(){
+        if (timer.get()<=2){
+            TimeUnit unit = timerUnit.get();
+            TimeUnit newUnit = Convert.nextLowerUnitBounded(unit,TimeUnit.SECONDS);
+            timer.getAndUpdate(t->newUnit.convert(t,unit));
+            timerUnit.set(newUnit);
+        }
+    }
+
     protected void intStart(){
+        convertTimeLower();
         TimeUnit unit = timerUnit.get();
         if (unit==TimeUnit.MILLISECONDS || unit==TimeUnit.MICROSECONDS || unit==TimeUnit.NANOSECONDS){
             getLogger().warn("[VoteReboot] TimeUnits smaller than Seconds is not supported. Cancelling timer.");
@@ -116,6 +132,7 @@ public abstract class RestartAction implements Runnable{
                     .deferred(1,timerUnit.get())
                     .timer(1,timerUnit.get())
                     .async(true)
+                    .name("votereboot-ADR-"+restartType.toString()+actions.indexOf(this))
                     .executer(this)
                     .build()
             );
@@ -158,9 +175,12 @@ public abstract class RestartAction implements Runnable{
                 Optional<TimeEntry> teo = TimeEntry.of(atEntry);
                 if (teo.isPresent()){
                     TimeEntry te = teo.get();
-                    if (te.equals(timer,unit)){
-                        API.getServer().sendMessage(ConfigStrings.getInstance().getServerRestartAnnouncement()
-                                .getValue().replaceFirst("\\{\\}",Long.toString(timer)).replaceFirst("\\{\\}", String.valueOf(unit)));
+                    TimeUnitValue tuv = te.getMaxUnit();
+                    if (unit.convert(tuv.getValue(),tuv.getUnit())==timer){
+                        String announcement = ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(restartType);
+                        if (announcement.isEmpty()) announcement=ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(RestartType.All);
+                        API.getServer().sendMessage(announcement.replaceFirst("\\{\\}",Long.toString(timer))
+                                .replaceFirst("\\{\\}", String.valueOf(unit)));
                     }
                 }else {
                     getLogger().error("[VoteReboot] Cannot parse String as TimeEntry. Please check the config.");

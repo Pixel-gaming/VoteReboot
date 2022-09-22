@@ -110,8 +110,8 @@ public class Config extends MainConfig implements IConfigLoadableSaveable {
     @Override
     public void main() {
         getLogger().info("[VoteReboot] Registering Command Register Hook");
-        new EventRegistrar(this::registerCommands, EventType.commandRegister,0);
         new EventRegistrar(this::registerScheduledReboots, EventType.preinit,0);
+        new EventRegistrar(this::registerCommands, EventType.commandRegister,0);
     }
 
     @Override
