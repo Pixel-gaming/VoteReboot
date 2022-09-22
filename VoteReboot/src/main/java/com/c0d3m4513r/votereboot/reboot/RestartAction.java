@@ -15,6 +15,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.val;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
@@ -22,6 +24,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.LongUnaryOperator;
+import java.util.stream.Collectors;
+
 import static com.c0d3m4513r.pluginapi.API.getLogger;
 
 @AllArgsConstructor
@@ -45,9 +49,22 @@ public abstract class RestartAction implements Runnable{
         doReset();
     }
 
+    public static Optional<RestartAction> getAction(RestartType type){
+        List<RestartAction> actionList = actions.stream().filter(a->a.getRestartType().equals(type))
+                .sorted(Comparator.comparing(RestartAction::getTimer))
+                .collect(Collectors.toList());
+        if(actionList.size()<=0){
+            return Optional.empty();
+        }else {
+            return Optional.of(actionList.get(0));
+        }
+    }
+    TimeUnitValue getTimer(){
+        return new TimeUnitValue(timerUnit.get(),timer.get());
+    }
     public Optional<TimeUnitValue> getTimer(Permission perm) {
         if (perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(restartType).getPermission(Action.Read)))
-            return Optional.of(new TimeUnitValue(timerUnit.get(),timer.get()));
+            return Optional.of(getTimer());
         else return Optional.empty();
     }
 
@@ -58,11 +75,11 @@ public abstract class RestartAction implements Runnable{
     private boolean cancelTimer(){
         if (task.isPresent()){
             if (task.get().cancel()){
-                getLogger().error("[VoteReboot] A timer could not be cancelled.");
-                return false;
-            }else{
                 task = Optional.empty();
                 return true;
+            }else{
+                getLogger().error("[VoteReboot] A timer could not be cancelled.");
+                return false;
             }
         }else{
             return false;

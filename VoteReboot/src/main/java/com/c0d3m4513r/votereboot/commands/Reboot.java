@@ -24,6 +24,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -31,6 +33,12 @@ import java.util.stream.Stream;
 import static com.c0d3m4513r.pluginapi.API.getLogger;
 
 public class Reboot implements Command {
+    static Function<CommandSource, BiFunction<String,String,Boolean>> sendHelp = (source)->(perm, str) -> {
+        if (source.hasPerm(perm)) {
+            if (!str.isEmpty()) source.sendMessage(str);
+            return true;
+        }else return false;
+    };
     private static VoteAction voteAction = null;
     @Override
     public CommandResult process(CommandSource source, String arguments) throws CommandException {
@@ -57,18 +65,16 @@ public class Reboot implements Command {
     }
 
     CommandResult help(CommandSource source,String[] arguments) {
-        BiConsumer<String,String> sendHelp = (perm,str) -> {
-            if (source.hasPerm(perm)) if (!str.isEmpty()) source.sendMessage(str);
-        };
-        sendHelp.accept(
+        val sendHelp = Reboot.sendHelp.apply(source);
+        sendHelp.apply(
             ConfigPermission.getInstance().getRebootCommand().getValue(),
             ConfigCommandStrings.getInstance().getHelpBase().getValue()
         );
-        sendHelp.accept(
+        sendHelp.apply(
             ConfigPermission.getInstance().getReload().getValue(),
             ConfigCommandStrings.getInstance().getHelpReload().getValue()
         );
-        sendHelp.accept(
+        sendHelp.apply(
             ConfigPermission.getInstance().getVoteRegister().getValue(),
             ConfigCommandStrings.getInstance().getHelpRegisterVote().getValue()
         );
@@ -78,13 +84,9 @@ public class Reboot implements Command {
         ActionConfig strGeneral = ConfigCommandStrings.getInstance().getHelpGeneralAction();
 
         for (val a: Action.values()){
-            boolean include = false;
-            for (val t: com.c0d3m4513r.votereboot.reboot.RestartType.values()){
-                sendHelp.accept(perm.getAction(t).getPermission(a),str.getAction(t).getPermission(a));
-                if (source.hasPerm(perm.getAction(t).getPermission(a))){
-                    include=true;
-                }
-            }
+            final boolean include = Arrays.stream(RestartType.values())
+                    .map(t->sendHelp.apply(perm.getAction(t).getPermission(a),str.getAction(t).getPermission(a)))
+                    .reduce(false,Boolean::logicalOr);
             if (include && !strGeneral.getPermission(a).isEmpty()) source.sendMessage(strGeneral.getPermission(a));
         }
 
@@ -286,8 +288,41 @@ public class Reboot implements Command {
         }
     }
     CommandResult cancel(CommandSource source,String[] arguments){
-        source.sendMessage("Not Implemented.");
-        return API.getCommandResult().error();
+        getLogger().info("{}", (Object) arguments);
+        if(arguments.length>=1){
+            RestartType type = Config.restartTypeConversion.get(arguments[0]);
+            if (type!=null){
+                //unfortunate name. Optional RestartAction Latest = oral. oops
+                Optional<RestartAction> oral = RestartAction.getAction(type);
+                if (oral.isPresent()){
+                    if (oral.get().cancelTimer(source)){
+                        source.sendMessage(ConfigStrings.getInstance().getCancelActionSuccess()
+                                .getValue().replaceFirst("\\{\\}",RestartType.asString(type)));
+                        return API.getCommandResult().success();
+                    }else {
+                        source.sendMessage(ConfigStrings.getInstance().getNoPermission().getValue());
+                        return API.getCommandResult().error();
+                    }
+                }else {
+                    source.sendMessage(ConfigStrings.getInstance().getNoActionRestartTimer()
+                            .getValue().replaceFirst("\\{\\}",RestartType.asString(type)));
+                    return API.getCommandResult().error();
+                }
+            }else {
+                source.sendMessage(ConfigStrings.getInstance().getUnrecognisedArgs().getValue());
+                return API.getCommandResult().error();
+            }
+        }else {
+            val sendHelp = Reboot.sendHelp.apply(source);
+            RestartTypeActionConfig rtacs = ConfigCommandStrings.getInstance().getHelpRestartTypeAction();
+            RestartTypeActionConfig rtacp = ConfigPermission.getInstance().getRestartTypeAction();
+            final boolean include = Arrays.stream(RestartType.values())
+                    .map(type -> sendHelp.apply(rtacp.getAction(type).getPermission(Action.Cancel),rtacs.getAction(type).getPermission(Action.Cancel)))
+                    .reduce(false,Boolean::logicalOr);
+            String generalCancel = ConfigCommandStrings.getInstance().getHelpGeneralAction().getPermission(Action.Cancel);
+            if(include && !generalCancel.isEmpty()) source.sendMessage(generalCancel);
+            return API.getCommandResult().error();
+        }
     }
 
     @Override
@@ -320,25 +355,25 @@ public class Reboot implements Command {
         return "Valid Subcommands are '"+ subcommands +"'.";
     }
 
-    CommandResult getConfig(CommandSource commandSource, String[] strings) {
+    private CommandResult getConfig(CommandSource commandSource, String[] strings) {
         if (!Config.DEBUG){
-            throw new RuntimeException("Take out this command for releases you dummy!");
+            throw new RuntimeException("Remove this command before releases you dummy!");
         }
         getLogger().info(Config.getInstance().toString());
         return API.getCommandResult().success();
     }
-    CommandResult timers(CommandSource source,String[] arguments) {
+    private CommandResult timers(CommandSource source,String[] arguments) {
         if (!Config.DEBUG){
-            throw new RuntimeException("Take out this command for releases you dummy!");
+            throw new RuntimeException("Remove this command before releases you dummy!");
         }
         API.getServer().getTasks().forEach(t->{
             source.sendMessage((t.isAsynchronous()?"Async":"Sync")+" Task '"+t.getName()+"' with "+t.getDelay()+"ms delay and a Interval of "+t.getInterval()+"ms");
         });
         return API.getCommandResult().success();
     }
-    CommandResult saveConfig(CommandSource source,String[] arguments) {
+    private CommandResult saveConfig(CommandSource source,String[] arguments) {
         if (!Config.DEBUG){
-            throw new RuntimeException("Take out this command for releases you dummy!");
+            throw new RuntimeException("Remove this command before releases you dummy!");
         }
         getLogger().info("[VoteReboot] Explicit Config save was requested. Saving configs in new async thread");
         try {

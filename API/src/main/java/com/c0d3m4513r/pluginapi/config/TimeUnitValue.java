@@ -22,14 +22,7 @@ public class TimeUnitValue implements Comparable<TimeUnitValue> {
 
     @Override
     public int compareTo(TimeUnitValue o) {
-        //todo:review this. There is a potentially better way
         long ov = unit.convert(o.value,o.unit);
-        if (value-ov>0){
-            return 1;
-        }else if (value-ov<0){
-            return -1;
-        }else {
-            return 0;
-        }
+        return Long.compare(value,ov);
     }
 }

@@ -24,13 +24,11 @@ public enum RebootSubcommands {
     //this needs some more in-detail checks, depending on what type of action we are cancelling
     cancel(ConfigPermission.getInstance().getRebootCommand().getValue(), r->r::cancel),
     time(ConfigPermission.getInstance().getRebootCommand().getValue(),r->r::time),
-    timers(ConfigPermission.getInstance().getRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.All).getPermission(Action.Read), r->r::timers),
-    getConfig(ConfigPermission.getInstance().getReload().getValue(),r->r::getConfig),
-
-    saveConfig(ConfigPermission.getInstance().getReload().getValue(), r->r::saveConfig),
+//    timers(ConfigPermission.getInstance().getRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.All).getPermission(Action.Read), r->r::timers),
+//    getConfig(ConfigPermission.getInstance().getReload().getValue(),r->r::getConfig),
+//    saveConfig(ConfigPermission.getInstance().getReload().getValue(), r->r::saveConfig),
 
     reloadConfig(ConfigPermission.getInstance().getReload().getValue(), r->r::reload);
-    //todo: testing only. remove once I know, that the config saves!
     @NonNull
     public final String perm;
     @NonNull
@@ -46,9 +44,9 @@ public enum RebootSubcommands {
             case cancel: return "cancel";
             case time: return "time";
             case reloadConfig: return "reloadConfig";
-            case getConfig:return "getConfig";
-            case saveConfig: return "saveConfig";
-            case timers: return "timers";
+//            case getConfig:return "getConfig";
+//            case saveConfig: return "saveConfig";
+//            case timers: return "timers";
             default: throw new Error("Enum has more variants than expected");
         }
     }

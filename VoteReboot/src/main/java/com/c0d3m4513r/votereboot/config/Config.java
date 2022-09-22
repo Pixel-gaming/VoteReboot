@@ -26,7 +26,7 @@ import static com.c0d3m4513r.votereboot.config.VoteConfig.stringlist;
 @Setter(AccessLevel.NONE)
 @NoArgsConstructor
 public class Config extends MainConfig implements IConfigLoadableSaveable {
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
     public static final Map<String, RestartType> restartTypeConversion = new HashMap<String, RestartType>(){
         {
             put("Vote",RestartType.Vote);

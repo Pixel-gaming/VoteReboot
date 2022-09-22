@@ -119,6 +119,8 @@ votereboot:
     voteYesNoError: The vote answer was not recognised as either yes, no or none/null. Please try again.
     voteSuccess: Successfully voted '{}'.
     #End vote stuff
+    noActionRestartTimer: There was no Restart timer of type {}.
+    cancelActionSuccess: The Action of type {} has been successfully cancelled.
     nowCommandResponse: Server will restart now!
     serverRestartAnnouncement:
       vote: A Vote to restart the Server will close in {} {}.
