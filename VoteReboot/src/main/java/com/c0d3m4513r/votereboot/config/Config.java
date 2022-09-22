@@ -130,6 +130,13 @@ public class Config extends MainConfig implements IConfigLoadableSaveable {
         getLogger().info("[VoteReboot] Registering Command Register Hook");
         new EventRegistrar(this::registerScheduledReboots, EventType.preinit,0);
         new EventRegistrar(this::registerCommands, EventType.commandRegister,0);
+        new EventRegistrar(()->{
+            //There might be config changes then
+            if (getActionsEnabled().getValue()){
+                Arrays.stream(getRebootCommands().getValue())
+                        .forEach(API.getServer()::execCommand);
+            }
+        },EventType.onReboot,Integer.MAX_VALUE);
     }
 
     @Override
