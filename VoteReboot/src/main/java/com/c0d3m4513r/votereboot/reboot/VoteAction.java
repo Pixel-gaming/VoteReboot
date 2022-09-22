@@ -58,18 +58,20 @@ public class VoteAction extends RestartAction {
         if (restartType==RestartType.Vote){
             votes.values().stream().filter(Optional::isPresent).map(Optional::get)
                     .forEach(v->{if(v) yes.incrementAndGet();else no.incrementAndGet();});
-            getLogger().info("{} yes, {} no", yes.get(),no.get());
+            double percent = (yes.get() / 1.0 / (yes.get() + no.get())) * 100.0;
+            getLogger().info("{} yes, {} no, {}% of the people that voted want the server to be restarted", yes.get(),no.get(),percent);
             getLogger().info("Votes: {}",votes.values().stream().map(e-> e.map(aBoolean -> aBoolean ? "true" : "false").orElse("none")).collect(Collectors.toList()));
             getLogger().info("Voters: {}",votes.keySet());
             if (yes.get() >= ((Config) API.getConfig()).getVoteConfig().getMinAgree().getValue() &&
-                    yes.get() / 1.0 / (yes.get() + no.get()) * 100.0 < ((Config) API.getConfig()).getVoteConfig().getPercentToRestart().getValue()) {
+                    percent >= ((Config) API.getConfig()).getVoteConfig().getPercentToRestart().getValue()) {
                 restartType=RestartType.All;
                 long votingRestartTime = VoteConfig.getInstance().getVotingRestartTime().getValue();
-                timer.getAndUpdate(ADD.apply(votingRestartTime));
+                timer.set(votingRestartTime);
                 API.getServer().sendMessage(ConfigStrings.getInstance().getVoteRestartSuccess().getValue().replaceFirst("\\{\\}",Long.toString(votingRestartTime)).replaceFirst("\\{\\}","s"));
             }else {
                 API.getServer().sendMessage(ConfigStrings.getInstance().getVoteRestartFailed().getValue());
                 cancelTimer(true);
+                doReset();
             }
         }else{
             //The timer was done once, and the vote was successful

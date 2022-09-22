@@ -26,8 +26,9 @@ import static com.c0d3m4513r.pluginapi.API.getLogger;
 
 @AllArgsConstructor
 public abstract class RestartAction implements Runnable{
+    @Getter
     @NonNull
-    public static Vector<RestartAction> actions = new Vector<>();
+    protected static Vector<RestartAction> actions = new Vector<>();
     @NonNull
     //Invariant: If this is not-empty, the timer has to be started.
     protected Optional<Task> task = Optional.empty();;
@@ -37,22 +38,16 @@ public abstract class RestartAction implements Runnable{
     protected volatile AtomicReference<TimeUnit> timerUnit = new AtomicReference<>();
     @NonNull
     @Getter
-    protected RestartType restartType;
-    protected RestartAction(@NonNull RestartType restartType) {
+    protected com.c0d3m4513r.votereboot.reboot.RestartType restartType;
+    protected RestartAction(@NonNull com.c0d3m4513r.votereboot.reboot.RestartType restartType) {
         this.restartType = restartType;
         actions.add(this);
         doReset();
     }
 
-    public Optional<Long> getTimer(Permission perm) {
+    public Optional<TimeUnitValue> getTimer(Permission perm) {
         if (perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(restartType).getPermission(Action.Read)))
-            return Optional.of(timer.get());
-        else return Optional.empty();
-    }
-
-    public Optional<TimeUnit> getTimerUnit(Permission perm) {
-        if (perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(restartType).getPermission(Action.Read)))
-            return Optional.of(timerUnit.get());
+            return Optional.of(new TimeUnitValue(timerUnit.get(),timer.get()));
         else return Optional.empty();
     }
 
@@ -85,7 +80,7 @@ public abstract class RestartAction implements Runnable{
      */
     public boolean cancelTimer(Permission perm){
         if ((perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(restartType).getPermission(Action.Cancel))||
-                perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(RestartType.All).getPermission(Action.Cancel)))
+                perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.All).getPermission(Action.Cancel)))
                 && task.isPresent()
         ) return cancelTimer(true);
         else return false;
@@ -137,7 +132,7 @@ public abstract class RestartAction implements Runnable{
                     .build()
             );
         }
-        getLogger().info("[VoteReboot] Timer(of type {}) started with {} {}",RestartType.asString(restartType),timer.get(), timerUnit);
+        getLogger().info("[VoteReboot] Timer(of type {}) started with {} {}", com.c0d3m4513r.votereboot.reboot.RestartType.asString(restartType),timer.get(), timerUnit);
     }
     /**
      * Starts this timer for a reboot
@@ -146,7 +141,7 @@ public abstract class RestartAction implements Runnable{
      */
     public boolean start(Permission perm){
         if (perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(restartType).getPermission(Action.Start))
-        || perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(RestartType.All).getPermission(Action.Start))){
+        || perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.All).getPermission(Action.Start))){
             intStart();
             return true;
         }return false;
@@ -178,7 +173,7 @@ public abstract class RestartAction implements Runnable{
                     TimeUnitValue tuv = te.getMaxUnit();
                     if (unit.convert(tuv.getValue(),tuv.getUnit())==timer){
                         String announcement = ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(restartType);
-                        if (announcement.isEmpty()) announcement=ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(RestartType.All);
+                        if (announcement.isEmpty()) announcement=ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(com.c0d3m4513r.votereboot.reboot.RestartType.All);
                         API.getServer().sendMessage(announcement.replaceFirst("\\{\\}",Long.toString(timer))
                                 .replaceFirst("\\{\\}", String.valueOf(unit)));
                     }
@@ -227,7 +222,7 @@ public abstract class RestartAction implements Runnable{
      */
     public boolean modifyTimer(Permission perm, long time, TimeUnit unit, Function<Long, LongUnaryOperator> operation){
         if (perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(restartType).getPermission(Action.Modify))
-            ||perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(RestartType.All).getPermission(Action.Modify))) {
+            ||perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.All).getPermission(Action.Modify))) {
             long timerTime = timer.getAndUpdate(operation.apply(timerUnit.get().convert(time,unit)));
             return true;
         }else return false;

@@ -9,6 +9,7 @@ import com.c0d3m4513r.pluginapi.API;
 import com.c0d3m4513r.pluginapi.config.iface.IConfigLoadableSaveable;
 import com.c0d3m4513r.pluginapi.events.EventRegistrar;
 import com.c0d3m4513r.pluginapi.events.EventType;
+import com.c0d3m4513r.votereboot.reboot.RestartType;
 import com.c0d3m4513r.votereboot.reboot.ScheduledAction;
 import lombok.*;
 
@@ -25,6 +26,23 @@ import static com.c0d3m4513r.votereboot.config.VoteConfig.stringlist;
 @Setter(AccessLevel.NONE)
 @NoArgsConstructor
 public class Config extends MainConfig implements IConfigLoadableSaveable {
+    public static final boolean DEBUG = true;
+    public static final Map<String, RestartType> restartTypeConversion = new HashMap<String, RestartType>(){
+        {
+            put("Vote",RestartType.Vote);
+            put("vote",RestartType.Vote);
+            put("v",RestartType.Vote);
+            put("manual",RestartType.Manual);
+            put("m",RestartType.Manual);
+            put("Manual",RestartType.Manual);
+            put("Scheduled",RestartType.Scheduled);
+            put("scheduled",RestartType.Scheduled);
+            put("s",RestartType.Scheduled);
+            put("All",RestartType.All);
+            put("all",RestartType.All);
+            put("a",RestartType.All);
+        }
+    };
     @NonNull
     private VoteConfig voteConfig = new VoteConfig();
     @NonNull

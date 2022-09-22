@@ -153,7 +153,7 @@ votereboot:
           cancel: ""
         manual:
           read: ""
-          start: "Insert help about the commands usage here."
+          start: "- start [TimeEntry] <reason> This will restart the server in the time specified by TimeEntry"
           modify: ""
           cancel: ""
         scheduled:

@@ -4,7 +4,6 @@ import com.c0d3m4513r.votereboot.Action;
 import com.c0d3m4513r.pluginapi.config.ClassValue;
 import com.c0d3m4513r.pluginapi.config.ConfigEntry;
 import com.c0d3m4513r.pluginapi.config.iface.IConfigLoadableSaveable;
-import com.c0d3m4513r.votereboot.reboot.RestartType;
 import lombok.*;
 
 @Data
@@ -16,14 +15,14 @@ public class RestartTypeConfig implements IConfigLoadableSaveable {
     //Also Noone has access to this besides us, and this method doesn't use any instance variables from the outer class
     private static final class SinglularActionPerm implements IConfigLoadableSaveable{
         ConfigEntry<String> perm;
-        RestartType type;
-        public SinglularActionPerm(String permRoot, String configRoot, RestartType type){
-            this.perm =new ConfigEntry<>(new ClassValue<>(permRoot+"."+RestartType.asString(type),String.class),configRoot+"."+RestartType.asString(type));
+        com.c0d3m4513r.votereboot.reboot.RestartType type;
+        public SinglularActionPerm(String permRoot, String configRoot, com.c0d3m4513r.votereboot.reboot.RestartType type){
+            this.perm =new ConfigEntry<>(new ClassValue<>(permRoot+"."+ com.c0d3m4513r.votereboot.reboot.RestartType.asString(type),String.class),configRoot+"."+ com.c0d3m4513r.votereboot.reboot.RestartType.asString(type));
             this.type =type;
         }
 
-        public SinglularActionPerm(String value, String configRoot, RestartType type, boolean unused){
-            this.perm =new ConfigEntry<>(new ClassValue<>(value,String.class),configRoot+"."+ RestartType.asString(type));
+        public SinglularActionPerm(String value, String configRoot, com.c0d3m4513r.votereboot.reboot.RestartType type, boolean unused){
+            this.perm =new ConfigEntry<>(new ClassValue<>(value,String.class),configRoot+"."+ com.c0d3m4513r.votereboot.reboot.RestartType.asString(type));
             this.type = type;
         }
 
@@ -39,20 +38,20 @@ public class RestartTypeConfig implements IConfigLoadableSaveable {
     }
     protected final SinglularActionPerm[] RestartTypePerms = new SinglularActionPerm[(int) Action.getMaxId()];
 
-    public String getPermission(RestartType type) {
+    public String getPermission(com.c0d3m4513r.votereboot.reboot.RestartType type) {
         return RestartTypePerms[(int) type.id].getPerm().getValue();
     }
 
     public RestartTypeConfig(String permRoot, String configRoot){
-        for(val type:RestartType.values()){
+        for(val type: com.c0d3m4513r.votereboot.reboot.RestartType.values()){
             RestartTypePerms[(int) type.id]= new SinglularActionPerm(permRoot, configRoot, type);
         }
     }
     public RestartTypeConfig(String vote, String manual, String scheduled, String all, String configRoot){
-        RestartTypePerms[(int) RestartType.Vote.id]= new SinglularActionPerm(vote, configRoot, RestartType.Vote, false);
-        RestartTypePerms[(int) RestartType.ManualRestart.id]= new SinglularActionPerm(manual, configRoot, RestartType.ManualRestart, false);
-        RestartTypePerms[(int) RestartType.Scheduled.id]= new SinglularActionPerm(scheduled, configRoot, RestartType.Scheduled, false);
-        RestartTypePerms[(int) RestartType.All.id]= new SinglularActionPerm(all, configRoot, RestartType.All, false);
+        RestartTypePerms[(int) com.c0d3m4513r.votereboot.reboot.RestartType.Vote.id]= new SinglularActionPerm(vote, configRoot, com.c0d3m4513r.votereboot.reboot.RestartType.Vote, false);
+        RestartTypePerms[(int) com.c0d3m4513r.votereboot.reboot.RestartType.Manual.id]= new SinglularActionPerm(manual, configRoot, com.c0d3m4513r.votereboot.reboot.RestartType.Manual, false);
+        RestartTypePerms[(int) com.c0d3m4513r.votereboot.reboot.RestartType.Scheduled.id]= new SinglularActionPerm(scheduled, configRoot, com.c0d3m4513r.votereboot.reboot.RestartType.Scheduled, false);
+        RestartTypePerms[(int) com.c0d3m4513r.votereboot.reboot.RestartType.All.id]= new SinglularActionPerm(all, configRoot, com.c0d3m4513r.votereboot.reboot.RestartType.All, false);
     }
 
     @Override

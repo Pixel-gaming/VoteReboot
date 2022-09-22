@@ -31,7 +31,7 @@ public class RestartTypeActionConfig implements IConfigLoadableSaveable {
     ) {
         actionConfigs = new ActionConfig[(int) RestartType.getMaxId()];
         actionConfigs[(int)RestartType.Vote.id] = new ActionConfig(voteRead,voteStart,voteModify,voteCancel,configRoot+"."+RestartType.asString(RestartType.Vote));
-        actionConfigs[(int)RestartType.ManualRestart.id] = new ActionConfig(manualRead,manualStart,manualModify,manualCancel,configRoot+"."+RestartType.asString(RestartType.ManualRestart));
+        actionConfigs[(int)RestartType.Manual.id] = new ActionConfig(manualRead,manualStart,manualModify,manualCancel,configRoot+"."+RestartType.asString(RestartType.Manual));
         actionConfigs[(int)RestartType.Scheduled.id] = new ActionConfig(scheduledRead,scheduledStart,scheduledModify,scheduledCancel,configRoot+"."+RestartType.asString(RestartType.Scheduled));
         actionConfigs[(int)RestartType.All.id] = new ActionConfig(allRead,allStart,allModify,allCancel,configRoot+"."+RestartType.asString(RestartType.All));
     }

@@ -1,6 +1,7 @@
 package com.c0d3m4513r.votereboot.commands;
 
-import com.c0d3m4513r.pluginapi.convert.Convert;
+import com.c0d3m4513r.pluginapi.config.TimeEntry;
+import com.c0d3m4513r.pluginapi.config.TimeUnitValue;
 import com.c0d3m4513r.votereboot.Action;
 import com.c0d3m4513r.votereboot.config.*;
 import com.c0d3m4513r.pluginapi.API;
@@ -13,6 +14,7 @@ import com.c0d3m4513r.votereboot.config.ConfigCommandStrings;
 import com.c0d3m4513r.votereboot.config.ConfigPermission;
 import com.c0d3m4513r.votereboot.config.ConfigStrings;
 import com.c0d3m4513r.votereboot.reboot.ManualAction;
+import com.c0d3m4513r.votereboot.reboot.RestartAction;
 import com.c0d3m4513r.votereboot.reboot.RestartType;
 import com.c0d3m4513r.votereboot.reboot.VoteAction;
 import lombok.NonNull;
@@ -21,10 +23,11 @@ import lombok.val;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import static com.c0d3m4513r.pluginapi.API.getLogger;
 
 public class Reboot implements Command {
@@ -53,13 +56,6 @@ public class Reboot implements Command {
         }
     }
 
-    CommandResult timers(CommandSource source,String[] arguments) {
-        API.getServer().getTasks().forEach(t->{
-            source.sendMessage((t.isAsynchronous()?"Async":"Sync")+" Task '"+t.getName()+"' with "+t.getDelay()+"ms delay and a Interval of "+t.getInterval()+"ms");
-        });
-        return API.getCommandResult().success();
-    }
-
     CommandResult help(CommandSource source,String[] arguments) {
         BiConsumer<String,String> sendHelp = (perm,str) -> {
             if (source.hasPerm(perm)) if (!str.isEmpty()) source.sendMessage(str);
@@ -81,9 +77,9 @@ public class Reboot implements Command {
         RestartTypeActionConfig str = ConfigCommandStrings.getInstance().getHelpRestartTypeAction();
         ActionConfig strGeneral = ConfigCommandStrings.getInstance().getHelpGeneralAction();
 
-        for (val a:Action.values()){
+        for (val a: Action.values()){
             boolean include = false;
-            for (val t: RestartType.values()){
+            for (val t: com.c0d3m4513r.votereboot.reboot.RestartType.values()){
                 sendHelp.accept(perm.getAction(t).getPermission(a),str.getAction(t).getPermission(a));
                 if (source.hasPerm(perm.getAction(t).getPermission(a))){
                     include=true;
@@ -115,31 +111,14 @@ public class Reboot implements Command {
          source.sendMessage("Configs have been loaded.");
          return API.getCommandResult().success();
     }
-    CommandResult saveConfig(CommandSource source,String[] arguments) {
-        getLogger().info("[VoteReboot] Explicit Config save was requested. Saving configs in new async thread");
-        try {
-            API.getBuilder().reset().async(true).executer(()->Config.getInstance().saveValue()).build();
-            //todo: Move the string to config
-            source.sendMessage("[VoteReboot] Configs have been requested to be saved in an async thread.");
-
-        } catch (OutOfMemoryError oom){
-            getLogger().error("[VoteReboot] Async Thread creation failed. Saving Config Synchronously Error is:",oom);
-            Config.getInstance().saveValue();
-            //todo: Move the string to config
-            source.sendMessage("Configs have been saved synchronously. There has been an error during thread creation. Please see in the console for more details.");
-        }
-        //todo: Move the string to config
-        source.sendMessage("Configs have been saved.");
-        return API.getCommandResult().success();
-    }
     CommandResult vote(CommandSource source,String[] args){
         if (args.length<1){
             source.sendMessage(ConfigStrings.getInstance().getRequiredArgs().getValue());
             if (source.hasPerm(ConfigPermission.getInstance().getVoteRegister().getValue()))
                 source.sendMessage(ConfigCommandStrings.getInstance().getHelpRegisterVote().getValue());
-            if (source.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(RestartType.Vote).getPermission(Action.Start))
-                || source.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(RestartType.All).getPermission(Action.Start)))
-                source.sendMessage(ConfigCommandStrings.getInstance().getHelpRestartTypeAction().getAction(RestartType.Vote).getPermission(Action.Start));
+            if (source.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.Vote).getPermission(Action.Start))
+                || source.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.All).getPermission(Action.Start)))
+                source.sendMessage(ConfigCommandStrings.getInstance().getHelpRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.Vote).getPermission(Action.Start));
             return API.getCommandResult().error();
         }
 
@@ -205,22 +184,22 @@ public class Reboot implements Command {
     CommandResult start(CommandSource source,String[] arg){
         Supplier<CommandResult> error = () ->{
             source.sendMessage(ConfigStrings.getInstance().getError().getValue());
-            if (source.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(RestartType.ManualRestart).getPermission(Action.Start)))
-                source.sendMessage(ConfigCommandStrings.getInstance().getHelpRestartTypeAction().getAction(RestartType.ManualRestart).getPermission(Action.Start));
+            if (source.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.Manual).getPermission(Action.Start)))
+                source.sendMessage(ConfigCommandStrings.getInstance().getHelpRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.Manual).getPermission(Action.Start));
             return API.getCommandResult().error();
         };
         if (arg.length < 1){
             source.sendMessage(ConfigStrings.getInstance().getRequiredArgs().getValue());
             return API.getCommandResult().error();
         }
-        List<RestartType> types = Arrays.stream(RestartType.values()).filter(t -> RestartType.asString(t).equals(arg[0])).collect(Collectors.toList());
+        List<com.c0d3m4513r.votereboot.reboot.RestartType> types = Arrays.stream(com.c0d3m4513r.votereboot.reboot.RestartType.values()).filter(t -> com.c0d3m4513r.votereboot.reboot.RestartType.asString(t).equals(arg[0])).collect(Collectors.toList());
         //todo: use TimeEntry?
-        Optional<TimeUnit> timeUnit = Convert.asTimeUnit(arg[0]);
+        Optional<TimeEntry> teo = TimeEntry.of(arg[0]);
         //test for wierd potential edge cases, if I mess some naming up
         if (types.size() > 1){
             getLogger().error("[VoteReboot] [start] types list contains more than one element.");
             return error.get();
-        } else if (types.size() == 1 && timeUnit.isPresent()) {
+        } else if (types.size() == 1 && teo.isPresent()) {
             getLogger().error("[VoteReboot] [start] types list contains one element, but also time unit.");
             return error.get();
         } else if (types.size() == 1) {
@@ -228,7 +207,7 @@ public class Reboot implements Command {
             switch (types.get(0)){
                 case Vote:
                     return vote(source,Arrays.copyOfRange(arg,1,arg.length));
-                case ManualRestart:
+                case Manual:
                     //potential recursion here.
                     //If we get to max call-depth, that is the users fault, and deliberate.
                     //Even if this throws an exception, spongeforge should save us?
@@ -243,16 +222,16 @@ public class Reboot implements Command {
                     return error.get();
                 default: throw new Error("Enum has more variants than expected");
             }
-        } else if (timeUnit.isPresent()) {
+        } else if (teo.isPresent()) {
             try{
-                long timeAmount = Long.parseLong(arg[1]);
-                String reason = String.join(" ",Arrays.copyOfRange(arg,2,arg.length));
-                if(new ManualAction(reason,timeAmount,timeUnit.get()).start(source)){
+                String reason = String.join(" ",Arrays.copyOfRange(arg,1,arg.length));
+                TimeUnitValue tuv = teo.get().getMaxUnit();
+                if(new ManualAction(reason,tuv.getValue(),tuv.getUnit()).start(source)){
 
-                    String announcement = ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(RestartType.ManualRestart);
-                    if (announcement.isEmpty()) announcement=ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(RestartType.All);
-                    source.sendMessage(announcement.replaceFirst("\\{\\}",Long.toString(timeAmount))
-                            .replaceFirst("\\{\\}", timeUnit.get().toString()));
+                    String announcement = ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(com.c0d3m4513r.votereboot.reboot.RestartType.Manual);
+                    if (announcement.isEmpty()) announcement=ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(com.c0d3m4513r.votereboot.reboot.RestartType.All);
+                    source.sendMessage(announcement.replaceFirst("\\{\\}",Long.toString(tuv.getValue()))
+                            .replaceFirst("\\{\\}", tuv.getUnit().toString()));
 
                     return API.getCommandResult().success();
                 }else {
@@ -270,7 +249,7 @@ public class Reboot implements Command {
         }
     }
     CommandResult now(CommandSource source,@NonNull String[] arguments){
-        if (source.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(RestartType.ManualRestart).getPermission(Action.Start)))
+        if (source.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.Manual).getPermission(Action.Start)))
         {
             API.getServer().onRestart(Optional.of(String.join(" ",arguments)));
             source.sendMessage(ConfigStrings.getInstance().getNowCommandResponse().getValue());
@@ -278,6 +257,33 @@ public class Reboot implements Command {
         }
         source.sendMessage(ConfigStrings.getInstance().getNoPermission().getValue());
         return API.getCommandResult().error();
+    }
+    CommandResult time(CommandSource source,String[] arguments){
+        Stream<RestartAction> ras = RestartAction.getActions().stream();
+        if(arguments.length>=1) {
+            //get me out of here please.
+            RestartType restartType = Config.restartTypeConversion.get(arguments[0]);
+            if (restartType!=null) ras=ras.filter(a->a.getRestartType().equals(restartType));
+        }
+        List<String> output = ras.map(ra->new Object[]{ra.getRestartType(),ra.getTimer(source)})
+                .filter(obj->((Optional<TimeUnitValue>) obj[1]).isPresent())
+                .map(obj->{
+                    obj[1]=((Optional<TimeUnitValue>) obj[1]).get();
+                    return obj;
+                }).map(obj->{
+                    TimeUnitValue tuv=(TimeUnitValue) obj[1];
+                    RestartType t = ((RestartType)obj[0]);
+                    return (t==RestartType.Vote?"A Vote":("A Reboot Timer of type "+t))
+                            +" with "+tuv.getValue()+" "+tuv.getUnit()+ " remaining.";
+                }).collect(Collectors.toList());
+        if (output.isEmpty()){
+            //todo: better error?
+            source.sendMessage(ConfigStrings.getInstance().getNoPermission().getValue());
+            return API.getCommandResult().error();
+        }else {
+            source.sendMessages(output);
+            return API.getCommandResult().success();
+        }
     }
     CommandResult cancel(CommandSource source,String[] arguments){
         source.sendMessage("Not Implemented.");
@@ -314,8 +320,40 @@ public class Reboot implements Command {
         return "Valid Subcommands are '"+ subcommands +"'.";
     }
 
-    public CommandResult getConfig(CommandSource commandSource, String[] strings) {
+    CommandResult getConfig(CommandSource commandSource, String[] strings) {
+        if (!Config.DEBUG){
+            throw new RuntimeException("Take out this command for releases you dummy!");
+        }
         getLogger().info(Config.getInstance().toString());
+        return API.getCommandResult().success();
+    }
+    CommandResult timers(CommandSource source,String[] arguments) {
+        if (!Config.DEBUG){
+            throw new RuntimeException("Take out this command for releases you dummy!");
+        }
+        API.getServer().getTasks().forEach(t->{
+            source.sendMessage((t.isAsynchronous()?"Async":"Sync")+" Task '"+t.getName()+"' with "+t.getDelay()+"ms delay and a Interval of "+t.getInterval()+"ms");
+        });
+        return API.getCommandResult().success();
+    }
+    CommandResult saveConfig(CommandSource source,String[] arguments) {
+        if (!Config.DEBUG){
+            throw new RuntimeException("Take out this command for releases you dummy!");
+        }
+        getLogger().info("[VoteReboot] Explicit Config save was requested. Saving configs in new async thread");
+        try {
+            API.getBuilder().reset().async(true).executer(()->Config.getInstance().saveValue()).build();
+            //todo: Move the string to config
+            source.sendMessage("[VoteReboot] Configs have been requested to be saved in an async thread.");
+
+        } catch (OutOfMemoryError oom){
+            getLogger().error("[VoteReboot] Async Thread creation failed. Saving Config Synchronously Error is:",oom);
+            Config.getInstance().saveValue();
+            //todo: Move the string to config
+            source.sendMessage("Configs have been saved synchronously. There has been an error during thread creation. Please see in the console for more details.");
+        }
+        //todo: Move the string to config
+        source.sendMessage("Configs have been saved.");
         return API.getCommandResult().success();
     }
 }

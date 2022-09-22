@@ -4,12 +4,11 @@ import com.c0d3m4513r.pluginapi.Nullable;
 import lombok.*;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class ManualAction extends RestartAction {
     public String reason;
     private ManualAction(){
-        super(RestartType.ManualRestart);
+        super(RestartType.Manual);
         reason=null;
     }
     private ManualAction(@Nullable String reason) {

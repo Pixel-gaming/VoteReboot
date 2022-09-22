@@ -1,10 +1,6 @@
 package com.c0d3m4513r.votereboot.reboot;
 
 import com.c0d3m4513r.votereboot.Action;
-import com.c0d3m4513r.votereboot.ActionPerm;
-import com.c0d3m4513r.votereboot.commands.RebootSubcommands;
-import com.c0d3m4513r.votereboot.config.Config;
-import com.c0d3m4513r.pluginapi.API;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +11,7 @@ import java.util.Optional;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum RestartType {
     Vote(0),
-    ManualRestart(1),
+    Manual(1),
     Scheduled(2),
     All(3);
 
@@ -37,7 +33,7 @@ public enum RestartType {
     public static String asString(RestartType type){
         switch (type){
             case Scheduled: return "scheduled";
-            case ManualRestart: return "manual";
+            case Manual: return "manual";
             case Vote: return "vote";
             case All: return "all";
             default: throw new Error("Enum has more variants than expected");

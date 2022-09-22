@@ -22,7 +22,7 @@ public class ActionConfig implements IConfigLoadableSaveable, ActionPerm {
             type=action;
         }
 
-        public SinglularActionPerm(String value, String configRoot, Action action,boolean unused){
+        public SinglularActionPerm(String value, String configRoot, Action action, boolean unused){
             this.action=new ConfigEntry<>(new ClassValue<>(value,String.class),configRoot+"."+action.toString(action));
             type=action;
         }
@@ -45,7 +45,7 @@ public class ActionConfig implements IConfigLoadableSaveable, ActionPerm {
     }
 
     public ActionConfig(String permRoot, String configRoot){
-        for(Action action:Action.values()){
+        for(Action action: Action.values()){
             actionPerms[(int) action.id]= new SinglularActionPerm(permRoot, configRoot, action);
         }
     }
