@@ -12,7 +12,7 @@
         <filtering>true</filtering>
         <directory>src/main/resources</directory>
         <includes>
-          <include>plugin.yml</include>
+          <include>config.yml</include>
         </includes>
       </resource>
     </resources>
@@ -29,6 +29,15 @@
               <goal>shade</goal>
             </goals>
             <configuration>
+              <relocations>
+                <relocation>
+                  <pattern>com.c0d3m4513r</pattern>
+                  <shadedPattern>com.c0d3m4513r.shaded.votereboot</shadedPattern>
+                  <excludes>
+                    <exclude>com.c0d3m4513r.votereboot.*</exclude>
+                  </excludes>
+                </relocation>
+              </relocations>
               <filters>
                 <filter>
                   <artifact>*:*</artifact>
@@ -53,6 +62,12 @@
     </repository>
   </repositories>
   <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>2.0.1</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
