@@ -288,7 +288,6 @@ public class Reboot implements Command {
         }
     }
     CommandResult cancel(CommandSource source,String[] arguments){
-        getLogger().info("{}", (Object) arguments);
         if(arguments.length>=1){
             RestartType type = Config.restartTypeConversion.get(arguments[0]);
             if (type!=null){
