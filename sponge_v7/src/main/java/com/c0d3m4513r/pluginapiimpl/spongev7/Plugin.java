@@ -134,11 +134,22 @@ public class Plugin implements IConfigLoaderSaver {
     @Override
     public <T> boolean saveConfigKey(@Nullable T value, @NonNull Class<T> typeToken, @NonNull String path) {
         try {
-            root.getNode((Object[]) path.split("\\.")).getValue(TypeToken.of(typeToken),value);
+            root.getNode((Object[]) path.split("\\.")).setValue(TypeToken.of(typeToken),value);
         } catch (ObjectMappingException e) {
             logger.error("Could not save config at Path:'"+path+"', because of",e);
             return false;
         }
         return true;
+    }
+
+    @Override
+    public boolean updateConfigLoader() {
+        try {
+            root=configurationLoader.load();
+            return true;
+        } catch (IOException e) {
+            logger.error("[sponge-v7] Error whilst updating configLoader:", e);
+            return false;
+        }
     }
 }

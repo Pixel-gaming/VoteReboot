@@ -15,4 +15,10 @@ public interface IConfigSaver {
      * @param <T> Type of Data stored in the config
      */
     <T> boolean saveConfigKey(@Nullable T value, @NonNull Class<T> typeToken, @NonNull String path);
+
+    /***
+     * Updates the config Loader, and loads new keys
+     * @return if there has been no error, and the config loader has been updated successfully
+     */
+    boolean updateConfigLoader();
 }

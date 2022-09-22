@@ -6,7 +6,6 @@
     <name>Plugin API implementation Sponge v7</name>
     <version>0.0.1</version>
 
-
     <parent>
         <groupId>com.c0d3m4513r</groupId>
         <artifactId>votereboot-parent</artifactId>

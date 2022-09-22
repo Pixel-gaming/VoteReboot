@@ -25,7 +25,7 @@ public class ConfigCommandStrings implements IConfigLoadableSaveable {
             "votereboot.translate.help.rebootCommand");
     @NonNull
     private ConfigEntry<String> helpReload = new ConfigEntry<>(new ClassValue<>(
-            " - reload This will reload all of the configs from disk again, and apply them."
+            " - reloadConfig This will reload all of the configs from disk again, and apply them."
             , String.class), "votereboot.translate.help.reload");
     @NonNull
     private ConfigEntry<String> helpRegisterVote = new ConfigEntry<>(new ClassValue<>(
@@ -60,7 +60,7 @@ public class ConfigCommandStrings implements IConfigLoadableSaveable {
             " - time <Action> This will List all visible reboots, that are currently scheduled",
             "",
             "Not user callable yet!",
-            "- cancel [Action] <Timed> <limit:uint> This will cancel the last limit(or all, if unspecified), starting from <Timed>,  reboots of type Action",
+            " - cancel [Action] <Timed> <limit:uint> This will cancel the last limit(or all, if unspecified), starting from <Timed>,  reboots of type Action",
             //config root
             "votereboot.translate.help.general"
     );

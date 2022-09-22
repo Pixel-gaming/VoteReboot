@@ -28,7 +28,7 @@ public class ConfigStrings implements IConfigLoadableSaveable {
     );
     @NonNull
     private ConfigEntry<String> voteStartedAnnouncement = new ConfigEntry<>(
-            new ClassValue<>("A Vote to restart the Server has been started. Type /reboot vote yes or /reboot vote no to vote.",String.class),
+            new ClassValue<>("A Vote to restart the Server has been started. Type - vote yes or - vote no to vote.",String.class),
             "votereboot.translate.voteStartedAnnouncement"
     );
     @NonNull

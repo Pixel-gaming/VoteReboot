@@ -25,8 +25,8 @@ public enum RebootSubcommands {
     //this needs some more in-detail checks, depending on what type of action we are cancelling
     cancel(ConfigPermission.getInstance().getRebootCommand().getValue(), r->r::cancel),
 
-//    timers(ConfigPermission.getInstance().getRestartTypeAction().getAction(RestartType.All).getPermission(Action.Read),r->r::timers),
-//    getConfig(ConfigPermission.getInstance().getReload().getValue(),r->r::getConfig),
+    timers(ConfigPermission.getInstance().getRestartTypeAction().getAction(RestartType.All).getPermission(Action.Read),r->r::timers),
+    getConfig(ConfigPermission.getInstance().getReload().getValue(),r->r::getConfig),
 
 //    saveConfig(ConfigPermission.getInstance().getReload().getValue(), r->r::saveConfig),
 
@@ -46,9 +46,9 @@ public enum RebootSubcommands {
             case now: return "now";
             case cancel: return "cancel";
             case reloadConfig: return "reloadConfig";
-//            case getConfig:return "getConfig";
+            case getConfig:return "getConfig";
 //            case saveConfig: return "saveConfig";
-//            case timers: return "timers";
+            case timers: return "timers";
             default: throw new Error("Enum has more variants than expected");
         }
     }

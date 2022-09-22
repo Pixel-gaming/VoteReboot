@@ -47,7 +47,7 @@ votereboot:
     #Time after a vote has concluded, but before Server is restarted.
     #The timer can also be cancelled and modified, but only with permission specified in 'votereboot.vote.permissions.type.all'
     #todo: add time unit
-    voteRestartTime: 30
+    votingRestartTime: 30
     #Vote yes
     yesList:
       - yes
@@ -134,8 +134,8 @@ votereboot:
     shortDescription: Vote to Reboot the server
     #https://yaml-multiline.info/
     help:
-      rebootCommand: "This is the main command for managing server restarts.
-        Arguments with <> are optional, whilst ones with [] are mandatory.
+      rebootCommand: "This is the main command for managing server restarts.\n
+        Arguments with <> are optional, whilst ones with [] are mandatory.\n
         - stands for the main command alias. By default /reboot or /restart"
       reload: " - reloadConfig This will reload all of the configs from disk again, and apply them."
       registervote: " - vote [yes/no/null/none] This will add a vote, on weather the server should be restarted or not."

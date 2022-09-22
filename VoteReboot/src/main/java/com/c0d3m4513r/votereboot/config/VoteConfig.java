@@ -20,7 +20,7 @@ public class VoteConfig implements IConfigLoadableSaveable {
     @NonNull
     private  ConfigEntry<Integer> votingTime = new ConfigEntry<>(new ClassValue<>(100,Integer.class),"votereboot.vote.votingTime");
     @NonNull
-    private  ConfigEntry<Integer> votingRestartTime = new ConfigEntry<>(new ClassValue<>(300,Integer.class),"votereboot.vote.votingRestartTime");
+    private  ConfigEntry<Integer> votingRestartTime = new ConfigEntry<>(new ClassValue<>(30,Integer.class),"votereboot.vote.votingRestartTime");
     @NonNull
     private  ConfigEntry<String[]> yesList = new ConfigEntry<>(new ClassValue<>(new String[]{"yes", "ye", "y","t","true"}, stringlist)
             ,"votereboot.vote.yesList");

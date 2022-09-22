@@ -13,4 +13,10 @@ public interface IConfigLoader {
      * @param <T> Type of Data stored in the config
      */
     <T> @Nullable T loadConfigKey(String path, Class<T> type);
+
+    /***
+     * Updates the config Loader, and loads new keys
+     * @return if there has been no error, and the config loader has been updated successfully
+     */
+    boolean updateConfigLoader();
 }
