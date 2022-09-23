@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.c0d3m4513r</groupId>
-    <artifactId>votereboot-parent</artifactId>
+    <artifactId>plugin-parent</artifactId>
     <!-- Artifact ID doesn't matter for anything but the final product
          At least, it doesn't matter externally to this setup -->
     <packaging>pom</packaging>
