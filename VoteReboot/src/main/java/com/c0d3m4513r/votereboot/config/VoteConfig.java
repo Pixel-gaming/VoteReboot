@@ -9,7 +9,7 @@ import lombok.*;
 @Setter(AccessLevel.NONE)
 public class VoteConfig implements IConfigLoadableSaveable {
     public static VoteConfig getInstance(){
-        return Config.getInstance().getVoteConfig();
+        return Config.voteConfig;
     }
     public static final Class<String[]> stringlist = String[].class;
 

@@ -45,18 +45,13 @@ public class Reboot implements Command {
         String[] args = arguments.split(" ");
         //arg0 should just be the command alias
         if (args.length>=1) {
-            List<RebootSubcommands> subcommand = Arrays.stream(RebootSubcommands.values()).filter(s -> RebootSubcommands.asString(s).equals(args[0])).collect(Collectors.toList());
-            if (subcommand.isEmpty()) {
+            RebootSubcommands subcommand = Config.subcommandConversion.get(args[0]);
+            if (subcommand==null) {
                 source.sendMessage("No valid subcommand was found. ");
                 source.sendMessage(getUsage(source));
                 throw new CommandException("No valid subcommand was found. " + getUsage(source));
-            } else if (subcommand.size() > 1) {
-                //todo: add to config
-                getLogger().warn("[VoteReboot] Provided String matched multiple Subcommands? '"+arguments+"'.");
-                source.sendMessage("Provided String matched multiple Subcommands?");
-                throw new CommandException("Provided String matched multiple Subcommands?");
             } else {
-                return subcommand.get(0).function.apply(this).apply(source, Arrays.copyOfRange(args,1,args.length));
+                return subcommand.function.apply(this).apply(source, Arrays.copyOfRange(args,1,args.length));
             }
         }else{
             source.sendMessage(getUsage(source));

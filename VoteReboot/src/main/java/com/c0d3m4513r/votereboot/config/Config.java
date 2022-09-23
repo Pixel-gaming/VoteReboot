@@ -9,6 +9,7 @@ import com.c0d3m4513r.pluginapi.API;
 import com.c0d3m4513r.pluginapi.config.iface.IConfigLoadableSaveable;
 import com.c0d3m4513r.pluginapi.events.EventRegistrar;
 import com.c0d3m4513r.pluginapi.events.EventType;
+import com.c0d3m4513r.votereboot.commands.RebootSubcommands;
 import com.c0d3m4513r.votereboot.reboot.RestartType;
 import com.c0d3m4513r.votereboot.reboot.ScheduledAction;
 import lombok.*;
@@ -27,6 +28,10 @@ import static com.c0d3m4513r.votereboot.config.VoteConfig.stringlist;
 @NoArgsConstructor
 public class Config extends MainConfig implements IConfigLoadableSaveable {
     public static final boolean DEBUG = false;
+    @NonNull
+    public static final VoteConfig voteConfig = new VoteConfig();
+    @NonNull
+    public static final ConfigPermission configPermission =new ConfigPermission();
     public static final Map<String, RestartType> restartTypeConversion = new HashMap<String, RestartType>(){
         {
             put("Vote",RestartType.Vote);
@@ -43,10 +48,28 @@ public class Config extends MainConfig implements IConfigLoadableSaveable {
             put("a",RestartType.All);
         }
     };
-    @NonNull
-    private VoteConfig voteConfig = new VoteConfig();
-    @NonNull
-    public ConfigPermission configPermission =new ConfigPermission();
+    //DON'T move this above ConfigPermission init. That will cause issues.
+    public static final Map<String, RebootSubcommands> subcommandConversion = new HashMap<String, RebootSubcommands>(){
+        {
+            put("help", RebootSubcommands.help);
+            put("h", RebootSubcommands.help);
+            put("usage", RebootSubcommands.usage);
+            put("u", RebootSubcommands.usage);
+            put("vote", RebootSubcommands.vote);
+            put("v", RebootSubcommands.vote);
+            put("start", RebootSubcommands.start);
+            put("s", RebootSubcommands.start);
+            put("now", RebootSubcommands.now);
+            put("n", RebootSubcommands.now);
+            put("cancel", RebootSubcommands.cancel);
+            put("c", RebootSubcommands.cancel);
+            put("time", RebootSubcommands.time);
+            put("t", RebootSubcommands.time);
+            put("reloadConfig", RebootSubcommands.reloadConfig);
+            put("reload", RebootSubcommands.reloadConfig);
+            put("r", RebootSubcommands.reloadConfig);
+        }
+    };
     @NonNull
     private ConfigEntry<String[]> scheduledRestarts = new ConfigEntry<>(new ClassValue<>(new String[]{"3,h","3,h+30,m","4,h"}, stringlist)
             ,"votereboot.scheduledRestarts");

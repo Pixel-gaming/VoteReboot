@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter(AccessLevel.NONE)
 public class ConfigPermission implements IConfigLoadableSaveable {
     public static ConfigPermission getInstance(){
-        return Config.getInstance().getConfigPermission();
+        return Config.configPermission;
     }
     @NonNull
     private  ConfigEntry<String> rebootCommand = new ConfigEntry<>(
