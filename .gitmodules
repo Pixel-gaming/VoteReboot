@@ -1,0 +1,9 @@
+[submodule "API"]
+	path = API
+	url = git@github.com:Pixel-gaming/API.git
+[submodule "PluginDef"]
+	path = PluginDef
+	url = git@github.com:Pixel-gaming/plugindef.git
+[submodule "sponge_v7"]
+	path = sponge_v7
+	url = git@github.com:Pixel-gaming/Sponge-v7.git
