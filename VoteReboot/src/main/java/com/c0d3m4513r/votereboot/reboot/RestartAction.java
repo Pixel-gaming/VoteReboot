@@ -74,13 +74,10 @@ public abstract class RestartAction implements Runnable{
      */
     private boolean cancelTimer(){
         if (task.isPresent()){
-            if (task.get().cancel()){
-                task = Optional.empty();
-                return true;
-            }else{
-                getLogger().error("[VoteReboot] A timer could not be cancelled.");
-                return false;
-            }
+            //This seems to prevent the task from being repeated any longer, no matter the return code.
+            task.get().cancel();
+            task = Optional.empty();
+            return true;
         }else{
             return false;
         }

@@ -34,7 +34,7 @@ public interface Task {
     boolean isAsynchronous();
     /**
      * Cancels the task. Cancelling a repeating task will prevent any further
-     * repetitions of the task.
+     * repetitions of the task. This MUST always be the case, and it is the implementations job to make sure.
      *
      * @return If the task is not running and was cancelled
      */
