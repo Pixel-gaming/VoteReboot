@@ -15,11 +15,9 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.val;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -35,7 +33,7 @@ public abstract class RestartAction implements Runnable{
     protected static Vector<RestartAction> actions = new Vector<>();
     @NonNull
     //Invariant: If this is not-empty, the timer has to be started.
-    protected Optional<Task> task = Optional.empty();;
+    protected Optional<Task> task = Optional.empty();
     @NonNull
     protected volatile AtomicLong timer = new AtomicLong();
     @NonNull
@@ -43,9 +41,13 @@ public abstract class RestartAction implements Runnable{
     @NonNull
     @Getter
     protected com.c0d3m4513r.votereboot.reboot.RestartType restartType;
+    @Getter
+    private final int id;
+    private final static AtomicInteger CurrentMaxTaskId = new AtomicInteger(0);
     protected RestartAction(@NonNull com.c0d3m4513r.votereboot.reboot.RestartType restartType) {
         this.restartType = restartType;
         actions.add(this);
+        id=CurrentMaxTaskId.incrementAndGet();
         doReset();
     }
 
@@ -82,7 +84,7 @@ public abstract class RestartAction implements Runnable{
             return false;
         }
     }
-    protected boolean cancelTimer(boolean del){
+    protected final boolean cancelTimer(boolean del){
         if (del) actions.remove(this);
         return cancelTimer();
     }
@@ -92,12 +94,50 @@ public abstract class RestartAction implements Runnable{
      * @param perm Permission Queryable
      * @return Returns true, if Timer was cancelled
      */
-    public boolean cancelTimer(Permission perm){
+    protected final boolean cancelTimer(Permission perm,boolean del){
         if ((perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(restartType).getPermission(Action.Cancel))||
                 perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.All).getPermission(Action.Cancel)))
                 && task.isPresent()
-        ) return cancelTimer(true);
+        ) return cancelTimer(del);
         else return false;
+    }
+
+    /***
+     *
+     * @param perm Permission Queryable
+     * @return Returns true, if Timer was cancelled
+     */
+    public final boolean cancelTimer(Permission perm){
+        return cancelTimer(perm,true);
+    }
+
+    /***
+     *
+     * @param perm Permission Queryable
+     * @param ids id(s) of the timer to be cancelled
+     * @return Returns number of cancelled tasks
+     */
+    public static int cancel(Permission perm, HashSet<Integer> ids){
+        AtomicInteger integer = new AtomicInteger(0);
+
+        actions.removeAll(
+                actions
+                .stream().parallel()
+                //is that the correct id?
+                .filter(a->ids.contains(a.getId()))
+                //cancel the id, if permissible. If not don't ignore.
+                //We need the RebootAction objects for the removeAll.
+                //Therefore, we cannot just map and filter or something.
+                .filter(a->
+                    {
+                        if (a.cancelTimer(perm,false)){
+                            integer.incrementAndGet();
+                            return true;
+                        }else return false;
+                    })
+                .collect(Collectors.toList())
+        );
+        return integer.get();
     }
 
     protected void doReset(){
@@ -141,7 +181,7 @@ public abstract class RestartAction implements Runnable{
                     .deferred(1,timerUnit.get())
                     .timer(1,timerUnit.get())
                     .async(true)
-                    .name("votereboot-ADR-"+restartType.toString()+actions.indexOf(this))
+                    .name("votereboot-ADR-"+ restartType +id)
                     .executer(this)
                     .build()
             );
@@ -150,7 +190,7 @@ public abstract class RestartAction implements Runnable{
     }
     /**
      * Starts this timer for a reboot
-     * @param perm
+     * @param perm Permission Queryable object of command executer to check for permission
      * @return Returns true, if a timer was started AND the user has permission. False otherwise.
      */
     public boolean start(Permission perm){

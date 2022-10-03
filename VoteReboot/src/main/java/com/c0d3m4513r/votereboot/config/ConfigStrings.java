@@ -65,6 +65,10 @@ public class ConfigStrings implements IConfigLoadableSaveable {
             new ClassValue<>("The Action of type {} has been successfully cancelled.",String.class),
             "votereboot.translate.cancelActionSuccess");
     @NonNull
+    private ConfigEntry<String> cancelActionSuccessMultiple = new ConfigEntry<>(
+            new ClassValue<>("{} of {} Actions were successfully cancelled.",String.class),
+            "votereboot.translate.cancelActionSuccessMultiple");
+    @NonNull
     private RestartTypeConfig serverRestartAnnouncement = new RestartTypeConfig(
             "A Vote to restart the Server will close in {} {}.",
             "Server will restart in {} {}.",
@@ -105,6 +109,7 @@ public class ConfigStrings implements IConfigLoadableSaveable {
         nowCommandResponse.loadValue();
         noActionRestartTimer.loadValue();
         cancelActionSuccess.loadValue();
+        cancelActionSuccessMultiple.loadValue();
         serverRestartAnnouncement.loadValue();
         noPermission.loadValue();
         requiredArgs.loadValue();
@@ -124,6 +129,7 @@ public class ConfigStrings implements IConfigLoadableSaveable {
         nowCommandResponse.saveValue();
         noActionRestartTimer.saveValue();
         cancelActionSuccess.saveValue();
+        cancelActionSuccessMultiple.saveValue();
         serverRestartAnnouncement.saveValue();
         noPermission.saveValue();
         requiredArgs.saveValue();

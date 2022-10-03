@@ -121,6 +121,7 @@ votereboot:
     #End vote stuff
     noActionRestartTimer: There was no Restart timer of type {}.
     cancelActionSuccess: The Action of type {} has been successfully cancelled.
+    cancelActionSuccessMultiple: {} of {} Actions were successfully cancelled.
     nowCommandResponse: Server will restart now!
     serverRestartAnnouncement:
       vote: A Vote to restart the Server will close in {} {}.
