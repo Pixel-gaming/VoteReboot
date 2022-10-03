@@ -1,27 +1,27 @@
 votereboot:
   #The format here is like (long,TimeUnit)[+(long,TimeUnit)]*
   scheduledRestarts:
-    - 3,h
-    - 3,h+30,m
-    - 4,h
+    - 3h
+    - 3h+30m
+    - 4h
   announceRestarts:
     #Should restarts be announced.
     enabled: true
     #This list should be ordered earliest to latest announce.
     #The format here is like (long,TimeUnit)[+(long,TimeUnit)]*
     at:
-      - 10,m
-      - 5,m
-      - 2,m
-      - 1,m
-      - 30,s
-      - 20,s
-      - 10,s
-      - 5,s
-      - 4,s
-      - 3,s
-      - 2,s
-      - 1,s
+      - 10m
+      - 5m
+      - 2m
+      - 1m
+      - 30s
+      - 20s
+      - 10s
+      - 5s
+      - 4s
+      - 3s
+      - 2s
+      - 1s
   #Requires restart to apply, because the commands need to be re-registered.
   aliasList:
     - reboot

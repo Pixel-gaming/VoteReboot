@@ -326,11 +326,6 @@ public class Reboot implements Command {
     }
 
     @Override
-    public boolean testPermission(CommandSource source) {
-        return source.hasPerm(ConfigPermission.getInstance().getRebootCommand().getValue());
-    }
-
-    @Override
     public Optional<String> getShortDescription(CommandSource source) {
         return Optional.of(ConfigCommandStrings.getInstance().getShortDescription().getValue());
     }
