@@ -47,8 +47,10 @@ public class Reboot implements Command {
                 source.sendMessage("No valid subcommand was found. ");
                 source.sendMessage(getUsage(source));
                 throw new CommandException("No valid subcommand was found. " + getUsage(source));
-            } else {
+            } else if (source.hasPerm(subcommand.perm.get())){
                 return subcommand.function.apply(this).apply(source, Arrays.copyOfRange(args,1,args.length));
+            } else {
+                throw new CommandException(ConfigStrings.getInstance().getNoPermission().getValue());
             }
         }else{
             source.sendMessage(getUsage(source));
@@ -345,10 +347,16 @@ public class Reboot implements Command {
         source.sendMessage("Not Implemented. - Get Help");
         return Optional.empty();
     }
+    CommandResult checkPerm(CommandSource source,String[] args){
+        for (val perm:args){
+            source.sendMessage("Perm "+perm+" is set to: "+source.hasPerm(perm));
+        }
+        return API.getCommandResult().success();
+    }
 
     @Override
     public String getUsage(CommandSource source) {
-        List<String> subcommands = Arrays.stream(RebootSubcommands.values()).filter(sc -> source.hasPerm(sc.perm))
+        List<String> subcommands = Arrays.stream(RebootSubcommands.values()).filter(sc -> source.hasPerm(sc.perm.get()))
                 .map(RebootSubcommands::asString).collect(Collectors.toList());
         return "Valid Subcommands are '"+ subcommands +"'.";
     }
