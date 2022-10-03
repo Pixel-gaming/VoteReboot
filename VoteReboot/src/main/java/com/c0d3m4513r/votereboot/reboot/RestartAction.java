@@ -196,7 +196,14 @@ public abstract class RestartAction implements Runnable{
                 .map(Optional::get)
                 .map(TimeEntry::getMaxUnit)
                 .max(TimeUnitValue::compareTo);
-        if (omax.isPresent() && omax.get().compareTo(new TimeUnitValue(unit,time))<=0) timerAnnounce(time,unit);
+        for (val val:Config.getInstance().getTimerAnnounceAt().getValue()){
+            Optional<TimeEntry> tuv = TimeEntry.of(val);
+            if (tuv.isPresent() && (new TimeUnitValue(unit,time)).compareTo(tuv.get().getMaxUnit())>=0){
+                timerAnnounce(time,unit);
+                return;
+            }
+
+        }
     }
     /**
      * Starts this timer for a reboot
