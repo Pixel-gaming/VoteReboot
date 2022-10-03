@@ -1,9 +1,12 @@
 package com.c0d3m4513r.votereboot.config;
 
 import com.c0d3m4513r.pluginapi.config.ClassValue;
-import com.c0d3m4513r.pluginapi.config.ConfigEntry;
+import com.c0d3m4513r.pluginapi.config.ConfigEntry.ConfigEntry;
+import com.c0d3m4513r.pluginapi.config.ConfigEntry.ListConfigEntry;
 import com.c0d3m4513r.pluginapi.config.iface.IConfigLoadableSaveable;
 import lombok.*;
+
+import java.util.Arrays;
 
 @Data
 @Setter(AccessLevel.NONE)
@@ -11,7 +14,6 @@ public class VoteConfig implements IConfigLoadableSaveable {
     public static VoteConfig getInstance(){
         return Config.voteConfig;
     }
-    public static final Class<String[]> stringlist = String[].class;
 
     @NonNull
     private  ConfigEntry<Double> percentToRestart = new ConfigEntry<>(new ClassValue<>(100.0,Double.class),"votereboot.vote.percentToRestart");
@@ -22,13 +24,16 @@ public class VoteConfig implements IConfigLoadableSaveable {
     @NonNull
     private  ConfigEntry<Integer> votingRestartTime = new ConfigEntry<>(new ClassValue<>(30,Integer.class),"votereboot.vote.votingRestartTime");
     @NonNull
-    private  ConfigEntry<String[]> yesList = new ConfigEntry<>(new ClassValue<>(new String[]{"yes", "ye", "y","t","true"}, stringlist)
+    private ListConfigEntry<String> yesList = new ListConfigEntry<>(
+            new ClassValue<>(Arrays.asList("yes", "ye", "y","t","true"), String.class)
             ,"votereboot.vote.yesList");
     @NonNull
-    private  ConfigEntry<String[]> noList = new ConfigEntry<>(new ClassValue<>(new String[]{"no", "n","f","false"},stringlist)
+    private  ListConfigEntry<String> noList = new ListConfigEntry<>(
+            new ClassValue<>(Arrays.asList("no", "n","f","false"),String.class)
             ,"votereboot.vote.noList");
     @NonNull
-    private  ConfigEntry<String[]> noneList = new ConfigEntry<>(new ClassValue<>(new String[]{"null", "none"},stringlist)
+    private  ListConfigEntry<String> noneList = new ListConfigEntry<>(
+            new ClassValue<>(Arrays.asList("null", "none"),String.class)
             ,"votereboot.vote.noneList");
     @Override
     public void loadValue() {

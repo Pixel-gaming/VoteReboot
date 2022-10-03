@@ -2,7 +2,7 @@ package com.c0d3m4513r.votereboot.config;
 
 import com.c0d3m4513r.votereboot.Action;
 import com.c0d3m4513r.pluginapi.config.ClassValue;
-import com.c0d3m4513r.pluginapi.config.ConfigEntry;
+import com.c0d3m4513r.pluginapi.config.ConfigEntry.ConfigEntry;
 import com.c0d3m4513r.pluginapi.config.iface.IConfigLoadableSaveable;
 import lombok.*;
 

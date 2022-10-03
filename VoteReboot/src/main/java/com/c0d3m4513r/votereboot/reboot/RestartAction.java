@@ -217,15 +217,16 @@ public abstract class RestartAction implements Runnable{
      * This needs to be async safe
      * @param timer Time left on the timer
      */
-    protected void timerTick(long timer,TimeUnit unit){
+    private void timerTick(long timer,TimeUnit unit){
         if (Config.getInstance().getActionsEnabled().getValue()){
-            String[] atStrings = Config.getInstance().getTimerAnnounceAt().getValue();
+            List<String> atStrings = Config.getInstance().getTimerAnnounceAt().getValue();
             for(val atEntry:atStrings){
                 Optional<TimeEntry> teo = TimeEntry.of(atEntry);
                 if (teo.isPresent()){
                     TimeEntry te = teo.get();
                     TimeUnitValue tuv = te.getMaxUnit();
                     if (unit.convert(tuv.getValue(),tuv.getUnit())==timer){
+                        getLogger().info("Announcing {} timer = {} {}",restartType,tuv.getValue(),tuv.getUnit());
                         String announcement = ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(restartType);
                         if (announcement.isEmpty()) announcement=ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(com.c0d3m4513r.votereboot.reboot.RestartType.All);
                         API.getServer().sendMessage(announcement.replaceFirst("\\{\\}",Long.toString(timer))
