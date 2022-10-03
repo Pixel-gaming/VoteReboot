@@ -30,7 +30,6 @@ votereboot:
     enabled: true
     commands:
       - save-all
-      - say test
   kick:
     enabled: true
     useCustomMessage: false
@@ -50,16 +49,20 @@ votereboot:
     votingRestartTime: 30
     #Vote yes
     yesList:
-      - yes
+      - 'yes'
       - ye
       - y
+      - t
+      - true
     #Vote no
     noList:
-      - no
+      - 'no'
       - n
+      - f
+      - false
     #Allows users to exclude their vote after they already voted
     noneList:
-      - null
+      - 'null'
       - none
   permission:
     #Can that person execute any subcommands at all?
@@ -109,7 +112,7 @@ votereboot:
         cancel: votereboot.reboot.type.all.cancel
   translate:
     #What message should be printed, when no Vote is running.
-    noVoteActive: No vote was running. To start a vote just type run this command with the arguments vote start
+    noVoteActive: No vote was running. To start a vote just run this command with the arguments 'vote start'
     voteAlreadyActive: A vote was already running.
     voteStartedReply: Succesfully started a new Vote to restart the Server.
     voteStartedAnnouncement: A Vote to restart the Server has been started. Type - vote yes or - vote no to vote.

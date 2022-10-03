@@ -187,6 +187,16 @@ public abstract class RestartAction implements Runnable{
             );
         }
         getLogger().info("[VoteReboot] Timer(of type {}) started with {} {}", com.c0d3m4513r.votereboot.reboot.RestartType.asString(restartType),timer.get(), timerUnit);
+        long time = timer.get();
+        Optional<TimeUnitValue> omax = Config.getInstance()
+                .getTimerAnnounceAt().getValue()
+                .stream()
+                .map(TimeEntry::of)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(TimeEntry::getMaxUnit)
+                .max(TimeUnitValue::compareTo);
+        if (omax.isPresent() && omax.get().compareTo(new TimeUnitValue(unit,time))<=0) timerAnnounce(time,unit);
     }
     /**
      * Starts this timer for a reboot
@@ -213,12 +223,19 @@ public abstract class RestartAction implements Runnable{
         cancelTimer();
     }
 
+    private void timerAnnounce(long timer,TimeUnit unit){
+        getLogger().info("Announcing {} timer = {} {}",restartType,timer,unit);
+        String announcement = ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(restartType);
+        if (announcement.isEmpty()) announcement=ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(com.c0d3m4513r.votereboot.reboot.RestartType.All);
+        API.getServer().sendMessage(announcement.replaceFirst("\\{\\}",Long.toString(timer))
+                .replaceFirst("\\{\\}", String.valueOf(unit)));
+    }
     /**
      * This needs to be async safe
      * @param timer Time left on the timer
      */
     private void timerTick(long timer,TimeUnit unit){
-        if (Config.getInstance().getActionsEnabled().getValue()){
+        if (Config.getInstance().getEnableTimerAnnounce().getValue()){
             List<String> atStrings = Config.getInstance().getTimerAnnounceAt().getValue();
             for(val atEntry:atStrings){
                 Optional<TimeEntry> teo = TimeEntry.of(atEntry);
@@ -226,11 +243,7 @@ public abstract class RestartAction implements Runnable{
                     TimeEntry te = teo.get();
                     TimeUnitValue tuv = te.getMaxUnit();
                     if (unit.convert(tuv.getValue(),tuv.getUnit())==timer){
-                        getLogger().info("Announcing {} timer = {} {}",restartType,tuv.getValue(),tuv.getUnit());
-                        String announcement = ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(restartType);
-                        if (announcement.isEmpty()) announcement=ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(com.c0d3m4513r.votereboot.reboot.RestartType.All);
-                        API.getServer().sendMessage(announcement.replaceFirst("\\{\\}",Long.toString(timer))
-                                .replaceFirst("\\{\\}", String.valueOf(unit)));
+                        timerAnnounce(tuv.getValue(),tuv.getUnit());
                     }
                 }else {
                     getLogger().error("[VoteReboot] Cannot parse String as TimeEntry. Please check the config.");
