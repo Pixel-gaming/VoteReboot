@@ -263,11 +263,11 @@ public class Reboot implements Command {
             //We do not have read permissions. Don't print this timer.
             if (!otimer.isPresent()) continue;
             TimeUnitValue timer = otimer.get();
-            source.sendMessage(
-                    ra.getRestartType()==RestartType.Vote?
-                            "A Vote" :
-                            ("A Reboot Timer of type "+ra.getRestartType())
-                    +" with "+timer.getValue()+" "+timer.getUnit()+ " remaining and id '"+ra.getId()+"'.");
+            String start = ra.getRestartType()==RestartType.Vote?
+                    "A Vote" :
+                    ("A Reboot Timer of type "+ra.getRestartType());
+
+            source.sendMessage(start +" is queued with "+timer.getValue()+" "+timer.getUnit()+ " remaining and id '"+ra.getId()+"'.");
         }
         return API.getCommandResult().success();
     }
