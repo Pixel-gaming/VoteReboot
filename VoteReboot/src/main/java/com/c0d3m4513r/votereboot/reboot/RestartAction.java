@@ -1,12 +1,15 @@
 package com.c0d3m4513r.votereboot.reboot;
 
+import com.c0d3m4513r.pluginapi.Data.Point3D;
 import com.c0d3m4513r.pluginapi.config.TimeEntry;
 import com.c0d3m4513r.pluginapi.config.TimeUnitValue;
 import com.c0d3m4513r.pluginapi.convert.Convert;
+import com.c0d3m4513r.pluginapi.registry.Sound;
 import com.c0d3m4513r.votereboot.Action;
 import com.c0d3m4513r.pluginapi.API;
 import com.c0d3m4513r.pluginapi.Permission;
 import com.c0d3m4513r.pluginapi.Task;
+import com.c0d3m4513r.votereboot.config.AnnounceConfig;
 import com.c0d3m4513r.votereboot.config.Config;
 import com.c0d3m4513r.votereboot.config.ConfigPermission;
 import com.c0d3m4513r.votereboot.config.ConfigStrings;
@@ -15,6 +18,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.val;
 
+import java.sql.Time;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -189,21 +193,12 @@ public abstract class RestartAction implements Runnable{
         getLogger().info("[VoteReboot] Timer(of type {}) started with {} {}", com.c0d3m4513r.votereboot.reboot.RestartType.asString(restartType),timer.get(), timerUnit);
         if(checkAnnounce){
             long time = timer.get();
-            Optional<TimeUnitValue> omax = Config.getInstance()
-                    .getTimerAnnounceAt().getValue()
-                    .stream()
-                    .map(TimeEntry::of)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .map(TimeEntry::getMaxUnit)
-                    .max(TimeUnitValue::compareTo);
-            for (val val:Config.getInstance().getTimerAnnounceAt().getValue()){
+            for (val val:AnnounceConfig.getInstance().getTimerAnnounceAt().getValue()){
                 Optional<TimeEntry> tuv = TimeEntry.of(val);
-                if (tuv.isPresent() && (new TimeUnitValue(unit,time)).compareTo(tuv.get().getMaxUnit())>=0){
-                    timerAnnounce(time,unit);
+                if (tuv.isPresent() && (new TimeUnitValue(unit,time)).compareTo(tuv.get().getMaxUnit())>=0) {
+                    timerAnnounce(time, unit);
                     return;
                 }
-
             }
         }
     }
@@ -236,27 +231,42 @@ public abstract class RestartAction implements Runnable{
         getLogger().info("Announcing {} timer = {} {}",restartType,timer,unit);
         String announcement = ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(restartType);
         if (announcement.isEmpty()) announcement=ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(com.c0d3m4513r.votereboot.reboot.RestartType.All);
-        API.getServer().sendMessage(announcement.replaceFirst("\\{\\}",Long.toString(timer))
+        //Only do chat announcements, if really enabled.
+        if(AnnounceConfig.getInstance().getEnableTimerChatAnnounce().getValue())
+            API.getServer().sendMessage(announcement.replaceFirst("\\{\\}",Long.toString(timer))
                 .replaceFirst("\\{\\}", String.valueOf(unit)));
+        soundTimerAnnounce();
+    }
+    private void soundTimerAnnounce(){
+        if(AnnounceConfig.getInstance().getEnableTimerSoundAnnounce().getValue()){
+            Sound sound = Sound.getType(AnnounceConfig.getInstance().getSoundId().getValue());
+            int volume = AnnounceConfig.getInstance().getSoundAnnounceVolume().getValue();
+            for (val world:API.getServer().getWorlds()){
+                if(AnnounceConfig.getInstance().getSoundAnnouncePlayGlobal().getValue())
+                    sound.playSound(world,new Point3D(0,64,0),volume);
+                else
+                    for (val player:world.getPlayers()){
+                        sound.playSound(world,player.getPosition(),volume);
+                    }
+            }
+        }
     }
     /**
      * This needs to be async safe
      * @param timer Time left on the timer
      */
     private void timerTick(long timer,TimeUnit unit){
-        if (Config.getInstance().getEnableTimerAnnounce().getValue()){
-            List<String> atStrings = Config.getInstance().getTimerAnnounceAt().getValue();
-            for(val atEntry:atStrings){
-                Optional<TimeEntry> teo = TimeEntry.of(atEntry);
-                if (teo.isPresent()){
-                    TimeEntry te = teo.get();
-                    TimeUnitValue tuv = te.getMaxUnit();
-                    if (unit.convert(tuv.getValue(),tuv.getUnit())==timer){
-                        timerAnnounce(tuv.getValue(),tuv.getUnit());
-                    }
-                }else {
-                    getLogger().error("[VoteReboot] Cannot parse String as TimeEntry. Please check the config.");
+        List<String> atStrings = AnnounceConfig.getInstance().getTimerAnnounceAt().getValue();
+        for(val atEntry:atStrings){
+            Optional<TimeEntry> teo = TimeEntry.of(atEntry);
+            if (teo.isPresent()){
+                TimeEntry te = teo.get();
+                TimeUnitValue tuv = te.getMaxUnit();
+                if (unit.convert(tuv.getValue(),tuv.getUnit())==timer){
+                    timerAnnounce(tuv.getValue(),tuv.getUnit());
                 }
+            }else {
+                getLogger().error("[VoteReboot] Cannot parse String as TimeEntry. Please check the config.");
             }
         }
     }

@@ -6,7 +6,18 @@ votereboot:
     - 4h
   announceRestarts:
     #Should restarts be announced.
-    enabled: true
+    enabled:
+      #in chat?
+      chat: true
+      #with a sound?
+      sound: true
+    sound:
+      #Does this sound play once per world, or once at every player location
+      playGlobal: true
+      #The sound being played
+      id: block.note.pling
+      #volume. Please turn this down, when not using playGlobal.
+      volume: 4000
     #This list should be ordered earliest to latest announce.
     #The format here is like (long,TimeUnit)[+(long,TimeUnit)]*
     at:
