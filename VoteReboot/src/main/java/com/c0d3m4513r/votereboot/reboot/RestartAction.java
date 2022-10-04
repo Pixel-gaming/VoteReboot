@@ -281,6 +281,9 @@ public abstract class RestartAction implements Runnable{
             timer.getAndUpdate(t->newUnit.convert(t,unit));
             timerUnit.set(newUnit);
             cancelTimer(false);
+            try {
+                Thread.sleep(TimeUnit.MILLISECONDS.convert(1,unit));
+            } catch (InterruptedException ignored) {}
             intStart(false);
         }else if (time<=0){
             getLogger().trace("[VoteReboot] Timer done. Executing timer done function.");
