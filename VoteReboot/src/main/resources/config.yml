@@ -1,27 +1,27 @@
 votereboot:
   #The format here is like (long,TimeUnit)[+(long,TimeUnit)]*
   scheduledRestarts:
-    - 3,h
-    - 3,h+30,m
-    - 4,h
+    - 3h
+    - 3h+30m
+    - 4h
   announceRestarts:
     #Should restarts be announced.
     enabled: true
     #This list should be ordered earliest to latest announce.
     #The format here is like (long,TimeUnit)[+(long,TimeUnit)]*
     at:
-      - 10,m
-      - 5,m
-      - 2,m
-      - 1,m
-      - 30,s
-      - 20,s
-      - 10,s
-      - 5,s
-      - 4,s
-      - 3,s
-      - 2,s
-      - 1,s
+      - 10m
+      - 5m
+      - 2m
+      - 1m
+      - 30s
+      - 20s
+      - 10s
+      - 5s
+      - 4s
+      - 3s
+      - 2s
+      - 1s
   #Requires restart to apply, because the commands need to be re-registered.
   aliasList:
     - reboot
@@ -30,7 +30,6 @@ votereboot:
     enabled: true
     commands:
       - save-all
-      - say test
   kick:
     enabled: true
     useCustomMessage: false
@@ -50,16 +49,20 @@ votereboot:
     votingRestartTime: 30
     #Vote yes
     yesList:
-      - yes
+      - 'yes'
       - ye
       - y
+      - t
+      - true
     #Vote no
     noList:
-      - no
+      - 'no'
       - n
+      - f
+      - false
     #Allows users to exclude their vote after they already voted
     noneList:
-      - null
+      - 'null'
       - none
   permission:
     #Can that person execute any subcommands at all?
@@ -109,7 +112,7 @@ votereboot:
         cancel: votereboot.reboot.type.all.cancel
   translate:
     #What message should be printed, when no Vote is running.
-    noVoteActive: No vote was running. To start a vote just type run this command with the arguments vote start
+    noVoteActive: No vote was running. To start a vote just run this command with the arguments 'vote start'
     voteAlreadyActive: A vote was already running.
     voteStartedReply: Succesfully started a new Vote to restart the Server.
     voteStartedAnnouncement: A Vote to restart the Server has been started. Type - vote yes or - vote no to vote.
@@ -121,6 +124,7 @@ votereboot:
     #End vote stuff
     noActionRestartTimer: There was no Restart timer of type {}.
     cancelActionSuccess: The Action of type {} has been successfully cancelled.
+    cancelActionSuccessMultiple: "{} of {} Actions were successfully cancelled."
     nowCommandResponse: Server will restart now!
     serverRestartAnnouncement:
       vote: A Vote to restart the Server will close in {} {}.

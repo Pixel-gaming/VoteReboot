@@ -62,8 +62,8 @@ public class VoteAction extends RestartAction {
             getLogger().info("{} yes, {} no, {}% of the people that voted want the server to be restarted", yes.get(),no.get(),percent);
             getLogger().info("Votes: {}",votes.values().stream().map(e-> e.map(aBoolean -> aBoolean ? "true" : "false").orElse("none")).collect(Collectors.toList()));
             getLogger().info("Voters: {}",votes.keySet());
-            if (yes.get() >= ((Config) API.getConfig()).getVoteConfig().getMinAgree().getValue() &&
-                    percent >= ((Config) API.getConfig()).getVoteConfig().getPercentToRestart().getValue()) {
+            if (yes.get() >= VoteConfig.getInstance().getMinAgree().getValue() &&
+                    percent >= VoteConfig.getInstance().getPercentToRestart().getValue()) {
                 restartType=RestartType.All;
                 long votingRestartTime = VoteConfig.getInstance().getVotingRestartTime().getValue();
                 timer.set(votingRestartTime);

@@ -3,7 +3,7 @@ package com.c0d3m4513r.votereboot.config;
 import com.c0d3m4513r.votereboot.Action;
 import com.c0d3m4513r.votereboot.ActionPerm;
 import com.c0d3m4513r.pluginapi.config.ClassValue;
-import com.c0d3m4513r.pluginapi.config.ConfigEntry;
+import com.c0d3m4513r.pluginapi.config.ConfigEntry.ConfigEntry;
 import com.c0d3m4513r.pluginapi.config.iface.IConfigLoadableSaveable;
 import lombok.*;
 
@@ -13,7 +13,7 @@ public class ActionConfig implements IConfigLoadableSaveable, ActionPerm {
     @Data
     @AllArgsConstructor
     //This class should stay as is. No funny subclassing, extending or so.
-    //Also Noone has access to this besides us, and this method doesn't use any instance variables from the outer class
+    //Also, No one has access to this besides us, and this method doesn't use any instance variables from the outer class
     private static final class SinglularActionPerm implements IConfigLoadableSaveable{
         ConfigEntry<String> action;
         Action type;

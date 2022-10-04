@@ -1,7 +1,7 @@
 package com.c0d3m4513r.votereboot.config;
 
 import com.c0d3m4513r.pluginapi.config.ClassValue;
-import com.c0d3m4513r.pluginapi.config.ConfigEntry;
+import com.c0d3m4513r.pluginapi.config.ConfigEntry.ConfigEntry;
 import com.c0d3m4513r.pluginapi.config.iface.IConfigLoadableSaveable;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter(AccessLevel.NONE)
 public class ConfigPermission implements IConfigLoadableSaveable {
     public static ConfigPermission getInstance(){
-        return Config.getInstance().getConfigPermission();
+        return Config.configPermission;
     }
     @NonNull
     private  ConfigEntry<String> rebootCommand = new ConfigEntry<>(

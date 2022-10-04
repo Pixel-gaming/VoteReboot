@@ -20,15 +20,12 @@ import com.c0d3m4513r.votereboot.reboot.VoteAction;
 import lombok.NonNull;
 import lombok.val;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.BiConsumer;
+import java.util.*;
+
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.c0d3m4513r.pluginapi.API.getLogger;
 
@@ -45,18 +42,15 @@ public class Reboot implements Command {
         String[] args = arguments.split(" ");
         //arg0 should just be the command alias
         if (args.length>=1) {
-            List<RebootSubcommands> subcommand = Arrays.stream(RebootSubcommands.values()).filter(s -> RebootSubcommands.asString(s).equals(args[0])).collect(Collectors.toList());
-            if (subcommand.isEmpty()) {
+            RebootSubcommands subcommand = Config.subcommandConversion.get(args[0]);
+            if (subcommand==null) {
                 source.sendMessage("No valid subcommand was found. ");
                 source.sendMessage(getUsage(source));
                 throw new CommandException("No valid subcommand was found. " + getUsage(source));
-            } else if (subcommand.size() > 1) {
-                //todo: add to config
-                getLogger().warn("[VoteReboot] Provided String matched multiple Subcommands? '"+arguments+"'.");
-                source.sendMessage("Provided String matched multiple Subcommands?");
-                throw new CommandException("Provided String matched multiple Subcommands?");
+            } else if (source.hasPerm(subcommand.perm.get())){
+                return subcommand.function.apply(this).apply(source, Arrays.copyOfRange(args,1,args.length));
             } else {
-                return subcommand.get(0).function.apply(this).apply(source, Arrays.copyOfRange(args,1,args.length));
+                throw new CommandException(ConfigStrings.getInstance().getNoPermission().getValue());
             }
         }else{
             source.sendMessage(getUsage(source));
@@ -261,31 +255,23 @@ public class Reboot implements Command {
         return API.getCommandResult().error();
     }
     CommandResult time(CommandSource source,String[] arguments){
-        Stream<RestartAction> ras = RestartAction.getActions().stream();
-        if(arguments.length>=1) {
-            //get me out of here please.
-            RestartType restartType = Config.restartTypeConversion.get(arguments[0]);
-            if (restartType!=null) ras=ras.filter(a->a.getRestartType().equals(restartType));
+        for (val ra:RestartAction.getActions()){
+            if(arguments.length>=1) {
+                RestartType restartType = Config.restartTypeConversion.get(arguments[0]);
+                //The timer type did not match the specified type. Hiding.
+                if (restartType!=null && ra.getRestartType()!=restartType) continue;
+            }
+            Optional<TimeUnitValue> otimer = ra.getTimer(source);
+            //We do not have read permissions. Don't print this timer.
+            if (!otimer.isPresent()) continue;
+            TimeUnitValue timer = otimer.get();
+            String start = ra.getRestartType()==RestartType.Vote?
+                    "A Vote" :
+                    ("A Reboot Timer of type "+ra.getRestartType());
+
+            source.sendMessage(start +" is queued with "+timer.getValue()+" "+timer.getUnit()+ " remaining and id '"+ra.getId()+"'.");
         }
-        List<String> output = ras.map(ra->new Object[]{ra.getRestartType(),ra.getTimer(source)})
-                .filter(obj->((Optional<TimeUnitValue>) obj[1]).isPresent())
-                .map(obj->{
-                    obj[1]=((Optional<TimeUnitValue>) obj[1]).get();
-                    return obj;
-                }).map(obj->{
-                    TimeUnitValue tuv=(TimeUnitValue) obj[1];
-                    RestartType t = ((RestartType)obj[0]);
-                    return (t==RestartType.Vote?"A Vote":("A Reboot Timer of type "+t))
-                            +" with "+tuv.getValue()+" "+tuv.getUnit()+ " remaining.";
-                }).collect(Collectors.toList());
-        if (output.isEmpty()){
-            //todo: better error?
-            source.sendMessage(ConfigStrings.getInstance().getNoPermission().getValue());
-            return API.getCommandResult().error();
-        }else {
-            source.sendMessages(output);
-            return API.getCommandResult().success();
-        }
+        return API.getCommandResult().success();
     }
     CommandResult cancel(CommandSource source,String[] arguments){
         if(arguments.length>=1){
@@ -308,8 +294,28 @@ public class Reboot implements Command {
                     return API.getCommandResult().error();
                 }
             }else {
-                source.sendMessage(ConfigStrings.getInstance().getUnrecognisedArgs().getValue());
-                return API.getCommandResult().error();
+                HashSet<Integer> ids = Arrays.stream(arguments).parallel().map(e->{
+                    try{
+                        return Optional.of(Integer.parseInt(e));
+                    }catch (NumberFormatException ignored){
+                        return Optional.empty();
+                    }
+                })//Cast Type erasure back in
+                        .map(e->(Optional<Integer>)e)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .collect(Collectors.toCollection(HashSet::new));
+                int n = RestartAction.cancel(source,ids);
+                if (n>0){
+                    source.sendMessage(ConfigStrings.getInstance().getCancelActionSuccessMultiple().getValue()
+                            .replaceFirst("\\{\\}",Integer.toString(n))
+                            .replaceFirst("\\{\\}",Integer.toString(ids.size()))
+                    );
+                    return API.getCommandResult().success();
+                }else{
+                    source.sendMessage(ConfigStrings.getInstance().getUnrecognisedArgs().getValue());
+                    return API.getCommandResult().error();
+                }
             }
         }else {
             val sendHelp = Reboot.sendHelp.apply(source);
@@ -331,11 +337,6 @@ public class Reboot implements Command {
     }
 
     @Override
-    public boolean testPermission(CommandSource source) {
-        return source.hasPerm(ConfigPermission.getInstance().getRebootCommand().getValue());
-    }
-
-    @Override
     public Optional<String> getShortDescription(CommandSource source) {
         return Optional.of(ConfigCommandStrings.getInstance().getShortDescription().getValue());
     }
@@ -346,10 +347,16 @@ public class Reboot implements Command {
         source.sendMessage("Not Implemented. - Get Help");
         return Optional.empty();
     }
+    CommandResult checkPerm(CommandSource source,String[] args){
+        for (val perm:args){
+            source.sendMessage("Perm "+perm+" is set to: "+source.hasPerm(perm));
+        }
+        return API.getCommandResult().success();
+    }
 
     @Override
     public String getUsage(CommandSource source) {
-        List<String> subcommands = Arrays.stream(RebootSubcommands.values()).filter(sc -> source.hasPerm(sc.perm))
+        List<String> subcommands = Arrays.stream(RebootSubcommands.values()).filter(sc -> source.hasPerm(sc.perm.get()))
                 .map(RebootSubcommands::asString).collect(Collectors.toList());
         return "Valid Subcommands are '"+ subcommands +"'.";
     }
