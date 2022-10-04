@@ -168,7 +168,7 @@ public abstract class RestartAction implements Runnable{
         }
     }
 
-    protected void intStart(){
+    protected void intStart(boolean checkAnnounce){
         convertTimeLower();
         TimeUnit unit = timerUnit.get();
         if (unit==TimeUnit.MILLISECONDS || unit==TimeUnit.MICROSECONDS || unit==TimeUnit.NANOSECONDS){
@@ -187,22 +187,24 @@ public abstract class RestartAction implements Runnable{
             );
         }
         getLogger().info("[VoteReboot] Timer(of type {}) started with {} {}", com.c0d3m4513r.votereboot.reboot.RestartType.asString(restartType),timer.get(), timerUnit);
-        long time = timer.get();
-        Optional<TimeUnitValue> omax = Config.getInstance()
-                .getTimerAnnounceAt().getValue()
-                .stream()
-                .map(TimeEntry::of)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(TimeEntry::getMaxUnit)
-                .max(TimeUnitValue::compareTo);
-        for (val val:Config.getInstance().getTimerAnnounceAt().getValue()){
-            Optional<TimeEntry> tuv = TimeEntry.of(val);
-            if (tuv.isPresent() && (new TimeUnitValue(unit,time)).compareTo(tuv.get().getMaxUnit())>=0){
-                timerAnnounce(time,unit);
-                return;
-            }
+        if(checkAnnounce){
+            long time = timer.get();
+            Optional<TimeUnitValue> omax = Config.getInstance()
+                    .getTimerAnnounceAt().getValue()
+                    .stream()
+                    .map(TimeEntry::of)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .map(TimeEntry::getMaxUnit)
+                    .max(TimeUnitValue::compareTo);
+            for (val val:Config.getInstance().getTimerAnnounceAt().getValue()){
+                Optional<TimeEntry> tuv = TimeEntry.of(val);
+                if (tuv.isPresent() && (new TimeUnitValue(unit,time)).compareTo(tuv.get().getMaxUnit())>=0){
+                    timerAnnounce(time,unit);
+                    return;
+                }
 
+            }
         }
     }
     /**
@@ -213,7 +215,7 @@ public abstract class RestartAction implements Runnable{
     public boolean start(Permission perm){
         if (perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(restartType).getPermission(Action.Start))
         || perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.All).getPermission(Action.Start))){
-            intStart();
+            intStart(true);
             return true;
         }return false;
     }
@@ -278,6 +280,8 @@ public abstract class RestartAction implements Runnable{
             }
             timer.getAndUpdate(t->newUnit.convert(t,unit));
             timerUnit.set(newUnit);
+            cancelTimer(false);
+            intStart(false);
         }else if (time<=0){
             getLogger().trace("[VoteReboot] Timer done. Executing timer done function.");
             timerDone();

@@ -30,10 +30,10 @@ public class VoteAction extends RestartAction {
     }
 
     @Override
-    protected void intStart(){
+    protected void intStart(boolean checkAnnounce){
         timer.set(VoteConfig.getInstance().getVotingTime().getValue());
         timerUnit.set(TimeUnit.SECONDS);
-        super.intStart();
+        super.intStart(checkAnnounce);
     }
 
     public boolean addVote(@NonNull Permission perm, @NonNull String src, @NonNull Optional<Boolean> vote) {

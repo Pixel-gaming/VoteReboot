@@ -17,7 +17,7 @@ public class ScheduledAction extends RestartAction implements Runnable{
     public ScheduledAction(long timer, @NonNull TimeUnit unit){
         this();
         this.timer.set(timer);
-        event=new EventRegistrar(this::intStart, EventType.commandRegister,0);
+        event=new EventRegistrar(()->this.intStart(false), EventType.commandRegister,0);
         this.timerUnit.set(unit);
     }
 }
