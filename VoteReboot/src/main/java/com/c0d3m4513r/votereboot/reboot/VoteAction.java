@@ -1,11 +1,8 @@
 package com.c0d3m4513r.votereboot.reboot;
 
-import com.c0d3m4513r.votereboot.config.Config;
+import com.c0d3m4513r.votereboot.config.*;
 import com.c0d3m4513r.pluginapi.API;
 import com.c0d3m4513r.pluginapi.Permission;
-import com.c0d3m4513r.votereboot.config.ConfigPermission;
-import com.c0d3m4513r.votereboot.config.VoteConfig;
-import com.c0d3m4513r.votereboot.config.ConfigStrings;
 import lombok.Getter;
 import lombok.NonNull;
 
@@ -54,10 +51,35 @@ public class VoteAction extends RestartAction {
     }
 
     @Override
+    protected void scoreboard(){
+        //this causes too much console spam. Don't do it this way.
+//        if (AnnounceConfig.getInstance().getEnableScoreboard().getValue()){
+//            updateVotes();
+//            API.getBuilder().executer(()->{
+//                getLogger().info("Updating Scoreboard");
+//                API.getServer().execCommand("say test");
+//                API.getServer().execCommand("minecraft:scoreboard objectives remove restart");
+//                API.getServer().execCommand("minecraft:scoreboard objectives add restart dummy "+timer.get()+" "+timerUnit.get().toString().toLowerCase());
+//                API.getServer().execCommand("minecraft:scoreboard objectives setdisplay sidebar restart");
+//                API.getServer().execCommand("minecraft:scoreboard players set yes restart "+yes.get());
+//                API.getServer().execCommand("minecraft:scoreboard players set no restart "+no.get());
+//            }).name("votereboot-S-updateScoreboard").build();
+//        }
+    }
+    private void updateVotes(){
+        yes.set(0);
+        no.set(0);
+        votes.values().stream().filter(Optional::isPresent).map(Optional::get)
+                .forEach(v->{if(v) yes.incrementAndGet();else no.incrementAndGet();});
+    }
+
+    @Override
     protected void timerDone() {
         if (restartType==RestartType.Vote){
-            votes.values().stream().filter(Optional::isPresent).map(Optional::get)
-                    .forEach(v->{if(v) yes.incrementAndGet();else no.incrementAndGet();});
+            API.getBuilder().executer(()->{
+                API.getServer().execCommand("minecraft:scoreboard objectives remove restart");
+            }).name("votereboot-S-removeScoreboard").build();
+            updateVotes();
             double percent = (yes.get() / 1.0 / (yes.get() + no.get())) * 100.0;
             getLogger().info("{} yes, {} no, {}% of the people that voted want the server to be restarted", yes.get(),no.get(),percent);
             getLogger().info("Votes: {}",votes.values().stream().map(e-> e.map(aBoolean -> aBoolean ? "true" : "false").orElse("none")).collect(Collectors.toList()));

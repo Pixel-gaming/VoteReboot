@@ -22,6 +22,12 @@ public class AnnounceConfig implements IConfigLoadableSaveable {
     private ConfigEntry<Boolean> enableTimerSoundAnnounce = new ConfigEntry<>(new ClassValue<>(true, Boolean.class)
             , "votereboot.announceRestarts.enabled.sound");
     @NonNull
+    private ConfigEntry<Boolean> enableScoreboard = new ConfigEntry<>(new ClassValue<>(true, Boolean.class)
+            , "votereboot.announceRestarts.enabled.scoreboard");
+    @NonNull
+    private ConfigEntry<Boolean> enableTitle = new ConfigEntry<>(new ClassValue<>(true, Boolean.class)
+            , "votereboot.announceRestarts.enabled.title");
+    @NonNull
     private ConfigEntry<Boolean> soundAnnouncePlayGlobal = new ConfigEntry<>(new ClassValue<>(true, Boolean.class)
             , "votereboot.announceRestarts.sound.playGlobal");
     @NonNull
@@ -40,6 +46,8 @@ public class AnnounceConfig implements IConfigLoadableSaveable {
     @Override
     public void loadValue() {
         enableTimerChatAnnounce.loadValue();
+        enableScoreboard.loadValue();
+        enableTitle.loadValue();
         timerAnnounceAt.loadValue();
         soundAnnouncePlayGlobal.loadValue();
         soundAnnounceVolume.loadValue();
@@ -48,6 +56,8 @@ public class AnnounceConfig implements IConfigLoadableSaveable {
     @Override
     public void saveValue() {
         enableTimerChatAnnounce.saveValue();
+        enableScoreboard.saveValue();
+        enableTitle.saveValue();
         timerAnnounceAt.saveValue();
         soundAnnouncePlayGlobal.saveValue();
         soundAnnounceVolume.saveValue();

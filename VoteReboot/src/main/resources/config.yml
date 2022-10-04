@@ -11,6 +11,8 @@ votereboot:
       chat: true
       #with a sound?
       sound: true
+      scoreboard: true
+      title: true
     sound:
       #Does this sound play once per world, or once at every player location
       playGlobal: true

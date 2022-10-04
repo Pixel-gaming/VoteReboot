@@ -4,6 +4,7 @@ import com.c0d3m4513r.pluginapi.Data.Point3D;
 import com.c0d3m4513r.pluginapi.config.TimeEntry;
 import com.c0d3m4513r.pluginapi.config.TimeUnitValue;
 import com.c0d3m4513r.pluginapi.convert.Convert;
+import com.c0d3m4513r.pluginapi.messages.Title;
 import com.c0d3m4513r.pluginapi.registry.Sound;
 import com.c0d3m4513r.votereboot.Action;
 import com.c0d3m4513r.pluginapi.API;
@@ -195,7 +196,7 @@ public abstract class RestartAction implements Runnable{
             long time = timer.get();
             for (val val:AnnounceConfig.getInstance().getTimerAnnounceAt().getValue()){
                 Optional<TimeEntry> tuv = TimeEntry.of(val);
-                if (tuv.isPresent() && (new TimeUnitValue(unit,time)).compareTo(tuv.get().getMaxUnit())>=0) {
+                if (tuv.isPresent() && (new TimeUnitValue(unit,time)).compareTo(tuv.get().getMaxUnit())>0) {
                     timerAnnounce(time, unit);
                     return;
                 }
@@ -223,7 +224,12 @@ public abstract class RestartAction implements Runnable{
         getLogger().trace("[VoteReboot] Timer Done was called. Restarting server now.");
         actions.remove(this);
         API.getServer().sendMessage("The Server is Restarting!");
-        API.getBuilder().reset().executer(()->API.getServer().onRestart(Optional.empty())).build();
+        String reason = null;
+        if (Config.getInstance().getUseCustomMessage().getValue()){
+            reason=Config.getInstance().getCustomMessage().getValue();
+        }
+        String finalReason = reason;
+        API.getBuilder().reset().executer(()->API.getServer().onRestart(Optional.ofNullable(finalReason))).build();
         cancelTimer();
     }
 
@@ -236,6 +242,21 @@ public abstract class RestartAction implements Runnable{
             API.getServer().sendMessage(announcement.replaceFirst("\\{\\}",Long.toString(timer))
                 .replaceFirst("\\{\\}", String.valueOf(unit)));
         soundTimerAnnounce();
+        if (AnnounceConfig.getInstance().getEnableTitle().getValue()){
+            API.getBuilder().name("votereboot-S-announce-title").executer(()->{
+                for(val world:API.getServer().getWorlds()){
+                    val title = new Title(
+                            Optional.of(ConfigStrings.getInstance()
+                            .getServerRestartAnnouncement()
+                            .getPermission(restartType)
+                            .replaceFirst("\\{\\}",Long.toString(timer))
+                            .replaceFirst("\\{\\}",unit.toString().toLowerCase())),
+                            Optional.empty()
+                    );
+                    world.sendTitle(title);
+                }
+            }).build();
+        }
     }
     private void soundTimerAnnounce(){
         if(AnnounceConfig.getInstance().getEnableTimerSoundAnnounce().getValue()){
@@ -243,14 +264,15 @@ public abstract class RestartAction implements Runnable{
             int volume = AnnounceConfig.getInstance().getSoundAnnounceVolume().getValue();
             for (val world:API.getServer().getWorlds()){
                 if(AnnounceConfig.getInstance().getSoundAnnouncePlayGlobal().getValue())
-                    sound.playSound(world,new Point3D(0,64,0),volume);
+                    world.playSound(sound,new Point3D(0,64,0),volume);
                 else
                     for (val player:world.getPlayers()){
-                        sound.playSound(world,player.getPosition(),volume);
+                        player.playSound(sound,player.getPosition(),volume);
                     }
             }
         }
     }
+    protected void scoreboard(){}
     /**
      * This needs to be async safe
      * @param timer Time left on the timer
@@ -277,6 +299,7 @@ public abstract class RestartAction implements Runnable{
     public void run(){
         long time = timer.getAndDecrement();
         TimeUnit unit = timerUnit.get();
+        scoreboard();
         timerTick(time,unit);
         if (time==2 && unit!=TimeUnit.SECONDS){
             final TimeUnit newUnit;
