@@ -5,7 +5,7 @@ on:
     branches: [ main,dev,c0d3m4513r-dev,c0d3m4513r-main,testing ]
     # Remove the line above to run when pushing to master
   pull_request:
-    branches: [ main, dev ]
+    branches: [ main, dev, c0d3m4513r-dev, c0d3m4513r-main ]
   workflow_dispatch:
 
 jobs:
