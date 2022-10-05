@@ -91,6 +91,7 @@ public abstract class RestartAction implements Runnable{
             return false;
         }
     }
+    //async
     protected final boolean cancelTimer(boolean del){
         if (del) actions.remove(this);
         return cancelTimer();
@@ -165,7 +166,7 @@ public abstract class RestartAction implements Runnable{
             return true;
         } else return false;
     }
-
+    //async
     private void convertTimeLower(){
         if (timer.get()<=2){
             TimeUnit unit = timerUnit.get();
@@ -174,7 +175,7 @@ public abstract class RestartAction implements Runnable{
             timerUnit.set(newUnit);
         }
     }
-
+    //async
     protected void intStart(boolean checkAnnounce){
         convertTimeLower();
         TimeUnit unit = timerUnit.get();
@@ -222,6 +223,7 @@ public abstract class RestartAction implements Runnable{
      * This needs to be async safe.
      * This also needs to cancel the timer.
      */
+    //async
     protected void timerDone(){
         getLogger().trace("[VoteReboot] Timer Done was called. Restarting server now.");
         actions.remove(this);
@@ -231,10 +233,10 @@ public abstract class RestartAction implements Runnable{
             reason=Config.getInstance().getCustomMessage().getValue();
         }
         String finalReason = reason;
-        API.getBuilder().reset().executer(()->API.getServer().onRestart(Optional.ofNullable(finalReason))).build();
+        API.runOnMain(()->API.getServer().onRestart(Optional.ofNullable(finalReason)));
         cancelTimer();
     }
-
+    //async
     private void timerAnnounce(long timer,TimeUnit unit){
         getLogger().info("Announcing {} timer = {} {}",restartType,timer,unit);
         String announcement = ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(restartType);
@@ -245,7 +247,7 @@ public abstract class RestartAction implements Runnable{
                 .replaceFirst("\\{\\}", String.valueOf(unit)));
         soundTimerAnnounce();
         if (AnnounceConfig.getInstance().getEnableTitle().getValue()){
-            API.getBuilder().name("votereboot-S-announce-title").executer(()->{
+            API.runOnMain(()->{
                 for(val world:API.getServer().getWorlds()){
                     val title = new Title(
                             Optional.of(ConfigStrings.getInstance()
@@ -257,9 +259,10 @@ public abstract class RestartAction implements Runnable{
                     );
                     world.sendTitle(title);
                 }
-            }).build();
+            });
         }
     }
+    //async
     private void soundTimerAnnounce(){
         if(AnnounceConfig.getInstance().getEnableTimerSoundAnnounce().getValue()){
             Sound sound = Sound.getType(AnnounceConfig.getInstance().getSoundId().getValue());
@@ -274,11 +277,13 @@ public abstract class RestartAction implements Runnable{
             }
         }
     }
+    //async
     protected void scoreboard(){}
     /**
      * This needs to be async safe
      * @param timer Time left on the timer
      */
+    //async
     private void timerTick(long timer,TimeUnit unit){
         List<String> atStrings = AnnounceConfig.getInstance().getTimerAnnounceAt().getValue();
         for(val atEntry:atStrings){
@@ -298,6 +303,7 @@ public abstract class RestartAction implements Runnable{
     /**
      * This needs to be async safe
      */
+    //async
     public void run(){
         long time = timer.decrementAndGet();
         TimeUnit unit = timerUnit.get();
