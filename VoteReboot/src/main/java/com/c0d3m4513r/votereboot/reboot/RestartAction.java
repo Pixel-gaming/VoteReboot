@@ -35,6 +35,8 @@ public abstract class RestartAction implements Runnable{
     //Invariant: If this is not-empty, the timer has to be started.
     protected Optional<Task> task = Optional.empty();
     @NonNull
+    //It is okay for the timer to lag behind up to (exclusive) 1 timerUnit.
+    //That is because the time in between is tracked by the server because of Task repeat intervals.
     protected volatile AtomicLong timer = new AtomicLong();
     @NonNull
     protected volatile AtomicReference<TimeUnit> timerUnit = new AtomicReference<>();
@@ -265,10 +267,10 @@ public abstract class RestartAction implements Runnable{
      * This needs to be async safe
      */
     public void run(){
-        long time = timer.getAndDecrement();
+        long time = timer.decrementAndGet();
         TimeUnit unit = timerUnit.get();
         timerTick(time,unit);
-        if (time==2 && unit!=TimeUnit.SECONDS){
+        if (time==1 && unit!=TimeUnit.SECONDS){
             final TimeUnit newUnit;
             switch (unit){
                 case DAYS: newUnit =TimeUnit.HOURS; break;
@@ -281,9 +283,6 @@ public abstract class RestartAction implements Runnable{
             timer.getAndUpdate(t->newUnit.convert(t,unit));
             timerUnit.set(newUnit);
             cancelTimer(false);
-            try {
-                Thread.sleep(TimeUnit.MILLISECONDS.convert(1,unit));
-            } catch (InterruptedException ignored) {}
             intStart(false);
         }else if (time<=0){
             getLogger().trace("[VoteReboot] Timer done. Executing timer done function.");
