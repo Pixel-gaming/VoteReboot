@@ -20,6 +20,8 @@ votereboot:
       id: block.note.pling
       #volume. Please turn this down, when not using playGlobal.
       volume: 4000
+    scoreboard:
+      title: Restart Vote
     #This list should be ordered earliest to latest announce.
     #The format here is like (long,TimeUnit)[+(long,TimeUnit)]*
     at:

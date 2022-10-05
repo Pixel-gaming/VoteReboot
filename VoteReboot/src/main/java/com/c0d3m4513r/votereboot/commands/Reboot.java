@@ -93,7 +93,7 @@ public class Reboot implements Command {
      CommandResult reload(CommandSource source,String[] arguments) {
          getLogger().info("[VoteReboot] Explicit Config load was requested. Loading configs in new async thread");
          try {
-             API.getBuilder().reset().async(true).name("votereboot-A-loadConfig").executer(()->{API.getConfigLoader().updateConfigLoader();Config.getInstance().loadValue();}).build();
+             API.runOnMain(()->{API.getConfigLoader().updateConfigLoader();Config.getInstance().loadValue();});
              //todo: Move the string to config
              source.sendMessage("Configs have been requested to reload in an async thread.");
          } catch (OutOfMemoryError oom){
@@ -383,7 +383,7 @@ public class Reboot implements Command {
         }
         getLogger().info("[VoteReboot] Explicit Config save was requested. Saving configs in new async thread");
         try {
-            API.getBuilder().reset().async(true).executer(()->Config.getInstance().saveValue()).build();
+            API.runOnMain(()->Config.getInstance().saveValue());
             //todo: Move the string to config
             source.sendMessage("[VoteReboot] Configs have been requested to be saved in an async thread.");
 

@@ -1,6 +1,7 @@
 package com.c0d3m4513r.votereboot.reboot;
 
 import com.c0d3m4513r.pluginapi.Data.Point3D;
+import com.c0d3m4513r.pluginapi.TaskBuilder;
 import com.c0d3m4513r.pluginapi.config.TimeEntry;
 import com.c0d3m4513r.pluginapi.config.TimeUnitValue;
 import com.c0d3m4513r.pluginapi.convert.Convert;
@@ -92,7 +93,7 @@ public abstract class RestartAction implements Runnable{
         }
     }
     //async
-    protected final boolean cancelTimer(boolean del){
+    protected boolean cancelTimer(boolean del){
         if (del) actions.remove(this);
         return cancelTimer();
     }
@@ -149,7 +150,7 @@ public abstract class RestartAction implements Runnable{
     }
 
     protected void doReset(){
-        cancelTimer(false);
+        cancelTimer();
         //we requested a timer cancel. to uphold the invariant, we are going to cancel anyways (even if the cancel was not successful).
         task=Optional.empty();
         timer.set(0);
@@ -185,7 +186,8 @@ public abstract class RestartAction implements Runnable{
             cancelTimer();
             return;
         }else{
-            task=Optional.of(API.getBuilder()
+            task=Optional.of(
+                    TaskBuilder.builder()
                     .deferred(1,timerUnit.get())
                     .timer(1,timerUnit.get())
                     .async(true)
