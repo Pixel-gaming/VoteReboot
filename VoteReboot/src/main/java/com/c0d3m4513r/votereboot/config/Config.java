@@ -31,6 +31,8 @@ public class Config extends MainConfig implements IConfigLoadableSaveable {
     public static final VoteConfig voteConfig = new VoteConfig();
     @NonNull
     public static final ConfigPermission configPermission = new ConfigPermission();
+    @NonNull
+    public static final AnnounceConfig announceConfig = new AnnounceConfig();
     public static final Map<String, RestartType> restartTypeConversion = new HashMap<String, RestartType>() {
         {
             put("Vote", RestartType.Vote);
@@ -74,17 +76,6 @@ public class Config extends MainConfig implements IConfigLoadableSaveable {
             , "votereboot.scheduledRestarts");
 
     @NonNull
-    private ConfigEntry<Boolean> enableTimerAnnounce = new ConfigEntry<>(new ClassValue<>(true, Boolean.class)
-            , "votereboot.announceRestarts.enabled");
-
-    @NonNull
-    private ListConfigEntry<String> timerAnnounceAt = new ListConfigEntry<>(
-            new ClassValue<>(
-                    Arrays.asList("10m", "5m", "2m", "1m", "30s", "20s", "10s", "5s", "4s", "3s", "2s", "1s"),
-                    String.class
-            ), "votereboot.announceRestarts.at");
-
-    @NonNull
     private ListConfigEntry<String> aliasList = new ListConfigEntry<>(
             new ClassValue<>(Arrays.asList("reboot", "restart"), String.class)
             , "votereboot.aliasList");
@@ -117,16 +108,15 @@ public class Config extends MainConfig implements IConfigLoadableSaveable {
     public void loadValue() {
         getLogger().info("[VoteReboot] Load Config");
         voteConfig.loadValue();
+        configPermission.loadValue();
+        announceConfig.loadValue();
         scheduledRestarts.loadValue();
-        enableTimerAnnounce.loadValue();
-        timerAnnounceAt.loadValue();
         aliasList.loadValue();
         kickEnabled.loadValue();
         useCustomMessage.loadValue();
         customMessage.loadValue();
         actionsEnabled.loadValue();
         rebootCommands.loadValue();
-        configPermission.loadValue();
         configStrings.loadValue();
         configCommandStrings.loadValue();
         getLogger().info("[VoteReboot] Load Config Done");
@@ -136,16 +126,15 @@ public class Config extends MainConfig implements IConfigLoadableSaveable {
     public void saveValue() {
         getLogger().info("[VoteReboot] Save Config");
         voteConfig.saveValue();
+        configPermission.saveValue();
+        announceConfig.saveValue();
         scheduledRestarts.saveValue();
-        enableTimerAnnounce.saveValue();
-        timerAnnounceAt.saveValue();
         aliasList.saveValue();
         kickEnabled.saveValue();
         useCustomMessage.saveValue();
         customMessage.saveValue();
         actionsEnabled.saveValue();
         rebootCommands.saveValue();
-        configPermission.saveValue();
         configStrings.saveValue();
         configCommandStrings.saveValue();
         getLogger().info("[VoteReboot] Save Config Done");

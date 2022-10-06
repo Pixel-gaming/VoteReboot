@@ -1,12 +1,17 @@
 package com.c0d3m4513r.votereboot.reboot;
 
+import com.c0d3m4513r.pluginapi.Data.Point3D;
+import com.c0d3m4513r.pluginapi.TaskBuilder;
 import com.c0d3m4513r.pluginapi.config.TimeEntry;
 import com.c0d3m4513r.pluginapi.config.TimeUnitValue;
 import com.c0d3m4513r.pluginapi.convert.Convert;
+import com.c0d3m4513r.pluginapi.messages.Title;
+import com.c0d3m4513r.pluginapi.registry.Sound;
 import com.c0d3m4513r.votereboot.Action;
 import com.c0d3m4513r.pluginapi.API;
 import com.c0d3m4513r.pluginapi.Permission;
 import com.c0d3m4513r.pluginapi.Task;
+import com.c0d3m4513r.votereboot.config.AnnounceConfig;
 import com.c0d3m4513r.votereboot.config.Config;
 import com.c0d3m4513r.votereboot.config.ConfigPermission;
 import com.c0d3m4513r.votereboot.config.ConfigStrings;
@@ -15,6 +20,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.val;
 
+import java.sql.Time;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -35,6 +41,8 @@ public abstract class RestartAction implements Runnable{
     //Invariant: If this is not-empty, the timer has to be started.
     protected Optional<Task> task = Optional.empty();
     @NonNull
+    //It is okay for the timer to lag behind up to (exclusive) 1 timerUnit.
+    //That is because the time in between is tracked by the server because of Task repeat intervals.
     protected volatile AtomicLong timer = new AtomicLong();
     @NonNull
     protected volatile AtomicReference<TimeUnit> timerUnit = new AtomicReference<>();
@@ -84,7 +92,8 @@ public abstract class RestartAction implements Runnable{
             return false;
         }
     }
-    protected final boolean cancelTimer(boolean del){
+    //async
+    protected boolean cancelTimer(boolean del){
         if (del) actions.remove(this);
         return cancelTimer();
     }
@@ -141,7 +150,7 @@ public abstract class RestartAction implements Runnable{
     }
 
     protected void doReset(){
-        cancelTimer(false);
+        cancelTimer();
         //we requested a timer cancel. to uphold the invariant, we are going to cancel anyways (even if the cancel was not successful).
         task=Optional.empty();
         timer.set(0);
@@ -158,7 +167,7 @@ public abstract class RestartAction implements Runnable{
             return true;
         } else return false;
     }
-
+    //async
     private void convertTimeLower(){
         if (timer.get()<=2){
             TimeUnit unit = timerUnit.get();
@@ -167,8 +176,8 @@ public abstract class RestartAction implements Runnable{
             timerUnit.set(newUnit);
         }
     }
-
-    protected void intStart(){
+    //async
+    protected void intStart(boolean checkAnnounce){
         convertTimeLower();
         TimeUnit unit = timerUnit.get();
         if (unit==TimeUnit.MILLISECONDS || unit==TimeUnit.MICROSECONDS || unit==TimeUnit.NANOSECONDS){
@@ -177,7 +186,8 @@ public abstract class RestartAction implements Runnable{
             cancelTimer();
             return;
         }else{
-            task=Optional.of(API.getBuilder()
+            task=Optional.of(
+                    TaskBuilder.builder()
                     .deferred(1,timerUnit.get())
                     .timer(1,timerUnit.get())
                     .async(true)
@@ -187,22 +197,15 @@ public abstract class RestartAction implements Runnable{
             );
         }
         getLogger().info("[VoteReboot] Timer(of type {}) started with {} {}", com.c0d3m4513r.votereboot.reboot.RestartType.asString(restartType),timer.get(), timerUnit);
-        long time = timer.get();
-        Optional<TimeUnitValue> omax = Config.getInstance()
-                .getTimerAnnounceAt().getValue()
-                .stream()
-                .map(TimeEntry::of)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(TimeEntry::getMaxUnit)
-                .max(TimeUnitValue::compareTo);
-        for (val val:Config.getInstance().getTimerAnnounceAt().getValue()){
-            Optional<TimeEntry> tuv = TimeEntry.of(val);
-            if (tuv.isPresent() && (new TimeUnitValue(unit,time)).compareTo(tuv.get().getMaxUnit())>=0){
-                timerAnnounce(time,unit);
-                return;
+        if(checkAnnounce){
+            long time = timer.get();
+            for (val val:AnnounceConfig.getInstance().getTimerAnnounceAt().getValue()){
+                Optional<TimeEntry> tuv = TimeEntry.of(val);
+                if (tuv.isPresent() && (new TimeUnitValue(unit,time)).compareTo(tuv.get().getMaxUnit())>0) {
+                    timerAnnounce(time, unit);
+                    return;
+                }
             }
-
         }
     }
     /**
@@ -213,7 +216,7 @@ public abstract class RestartAction implements Runnable{
     public boolean start(Permission perm){
         if (perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(restartType).getPermission(Action.Start))
         || perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.All).getPermission(Action.Start))){
-            intStart();
+            intStart(true);
             return true;
         }return false;
     }
@@ -222,39 +225,79 @@ public abstract class RestartAction implements Runnable{
      * This needs to be async safe.
      * This also needs to cancel the timer.
      */
+    //async
     protected void timerDone(){
         getLogger().trace("[VoteReboot] Timer Done was called. Restarting server now.");
         actions.remove(this);
         API.getServer().sendMessage("The Server is Restarting!");
-        API.getBuilder().reset().executer(()->API.getServer().onRestart(Optional.empty())).build();
+        String reason = null;
+        if (Config.getInstance().getUseCustomMessage().getValue()){
+            reason=Config.getInstance().getCustomMessage().getValue();
+        }
+        String finalReason = reason;
+        API.runOnMain(()->API.getServer().onRestart(Optional.ofNullable(finalReason)));
         cancelTimer();
     }
-
+    //async
     private void timerAnnounce(long timer,TimeUnit unit){
         getLogger().info("Announcing {} timer = {} {}",restartType,timer,unit);
         String announcement = ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(restartType);
         if (announcement.isEmpty()) announcement=ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(com.c0d3m4513r.votereboot.reboot.RestartType.All);
-        API.getServer().sendMessage(announcement.replaceFirst("\\{\\}",Long.toString(timer))
+        //Only do chat announcements, if really enabled.
+        if(AnnounceConfig.getInstance().getEnableTimerChatAnnounce().getValue())
+            API.getServer().sendMessage(announcement.replaceFirst("\\{\\}",Long.toString(timer))
                 .replaceFirst("\\{\\}", String.valueOf(unit)));
+        soundTimerAnnounce();
+        if (AnnounceConfig.getInstance().getEnableTitle().getValue()){
+            API.runOnMain(()->{
+                for(val world:API.getServer().getWorlds()){
+                    val title = new Title(
+                            Optional.of(ConfigStrings.getInstance()
+                            .getServerRestartAnnouncement()
+                            .getPermission(restartType)
+                            .replaceFirst("\\{\\}",Long.toString(timer))
+                            .replaceFirst("\\{\\}",unit.toString().toLowerCase())),
+                            Optional.empty()
+                    );
+                    world.sendTitle(title);
+                }
+            });
+        }
     }
+    //async
+    private void soundTimerAnnounce(){
+        if(AnnounceConfig.getInstance().getEnableTimerSoundAnnounce().getValue()){
+            Sound sound = Sound.getType(AnnounceConfig.getInstance().getSoundId().getValue());
+            int volume = AnnounceConfig.getInstance().getSoundAnnounceVolume().getValue();
+            for (val world:API.getServer().getWorlds()){
+                if(AnnounceConfig.getInstance().getSoundAnnouncePlayGlobal().getValue())
+                    world.playSound(sound,new Point3D(0,64,0),volume);
+                else
+                    for (val player:world.getPlayers()){
+                        player.playSound(sound,player.getPosition(),volume);
+                    }
+            }
+        }
+    }
+    //async
+    protected void scoreboard(){}
     /**
      * This needs to be async safe
      * @param timer Time left on the timer
      */
+    //async
     private void timerTick(long timer,TimeUnit unit){
-        if (Config.getInstance().getEnableTimerAnnounce().getValue()){
-            List<String> atStrings = Config.getInstance().getTimerAnnounceAt().getValue();
-            for(val atEntry:atStrings){
-                Optional<TimeEntry> teo = TimeEntry.of(atEntry);
-                if (teo.isPresent()){
-                    TimeEntry te = teo.get();
-                    TimeUnitValue tuv = te.getMaxUnit();
-                    if (unit.convert(tuv.getValue(),tuv.getUnit())==timer){
-                        timerAnnounce(tuv.getValue(),tuv.getUnit());
-                    }
-                }else {
-                    getLogger().error("[VoteReboot] Cannot parse String as TimeEntry. Please check the config.");
+        List<String> atStrings = AnnounceConfig.getInstance().getTimerAnnounceAt().getValue();
+        for(val atEntry:atStrings){
+            Optional<TimeEntry> teo = TimeEntry.of(atEntry);
+            if (teo.isPresent()){
+                TimeEntry te = teo.get();
+                TimeUnitValue tuv = te.getMaxUnit();
+                if (unit.convert(tuv.getValue(),tuv.getUnit())==timer){
+                    timerAnnounce(tuv.getValue(),tuv.getUnit());
                 }
+            }else {
+                getLogger().error("[VoteReboot] Cannot parse String as TimeEntry. Please check the config.");
             }
         }
     }
@@ -262,11 +305,13 @@ public abstract class RestartAction implements Runnable{
     /**
      * This needs to be async safe
      */
+    //async
     public void run(){
-        long time = timer.getAndDecrement();
+        long time = timer.decrementAndGet();
         TimeUnit unit = timerUnit.get();
+        scoreboard();
         timerTick(time,unit);
-        if (time==2 && unit!=TimeUnit.SECONDS){
+        if (time==1 && unit!=TimeUnit.SECONDS){
             final TimeUnit newUnit;
             switch (unit){
                 case DAYS: newUnit =TimeUnit.HOURS; break;
@@ -278,6 +323,8 @@ public abstract class RestartAction implements Runnable{
             }
             timer.getAndUpdate(t->newUnit.convert(t,unit));
             timerUnit.set(newUnit);
+            cancelTimer(false);
+            intStart(false);
         }else if (time<=0){
             getLogger().trace("[VoteReboot] Timer done. Executing timer done function.");
             timerDone();
