@@ -252,12 +252,12 @@ public abstract class RestartAction implements Runnable{
             API.runOnMain(()->{
                 for(val world:API.getServer().getWorlds()){
                     val title = new Title(
+                            Optional.empty(),
                             Optional.of(ConfigStrings.getInstance()
                             .getServerRestartAnnouncement()
                             .getPermission(restartType)
                             .replaceFirst("\\{\\}",Long.toString(timer))
-                            .replaceFirst("\\{\\}",unit.toString().toLowerCase())),
-                            Optional.empty()
+                            .replaceFirst("\\{\\}",unit.toString().toLowerCase()))
                     );
                     world.sendTitle(title);
                 }
