@@ -19,7 +19,7 @@
     <modules>
         <module>API</module>
         <module>PluginDef</module>
-<!--        <module>spigot_v112</module>-->
+        <module>spigot_v112</module>
         <module>sponge_v7</module>
         <module>VoteReboot</module>
     </modules>

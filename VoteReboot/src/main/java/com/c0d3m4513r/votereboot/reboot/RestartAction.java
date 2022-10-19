@@ -271,10 +271,10 @@ public abstract class RestartAction implements Runnable{
             int volume = AnnounceConfig.getInstance().getSoundAnnounceVolume().getValue();
             for (val world:API.getServer().getWorlds()){
                 if(AnnounceConfig.getInstance().getSoundAnnouncePlayGlobal().getValue())
-                    world.playSound(sound,new Point3D(0,64,0),volume);
+                    world.playSound(sound, () -> new Point3D(0,64,0), volume);
                 else
                     for (val player:world.getPlayers()){
-                        player.playSound(sound,player.getPosition(),volume);
+                        player.playSound(sound,player.getLocation(),volume);
                     }
             }
         }

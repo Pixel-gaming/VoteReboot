@@ -22,7 +22,7 @@ public class VoteAction extends RestartAction {
     private AtomicLong no = new AtomicLong();
     private AtomicLong yes = new AtomicLong();
     private final Scoreboard scoreboard = Scoreboard.getNew();
-    private final Objective sidebarObjective = Objective.createNew("reboot",AnnounceConfig.getInstance().getScoreboardTitle().getValue(), Criteria.Dummy);
+    private final Objective sidebarObjective = Objective.createNew(scoreboard,"reboot",AnnounceConfig.getInstance().getScoreboardTitle().getValue(), Criteria.Dummy);
     private final Score yesScore = sidebarObjective.getOrCreateScore("yes");
     private final Score noScore = sidebarObjective.getOrCreateScore("no");
     private final Score timeScore = sidebarObjective.getOrCreateScore("time");
