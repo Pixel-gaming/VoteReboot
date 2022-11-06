@@ -29,7 +29,11 @@ public class VoteAction extends RestartAction {
     public VoteAction() {
         super(RestartType.Vote);
         //then the scoreboard
-        scoreboard.addObjective(sidebarObjective);
+        try{
+            //if this add fails, the objective was already a part of the scoreboard
+            scoreboard.addObjective(sidebarObjective);
+        }catch (IllegalArgumentException ignored){}
+        //this should never return an IllegalStateException, because we make sure above that the objective is registered.
         scoreboard.updateDisplaySlot(sidebarObjective,DisplaySlot.Sidebar);
     }
 

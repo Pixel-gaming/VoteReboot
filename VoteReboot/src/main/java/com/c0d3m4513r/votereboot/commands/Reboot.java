@@ -123,24 +123,9 @@ public class Reboot implements Command {
         //noinspection OptionalAssignedToNull//
         Optional<Boolean> vote = null;
         {
-            for(val s: VoteConfig.getInstance().getYesList().getValue()){
-                if (s.equals(args[0])) {
-                    vote=Optional.of(true);
-                    break;
-                }
-            }
-            for(val s:VoteConfig.getInstance().getNoList().getValue()){
-                if (s.equals(args[0])) {
-                    vote=Optional.of(false);
-                    break;
-                }
-            }
-            for(val s:VoteConfig.getInstance().getNoneList().getValue()){
-                if (s.equals(args[0])) {
-                    vote=Optional.empty();
-                    break;
-                }
-            }
+            if (VoteConfig.getInstance().getYesList().getValue().contains(args[0])) vote=Optional.of(true);
+            else if (VoteConfig.getInstance().getNoList().getValue().contains(args[0])) vote=Optional.of(false);
+            else if (VoteConfig.getInstance().getNoneList().getValue().contains(args[0])) vote=Optional.empty();
         }
 
         if (args[0].equals( "start")){
