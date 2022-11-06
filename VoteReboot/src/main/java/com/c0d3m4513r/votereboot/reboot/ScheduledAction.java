@@ -12,11 +12,8 @@ import static com.c0d3m4513r.pluginapi.API.getLogger;
 
 public class ScheduledAction extends RestartAction implements Runnable{
     EventRegistrar event;
-    private ScheduledAction(){
-        super(RestartType.Scheduled);
-    }
     public ScheduledAction(@NonNull TimeUnitValue tuv){
-        this();
+        super(RestartType.Scheduled, tuv);
         this.timer.set(tuv.getValue());
         this.timerUnit.set(tuv.getUnit());
         event=new EventRegistrar(()->this.intStart(false), EventType.commandRegister,0);

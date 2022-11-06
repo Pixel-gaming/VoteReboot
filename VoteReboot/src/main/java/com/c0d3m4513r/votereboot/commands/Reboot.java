@@ -200,7 +200,7 @@ public class Reboot implements Command {
 
         String time = args.poll();
         Optional<TimeEntry> teo = TimeEntry.of(time, args.peek());
-        if (!teo.isPresent()) teo = TimeEntry.of(time);
+        if (!teo.isPresent() && time != null) teo = TimeEntry.of(time);
         else args.pollFirst();
 
         if (teo.isPresent()){

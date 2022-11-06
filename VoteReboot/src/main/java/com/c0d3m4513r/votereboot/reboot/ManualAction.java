@@ -1,5 +1,6 @@
 package com.c0d3m4513r.votereboot.reboot;
 
+import com.c0d3m4513r.pluginapi.API;
 import com.c0d3m4513r.pluginapi.Nullable;
 import com.c0d3m4513r.pluginapi.command.CommandSource;
 import com.c0d3m4513r.pluginapi.config.TimeUnitValue;
@@ -8,19 +9,13 @@ import lombok.*;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.c0d3m4513r.pluginapi.API.getLogger;
+
 public class ManualAction extends RestartAction {
-    private ManualAction(){
-        super(RestartType.Manual);
-        reason=null;
-    }
-    private ManualAction(@Nullable String reason) {
-        this();
-        this.reason = reason;
-    }
+
     public ManualAction(@Nullable String reason, @NonNull TimeUnitValue tuv){
-        this(reason);
-        this.timer.set(tuv.getValue());
-        this.timerUnit.set(tuv.getUnit());
+        super(RestartType.Manual,tuv);
+        this.reason = reason;
     }
 
     public boolean start(CommandSource perm){

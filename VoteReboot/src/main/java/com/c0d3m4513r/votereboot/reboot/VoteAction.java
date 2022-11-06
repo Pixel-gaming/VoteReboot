@@ -1,6 +1,7 @@
 package com.c0d3m4513r.votereboot.reboot;
 
 import com.c0d3m4513r.pluginapi.Scoreboard.*;
+import com.c0d3m4513r.pluginapi.config.TimeUnitValue;
 import com.c0d3m4513r.votereboot.config.*;
 import com.c0d3m4513r.pluginapi.API;
 import com.c0d3m4513r.pluginapi.Permission;
@@ -27,7 +28,7 @@ public class VoteAction extends RestartAction {
     private final Score noScore = sidebarObjective.getOrCreateScore("no");
     private final Score timeScore = sidebarObjective.getOrCreateScore("time");
     public VoteAction() {
-        super(RestartType.Vote);
+        super(RestartType.Vote, new TimeUnitValue(TimeUnit.SECONDS,VoteConfig.getInstance().getVotingTime().getValue()));
         //then the scoreboard
         try{
             //if this add fails, the objective was already a part of the scoreboard
@@ -39,8 +40,6 @@ public class VoteAction extends RestartAction {
 
     @Override
     protected void intStart(boolean checkAnnounce){
-        timer.set(VoteConfig.getInstance().getVotingTime().getValue());
-        timerUnit.set(TimeUnit.SECONDS);
         showScoreboard();
         super.intStart(checkAnnounce);
     }

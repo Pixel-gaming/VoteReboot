@@ -32,6 +32,7 @@ import java.util.function.Function;
 import java.util.function.LongUnaryOperator;
 import java.util.stream.Collectors;
 
+import static com.c0d3m4513r.pluginapi.API.*;
 import static com.c0d3m4513r.pluginapi.API.getLogger;
 
 @AllArgsConstructor
@@ -45,9 +46,9 @@ public abstract class RestartAction implements Runnable{
     @NonNull
     //It is okay for the timer to lag behind up to (exclusive) 1 timerUnit.
     //That is because the time in between is tracked by the server because of Task repeat intervals.
-    protected volatile AtomicLong timer = new AtomicLong();
+    protected AtomicLong timer = new AtomicLong();
     @NonNull
-    protected volatile AtomicReference<TimeUnit> timerUnit = new AtomicReference<>();
+    protected AtomicReference<TimeUnit> timerUnit = new AtomicReference<>();
     @NonNull
     @Getter
     protected com.c0d3m4513r.votereboot.reboot.RestartType restartType;
@@ -62,11 +63,13 @@ public abstract class RestartAction implements Runnable{
     @Getter
     protected static RestartAction override = null;
     private final static AtomicInteger CurrentMaxTaskId = new AtomicInteger(0);
-    protected RestartAction(@NonNull com.c0d3m4513r.votereboot.reboot.RestartType restartType) {
+    protected RestartAction(@NonNull com.c0d3m4513r.votereboot.reboot.RestartType restartType, @NonNull TimeUnitValue tuv) {
+        doReset();
+        timer.set(tuv.getValue());
+        timerUnit.set(tuv.getUnit());
         this.restartType = restartType;
         actions.add(this);
         id=CurrentMaxTaskId.incrementAndGet();
-        doReset();
     }
 
     public static Optional<RestartAction> getAction(RestartType type){
@@ -103,6 +106,9 @@ public abstract class RestartAction implements Runnable{
     private boolean cancelTimer(){
         if(override == this) override = null;
         if (task.isPresent()){
+            if(shouldAnnounce(true)){
+                getServer().sendMessage("The lowest timer has been cancelled. The next announce will be for a different timer, and have a larger reboot time.");
+            }
             //This seems to prevent the task from being repeated any longer, no matter the return code.
             task.get().cancel();
             task = Optional.empty();
@@ -215,7 +221,7 @@ public abstract class RestartAction implements Runnable{
         );
         getLogger().info("[VoteReboot] Timer(of type {}) started with {} {}", com.c0d3m4513r.votereboot.reboot.RestartType.asString(restartType),timer.get(), timerUnit);
         if(requestTimerAnnounce(true)){
-            API.getServer().sendMessage("A new timer with a smaller Reboot time has been started.");
+            getServer().sendMessage("A new timer with a smaller Reboot time has been started.");
         }
     }
     /**
@@ -245,13 +251,13 @@ public abstract class RestartAction implements Runnable{
         if (isOverridden()) return;
         //but only reboot if we are not currently overridden
         getLogger().trace("[VoteReboot] Timer Done was called. Restarting server now.");
-        API.getServer().sendMessage("The Server is Restarting!");
+        getServer().sendMessage("The Server is Restarting!");
         String reason = null;
         if (Config.getInstance().getUseCustomMessage().getValue()){
             reason=Config.getInstance().getCustomMessage().getValue();
         }
         String finalReason = reason;
-        API.runOnMain(()->API.getServer().onRestart(Optional.ofNullable(finalReason)));
+        runOnMain(()-> getServer().onRestart(Optional.ofNullable(finalReason)));
     }
     private static Optional<RestartAction> getLowestTimer(){
         if (actions.size() <= 0) return Optional.empty();
@@ -308,16 +314,16 @@ public abstract class RestartAction implements Runnable{
         if (announcement.isEmpty()) announcement=ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(com.c0d3m4513r.votereboot.reboot.RestartType.All);
         //Only do chat announcements, if really enabled.
         if(AnnounceConfig.getInstance().getEnableTimerChatAnnounce().getValue()){
-            API.getServer().sendMessage(announcement.replaceFirst("\\{\\}",Long.toString(timer))
+            getServer().sendMessage(announcement.replaceFirst("\\{\\}",Long.toString(timer))
                 .replaceFirst("\\{\\}", String.valueOf(unit)));
             if (reason != null)
-                API.getServer().sendMessage("Reason: "+reason);
+                getServer().sendMessage("Reason: "+reason);
         }
         soundTimerAnnounce();
         //Only do title announcements, if titles are enabled
         if (AnnounceConfig.getInstance().getEnableTitle().getValue()){
-            API.runOnMain(()->{
-                for(val world:API.getServer().getWorlds()){
+            runOnMain(()->{
+                for(val world: getServer().getWorlds()){
                     val title = new Title(
                             Optional.ofNullable(reason),
                             Optional.of(ConfigStrings.getInstance()
@@ -336,7 +342,7 @@ public abstract class RestartAction implements Runnable{
         if(AnnounceConfig.getInstance().getEnableTimerSoundAnnounce().getValue()){
             Sound sound = Sound.getType(AnnounceConfig.getInstance().getSoundId().getValue());
             int volume = AnnounceConfig.getInstance().getSoundAnnounceVolume().getValue();
-            for (val world:API.getServer().getWorlds()){
+            for (val world: getServer().getWorlds()){
                 if(AnnounceConfig.getInstance().getSoundAnnouncePlayGlobal().getValue())
                     world.playSound(sound, world.getSpawnLocation(), volume);
                 else
