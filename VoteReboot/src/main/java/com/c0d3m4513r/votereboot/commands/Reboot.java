@@ -39,16 +39,16 @@ public class Reboot implements Command {
     private static VoteAction voteAction = null;
     @Override
     public CommandResult process(CommandSource source, String arguments) throws CommandException {
-        String[] args = arguments.split(" ");
+        ArrayDeque<String> args = new ArrayDeque<>(Arrays.asList(arguments.split(" ")));
         //arg0 should just be the command alias
-        if (args.length>=1) {
-            RebootSubcommands subcommand = Config.subcommandConversion.get(args[0]);
+        if (args.peek() != null) {
+            RebootSubcommands subcommand = Config.subcommandConversion.get(args.poll());
             if (subcommand==null) {
                 source.sendMessage("No valid subcommand was found. ");
                 source.sendMessage(getUsage(source));
                 throw new CommandException("No valid subcommand was found. " + getUsage(source));
             } else if (source.hasPerm(subcommand.perm.get())){
-                return subcommand.function.apply(this).apply(source, Arrays.copyOfRange(args,1,args.length));
+                return subcommand.function.apply(this).apply(source, args);
             } else {
                 throw new CommandException(ConfigStrings.getInstance().getNoPermission().getValue());
             }
@@ -58,7 +58,7 @@ public class Reboot implements Command {
         }
     }
 
-    CommandResult help(CommandSource source,String[] arguments) {
+    CommandResult help(CommandSource source,ArrayDeque<String> arguments) {
         val sendHelp = Reboot.sendHelp.apply(source);
         sendHelp.apply(
             ConfigPermission.getInstance().getRebootCommand().getValue(),
@@ -86,11 +86,11 @@ public class Reboot implements Command {
 
         return API.getCommandResult().success();
     }
-    CommandResult usage(CommandSource source,String[] arguments) {
+    CommandResult usage(CommandSource source,ArrayDeque<String> arguments) {
         source.sendMessage("Not Implemented.");
         return API.getCommandResult().error();
     }
-     CommandResult reload(CommandSource source,String[] arguments) {
+     CommandResult reload(CommandSource source,ArrayDeque<String> arguments) {
          getLogger().info("[VoteReboot] Explicit Config load was requested. Loading configs in new async thread");
          try {
              API.runOnMain(()->{API.getConfigLoader().updateConfigLoader();Config.getInstance().loadValue();});
@@ -107,8 +107,8 @@ public class Reboot implements Command {
          source.sendMessage("Configs have been loaded.");
          return API.getCommandResult().success();
     }
-    CommandResult vote(CommandSource source,String[] args){
-        if (args.length<1){
+    CommandResult vote(CommandSource source,ArrayDeque<String> args){
+        if (args.size() < 1){
             source.sendMessage(ConfigStrings.getInstance().getRequiredArgs().getValue());
             if (source.hasPerm(ConfigPermission.getInstance().getVoteRegister().getValue()))
                 source.sendMessage(ConfigCommandStrings.getInstance().getHelpRegisterVote().getValue());
@@ -123,12 +123,12 @@ public class Reboot implements Command {
         //noinspection OptionalAssignedToNull//
         Optional<Boolean> vote = null;
         {
-            if (VoteConfig.getInstance().getYesList().getValue().contains(args[0])) vote=Optional.of(true);
-            else if (VoteConfig.getInstance().getNoList().getValue().contains(args[0])) vote=Optional.of(false);
-            else if (VoteConfig.getInstance().getNoneList().getValue().contains(args[0])) vote=Optional.empty();
+            if (VoteConfig.getInstance().getYesList().getValue().contains(args.peek())) vote=Optional.of(true);
+            else if (VoteConfig.getInstance().getNoList().getValue().contains(args.peek())) vote=Optional.of(false);
+            else if (VoteConfig.getInstance().getNoneList().getValue().contains(args.peek())) vote=Optional.empty();
         }
 
-        if (args[0].equals( "start")){
+        if (args.peek() != null && args.peek().equals( "start")){
             if (voteAction==null) voteAction = new VoteAction();
 
             if (!voteAction.isVoteInProgress()){
@@ -162,38 +162,30 @@ public class Reboot implements Command {
             return API.getCommandResult().error();
         }
     }
-    CommandResult start(CommandSource source,String[] arg){
+    CommandResult start(CommandSource source,ArrayDeque<String> args){
         Supplier<CommandResult> error = () ->{
             source.sendMessage(ConfigStrings.getInstance().getError().getValue());
             if (source.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.Manual).getPermission(Action.Start)))
                 source.sendMessage(ConfigCommandStrings.getInstance().getHelpRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.Manual).getPermission(Action.Start));
             return API.getCommandResult().error();
         };
-        if (arg.length < 1){
+        if (args.size() < 1){
             source.sendMessage(ConfigStrings.getInstance().getRequiredArgs().getValue());
             return API.getCommandResult().error();
         }
-        List<com.c0d3m4513r.votereboot.reboot.RestartType> types = Arrays.stream(com.c0d3m4513r.votereboot.reboot.RestartType.values()).filter(t -> com.c0d3m4513r.votereboot.reboot.RestartType.asString(t).equals(arg[0])).collect(Collectors.toList());
-        //todo: use TimeEntry?
-        Optional<TimeEntry> teo = TimeEntry.of(arg[0]);
+        List<com.c0d3m4513r.votereboot.reboot.RestartType> types = Arrays.stream(com.c0d3m4513r.votereboot.reboot.RestartType.values()).filter(t -> com.c0d3m4513r.votereboot.reboot.RestartType.asString(t).equals(args.peek())).collect(Collectors.toList());
         //test for wierd potential edge cases, if I mess some naming up
         if (types.size() > 1){
             getLogger().error("[VoteReboot] [start] types list contains more than one element.");
             return error.get();
-        } else if (types.size() == 1 && teo.isPresent()) {
-            getLogger().error("[VoteReboot] [start] types list contains one element, but also time unit.");
-            return error.get();
         } else if (types.size() == 1) {
+            args.removeFirst();
             //Delegate method
             switch (types.get(0)){
                 case Vote:
-                    return vote(source,Arrays.copyOfRange(arg,1,arg.length));
+                    return vote(source, args);
                 case Manual:
-                    //potential recursion here.
-                    //If we get to max call-depth, that is the users fault, and deliberate.
-                    //Even if this throws an exception, spongeforge should save us?
-                    //todo: c0d3 5m3115 or code smells
-                    return start(source,Arrays.copyOfRange(arg,1,arg.length));
+                    break;
                 case Scheduled:
                     source.sendMessage("Not Implemented!");
                     return error.get();
@@ -203,9 +195,14 @@ public class Reboot implements Command {
                     return error.get();
                 default: throw new Error("Enum has more variants than expected");
             }
-        } else if (teo.isPresent()) {
+        }
+
+        String time = args.poll();
+        Optional<TimeEntry> teo = TimeEntry.of(time, args.peek());
+        if (!teo.isPresent()) teo = TimeEntry.of(time);
+        if (teo.isPresent()){
             try{
-                String reason = String.join(" ",Arrays.copyOfRange(arg,1,arg.length));
+                String reason = args.stream().map(Object::toString).collect(Collectors.joining(" "));
                 TimeUnitValue tuv = teo.get().getMaxUnit();
                 if(new ManualAction(reason,tuv.getValue(),tuv.getUnit()).start(source)){
 
@@ -220,16 +217,16 @@ public class Reboot implements Command {
                     return API.getCommandResult().error();
                 }
             }catch (NumberFormatException nfe){
-                getLogger().error("[VoteReboot] Could not get parse number. Arguments are '"+ Arrays.toString(arg) +"'.",nfe);
+                getLogger().error("[VoteReboot] Could not get parse number.",nfe);
                 //todo: more detailed error
                 return error.get();
             }
-        }else{
-            source.sendMessage(ConfigStrings.getInstance().getRequiredArgs().getValue());
-            return error.get();
         }
+
+        source.sendMessage(ConfigStrings.getInstance().getRequiredArgs().getValue());
+        return error.get();
     }
-    CommandResult now(CommandSource source,@NonNull String[] arguments){
+    CommandResult now(CommandSource source,@NonNull ArrayDeque<String> arguments){
         if (source.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.Manual).getPermission(Action.Start)))
         {
             API.getServer().onRestart(Optional.of(String.join(" ",arguments)));
@@ -239,10 +236,10 @@ public class Reboot implements Command {
         source.sendMessage(ConfigStrings.getInstance().getNoPermission().getValue());
         return API.getCommandResult().error();
     }
-    CommandResult time(CommandSource source,String[] arguments){
+    CommandResult time(CommandSource source,ArrayDeque<String> arguments){
         for (val ra:RestartAction.getActions()){
-            if(arguments.length>=1) {
-                RestartType restartType = Config.restartTypeConversion.get(arguments[0]);
+            if(arguments.size()>=1) {
+                RestartType restartType = Config.restartTypeConversion.get(arguments.poll());
                 //The timer type did not match the specified type. Hiding.
                 if (restartType!=null && ra.getRestartType()!=restartType) continue;
             }
@@ -258,10 +255,11 @@ public class Reboot implements Command {
         }
         return API.getCommandResult().success();
     }
-    CommandResult cancel(CommandSource source,String[] arguments){
-        if(arguments.length>=1){
-            RestartType type = Config.restartTypeConversion.get(arguments[0]);
+    CommandResult cancel(CommandSource source,ArrayDeque<String> arguments){
+        if(arguments.size()>=1){
+            RestartType type = Config.restartTypeConversion.get(arguments.peek());
             if (type!=null){
+                arguments.removeFirst();
                 //unfortunate name. Optional RestartAction Latest = oral. oops
                 Optional<RestartAction> oral = RestartAction.getAction(type);
                 if (oral.isPresent()){
@@ -279,7 +277,7 @@ public class Reboot implements Command {
                     return API.getCommandResult().error();
                 }
             }else {
-                HashSet<Integer> ids = Arrays.stream(arguments).parallel().map(e->{
+                HashSet<Integer> ids = arguments.stream().parallel().map(e->{
                     try{
                         return Optional.of(Integer.parseInt(e));
                     }catch (NumberFormatException ignored){
