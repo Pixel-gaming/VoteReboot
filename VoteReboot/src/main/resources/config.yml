@@ -86,6 +86,7 @@ votereboot:
     reload: votereboot.reboot.reload
     #Can a vote be registered at all?
     registervote: votereboot.reboot.vote
+    viewoverriden: votereboot.reboot.viewoverriden
     type:
       vote:
         #This is currently unused (I think)

@@ -28,6 +28,10 @@ public class ConfigPermission implements IConfigLoadableSaveable {
             "votereboot.permission.registervote");
     @NonNull
     private RestartTypeActionConfig restartTypeAction = new RestartTypeActionConfig("votereboot.reboot.type","votereboot.permission.type");
+    @NonNull
+    private  ConfigEntry<String> viewOverridenTimers = new ConfigEntry<>(
+            new ClassValue<>("votereboot.reboot.viewoverriden",String.class),
+            "votereboot.permission.viewoverriden");
 
     @Override
     public void loadValue() {
@@ -35,6 +39,7 @@ public class ConfigPermission implements IConfigLoadableSaveable {
         reload.loadValue();
         restartTypeAction.loadValue();
         voteRegister.loadValue();
+        viewOverridenTimers.loadValue();
     }
 
     @Override
@@ -43,5 +48,6 @@ public class ConfigPermission implements IConfigLoadableSaveable {
         reload.saveValue();
         restartTypeAction.saveValue();
         voteRegister.saveValue();
+        viewOverridenTimers.saveValue();
     }
 }

@@ -2,6 +2,7 @@ package com.c0d3m4513r.votereboot.reboot;
 
 import com.c0d3m4513r.pluginapi.Data.Point3D;
 import com.c0d3m4513r.pluginapi.TaskBuilder;
+import com.c0d3m4513r.pluginapi.command.CommandSource;
 import com.c0d3m4513r.pluginapi.config.TimeEntry;
 import com.c0d3m4513r.pluginapi.config.TimeUnitValue;
 import com.c0d3m4513r.pluginapi.convert.Convert;
@@ -26,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.LongUnaryOperator;
 import java.util.stream.Collectors;
@@ -51,6 +53,14 @@ public abstract class RestartAction implements Runnable{
     protected com.c0d3m4513r.votereboot.reboot.RestartType restartType;
     @Getter
     private final int id;
+    @Getter
+    protected String reason = null;
+
+    //if set, this restart action will override everything. (no other reboots will trigger)
+    //just setting this is not enough btw. The timer has to also be started. (task is non-null)
+    //only used for manual reboots so far
+    @Getter
+    protected static RestartAction override = null;
     private final static AtomicInteger CurrentMaxTaskId = new AtomicInteger(0);
     protected RestartAction(@NonNull com.c0d3m4513r.votereboot.reboot.RestartType restartType) {
         this.restartType = restartType;
@@ -63,7 +73,7 @@ public abstract class RestartAction implements Runnable{
         List<RestartAction> actionList = actions.stream().filter(a->a.getRestartType().equals(type))
                 .sorted(Comparator.comparing(RestartAction::getTimer))
                 .collect(Collectors.toList());
-        if(actionList.size()<=0){
+        if(actionList.size() == 0){
             return Optional.empty();
         }else {
             return Optional.of(actionList.get(0));
@@ -72,10 +82,18 @@ public abstract class RestartAction implements Runnable{
     TimeUnitValue getTimer(){
         return new TimeUnitValue(timerUnit.get(),timer.get());
     }
+
+    protected static boolean hasPerm(Permission perm, RestartType restartType, Action action){
+        return perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(restartType).getPermission(action))
+                || perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(RestartType.All).getPermission(action));
+    }
     public Optional<TimeUnitValue> getTimer(Permission perm) {
-        if (perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(restartType).getPermission(Action.Read)))
+        if (hasPerm(perm, restartType, Action.Read))
             return Optional.of(getTimer());
         else return Optional.empty();
+    }
+    public static boolean isOverridden(){
+        return override != null && override.task.isPresent();
     }
 
     /**
@@ -83,6 +101,7 @@ public abstract class RestartAction implements Runnable{
      * @return Returns true, if the timer was successfully cancelled.
      */
     private boolean cancelTimer(){
+        if(override == this) override = null;
         if (task.isPresent()){
             //This seems to prevent the task from being repeated any longer, no matter the return code.
             task.get().cancel();
@@ -150,7 +169,7 @@ public abstract class RestartAction implements Runnable{
     }
 
     protected void doReset(){
-        cancelTimer();
+        cancelTimer(false);
         //we requested a timer cancel. to uphold the invariant, we are going to cancel anyways (even if the cancel was not successful).
         task=Optional.empty();
         timer.set(0);
@@ -182,30 +201,21 @@ public abstract class RestartAction implements Runnable{
         TimeUnit unit = timerUnit.get();
         if (unit==TimeUnit.MILLISECONDS || unit==TimeUnit.MICROSECONDS || unit==TimeUnit.NANOSECONDS){
             getLogger().warn("[VoteReboot] TimeUnits smaller than Seconds is not supported. Cancelling timer.");
-            actions.remove(this);
-            cancelTimer();
+            cancelTimer(true);
             return;
-        }else{
-            task=Optional.of(
-                    TaskBuilder.builder()
-                    .deferred(1,timerUnit.get())
-                    .timer(1,timerUnit.get())
-                    .async(true)
-                    .name("votereboot-ADR-"+ restartType +id)
-                    .executer(this)
-                    .build()
-            );
         }
+        task=Optional.of(
+                TaskBuilder.builder()
+                .deferred(1,timerUnit.get())
+                .timer(1,timerUnit.get())
+                .async(true)
+                .name("votereboot-ADR-"+ restartType +id)
+                .executer(this)
+                .build()
+        );
         getLogger().info("[VoteReboot] Timer(of type {}) started with {} {}", com.c0d3m4513r.votereboot.reboot.RestartType.asString(restartType),timer.get(), timerUnit);
-        if(checkAnnounce){
-            long time = timer.get();
-            for (val val:AnnounceConfig.getInstance().getTimerAnnounceAt().getValue()){
-                Optional<TimeEntry> tuv = TimeEntry.of(val);
-                if (tuv.isPresent() && (new TimeUnitValue(unit,time)).compareTo(tuv.get().getMaxUnit())>0) {
-                    timerAnnounce(time, unit);
-                    return;
-                }
-            }
+        if(requestTimerAnnounce(true)){
+            API.getServer().sendMessage("A new timer with a smaller Reboot time has been started.");
         }
     }
     /**
@@ -213,9 +223,12 @@ public abstract class RestartAction implements Runnable{
      * @param perm Permission Queryable object of command executer to check for permission
      * @return Returns true, if a timer was started AND the user has permission. False otherwise.
      */
-    public boolean start(Permission perm){
-        if (perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(restartType).getPermission(Action.Start))
-        || perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.All).getPermission(Action.Start))){
+    public boolean start(CommandSource perm){
+        if (isOverridden() && this != override && this.restartType != RestartType.Manual){
+            perm.sendMessage("Starting timers is currently disabled, because there is a timer overriding them.");
+            return false;
+        }
+        if (hasPerm(perm, restartType, Action.Start) ){
             intStart(true);
             return true;
         }return false;
@@ -227,8 +240,11 @@ public abstract class RestartAction implements Runnable{
      */
     //async
     protected void timerDone(){
+        //always cancel timer
+        cancelTimer(true);
+        if (isOverridden()) return;
+        //but only reboot if we are not currently overridden
         getLogger().trace("[VoteReboot] Timer Done was called. Restarting server now.");
-        actions.remove(this);
         API.getServer().sendMessage("The Server is Restarting!");
         String reason = null;
         if (Config.getInstance().getUseCustomMessage().getValue()){
@@ -236,23 +252,74 @@ public abstract class RestartAction implements Runnable{
         }
         String finalReason = reason;
         API.runOnMain(()->API.getServer().onRestart(Optional.ofNullable(finalReason)));
-        cancelTimer();
+    }
+    private static Optional<RestartAction> getLowestTimer(){
+        if (actions.size() <= 0) return Optional.empty();
+
+        RestartAction lowest = actions.get(0);
+        for (val action : actions) {
+            if (action.getTimer().compareTo(lowest.getTimer()) < 0) lowest = action;
+        }
+        return Optional.of(lowest);
+    }
+    private boolean shouldAnnounce(boolean justStarted){
+        //I only ever want to announce the override timer, if it exists
+        if(isOverridden() && this != override) return false;
+
+        RestartAction ra = isOverridden()?override:getLowestTimer().orElse(this);
+        //only bother checking the announcement times, if this is actually the timer what should be announced
+        //or if we want to check if other timers are below the announcement threshold.
+        if (!justStarted && this != ra) return false;
+
+        BiFunction<TimeUnitValue,TimeUnitValue,Boolean> comparator;
+        //if any announcement timer is below the starting timer, we want to announce the newer timer
+        if (justStarted) comparator = (announceTimer, timerValue) -> announceTimer.compareTo(timerValue) > 0;
+        //else only announce if we found an announcement with that particular timer
+        else comparator = (announceTimer, timerValue) -> announceTimer.compareTo(timerValue) == 0;
+
+        getLogger().info("Checking timers");
+        for (val val:AnnounceConfig.getInstance().getTimerAnnounceAt().getValue()){
+            Optional<TimeEntry> te = TimeEntry.of(val);
+            if (!te.isPresent()) continue;
+            TimeUnitValue tuv = te.get().getMaxUnit();
+            if (comparator.apply(tuv, ra.getTimer())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    private boolean requestTimerAnnounce() {
+        return requestTimerAnnounce(false);
+    }
+    private boolean requestTimerAnnounce(boolean justStarted){
+        if ((justStarted && shouldAnnounce(true))
+                || shouldAnnounce(false)) {
+            timerAnnounce();
+            return true;
+        }
+        return false;
     }
     //async
-    private void timerAnnounce(long timer,TimeUnit unit){
+    private void timerAnnounce(){
+        long timer = this.timer.get();
+        TimeUnit unit = timerUnit.get();
         getLogger().info("Announcing {} timer = {} {}",restartType,timer,unit);
         String announcement = ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(restartType);
         if (announcement.isEmpty()) announcement=ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(com.c0d3m4513r.votereboot.reboot.RestartType.All);
         //Only do chat announcements, if really enabled.
-        if(AnnounceConfig.getInstance().getEnableTimerChatAnnounce().getValue())
+        if(AnnounceConfig.getInstance().getEnableTimerChatAnnounce().getValue()){
             API.getServer().sendMessage(announcement.replaceFirst("\\{\\}",Long.toString(timer))
                 .replaceFirst("\\{\\}", String.valueOf(unit)));
+            if (reason != null)
+                API.getServer().sendMessage("Reason: "+reason);
+        }
         soundTimerAnnounce();
+        //Only do title announcements, if titles are enabled
         if (AnnounceConfig.getInstance().getEnableTitle().getValue()){
             API.runOnMain(()->{
                 for(val world:API.getServer().getWorlds()){
                     val title = new Title(
-                            Optional.empty(),
+                            Optional.ofNullable(reason),
                             Optional.of(ConfigStrings.getInstance()
                             .getServerRestartAnnouncement()
                             .getPermission(restartType)
@@ -287,19 +354,7 @@ public abstract class RestartAction implements Runnable{
      */
     //async
     private void timerTick(long timer,TimeUnit unit){
-        List<String> atStrings = AnnounceConfig.getInstance().getTimerAnnounceAt().getValue();
-        for(val atEntry:atStrings){
-            Optional<TimeEntry> teo = TimeEntry.of(atEntry);
-            if (teo.isPresent()){
-                TimeEntry te = teo.get();
-                TimeUnitValue tuv = te.getMaxUnit();
-                if (unit.convert(tuv.getValue(),tuv.getUnit())==timer){
-                    timerAnnounce(tuv.getValue(),tuv.getUnit());
-                }
-            }else {
-                getLogger().error("[VoteReboot] Cannot parse String as TimeEntry. Please check the config.");
-            }
-        }
+        requestTimerAnnounce();
     }
 
     /**

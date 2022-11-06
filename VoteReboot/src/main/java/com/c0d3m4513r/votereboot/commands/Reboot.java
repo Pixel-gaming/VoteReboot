@@ -23,6 +23,7 @@ import lombok.val;
 import java.util.*;
 
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -200,11 +201,14 @@ public class Reboot implements Command {
         String time = args.poll();
         Optional<TimeEntry> teo = TimeEntry.of(time, args.peek());
         if (!teo.isPresent()) teo = TimeEntry.of(time);
+        else args.pollFirst();
+
         if (teo.isPresent()){
             try{
                 String reason = args.stream().map(Object::toString).collect(Collectors.joining(" "));
+                if (reason.equals("")) reason = null;
                 TimeUnitValue tuv = teo.get().getMaxUnit();
-                if(new ManualAction(reason,tuv.getValue(),tuv.getUnit()).start(source)){
+                if(new ManualAction(reason,tuv).start(source)){
 
                     String announcement = ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(com.c0d3m4513r.votereboot.reboot.RestartType.Manual);
                     if (announcement.isEmpty()) announcement=ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(com.c0d3m4513r.votereboot.reboot.RestartType.All);
@@ -237,32 +241,43 @@ public class Reboot implements Command {
         return API.getCommandResult().error();
     }
     CommandResult time(CommandSource source,ArrayDeque<String> arguments){
-        for (val ra:RestartAction.getActions()){
+        Consumer<RestartAction> print_restart_action = (ra) ->  {
             if(arguments.size()>=1) {
                 RestartType restartType = Config.restartTypeConversion.get(arguments.poll());
                 //The timer type did not match the specified type. Hiding.
-                if (restartType!=null && ra.getRestartType()!=restartType) continue;
+                if (restartType!=null && ra.getRestartType()!=restartType) return;
             }
             Optional<TimeUnitValue> otimer = ra.getTimer(source);
             //We do not have read permissions. Don't print this timer.
-            if (!otimer.isPresent()) continue;
+            if (!otimer.isPresent()) return;
             TimeUnitValue timer = otimer.get();
             String start = ra.getRestartType()==RestartType.Vote?
                     "A Vote" :
                     ("A Reboot Timer of type "+ra.getRestartType());
 
             source.sendMessage(start +" is queued with "+timer.getValue()+" "+timer.getUnit()+ " remaining and id '"+ra.getId()+"'.");
+        };
+        if (source.hasPerm(ConfigPermission.getInstance().getViewOverridenTimers().getValue())){
+            for (val ra:RestartAction.getActions()){
+                print_restart_action.accept(ra);
+            }
         }
+        if (RestartAction.isOverridden()) {
+            source.sendMessage("All timers above are overridden by a manual reboot. They will not trigger a reboot. The only timer that will count, is the timer below (until it is cancelled)");
+            print_restart_action.accept(RestartAction.getOverride());
+        }
+
+
         return API.getCommandResult().success();
     }
     CommandResult cancel(CommandSource source,ArrayDeque<String> arguments){
         if(arguments.size()>=1){
             RestartType type = Config.restartTypeConversion.get(arguments.peek());
             if (type!=null){
-                arguments.removeFirst();
                 //unfortunate name. Optional RestartAction Latest = oral. oops
                 Optional<RestartAction> oral = RestartAction.getAction(type);
                 if (oral.isPresent()){
+                    arguments.removeFirst();
                     if (oral.get().cancelTimer(source)){
                         source.sendMessage(ConfigStrings.getInstance().getCancelActionSuccess()
                                 .getValue().replaceFirst("\\{\\}",RestartType.asString(type)));
