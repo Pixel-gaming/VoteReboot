@@ -175,7 +175,7 @@ votereboot:
           cancel: ""
         manual:
           read: ""
-          start: "- start [TimeEntry] <reason> This will restart the server in the time specified by TimeEntry"
+          start: "\"- start [TimeEntry] <reason>\" or \"- start [TimeUnit] [time:long] <reason>\" This will restart the server in the time specified by TimeEntry"
           modify: ""
           cancel: ""
         scheduled:
