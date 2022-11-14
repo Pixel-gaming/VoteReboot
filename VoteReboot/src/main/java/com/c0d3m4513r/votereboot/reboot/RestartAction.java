@@ -283,7 +283,6 @@ public abstract class RestartAction implements Runnable{
         //else only announce if we found an announcement with that particular timer
         else comparator = (announceTimer, timerValue) -> announceTimer.compareTo(timerValue) == 0;
 
-        getLogger().info("Checking timers");
         for (val val:AnnounceConfig.getInstance().getTimerAnnounceAt().getValue()){
             Optional<TimeEntry> te = TimeEntry.of(val);
             if (!te.isPresent()) continue;
