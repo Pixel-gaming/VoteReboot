@@ -85,7 +85,9 @@ public class VoteAction extends RestartAction {
     protected void hideScoreboard(){
         if(AnnounceConfig.getInstance().getEnableScoreboard().getValue())
             API.runOnMain(()->{
-                scoreboard.clearSlot(DisplaySlot.Sidebar);
+                try{
+                    scoreboard.clearSlot(DisplaySlot.Sidebar);
+                }catch (NullPointerException ignored){}
                 for(val world:API.getServer().getWorlds()){
                     for(val player:world.getPlayers()){
                         player.getScoreboard().clearSlot(DisplaySlot.Sidebar);
