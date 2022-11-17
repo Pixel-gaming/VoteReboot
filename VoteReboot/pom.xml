@@ -29,6 +29,11 @@
             <version>0.0.1</version>
         </dependency>
         <dependency>
+            <groupId>com.c0d3m4513r</groupId>
+            <artifactId>api-impl-spigot-112</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>2.0.1</version>

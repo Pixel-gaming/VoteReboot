@@ -40,7 +40,7 @@ public class ConfigCommandStrings implements IConfigLoadableSaveable {
             "",
             //manual
             "",
-            "- start [TimeEntry] <reason> This will restart the server in the time specified by TimeEntry",
+            "\"- start [TimeEntry] <reason>\" or \"- start [TimeUnit] [time:long] <reason>\" This will restart the server in the time specified by TimeEntry",
             "",
             "",
             //scheduled

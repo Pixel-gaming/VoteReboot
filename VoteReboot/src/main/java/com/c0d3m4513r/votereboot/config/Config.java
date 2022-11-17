@@ -180,7 +180,7 @@ public class Config extends MainConfig implements IConfigLoadableSaveable {
             Optional<TimeEntry> teo = TimeEntry.of(e);
             if (teo.isPresent()) {
                 TimeUnitValue tu = teo.get().getMaxUnit();
-                new ScheduledAction(tu.getValue(), tu.getUnit());
+                new ScheduledAction(tu);
             }
         }
     }

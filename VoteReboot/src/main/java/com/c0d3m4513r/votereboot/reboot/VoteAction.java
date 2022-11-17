@@ -1,6 +1,7 @@
 package com.c0d3m4513r.votereboot.reboot;
 
 import com.c0d3m4513r.pluginapi.Scoreboard.*;
+import com.c0d3m4513r.pluginapi.config.TimeUnitValue;
 import com.c0d3m4513r.votereboot.config.*;
 import com.c0d3m4513r.pluginapi.API;
 import com.c0d3m4513r.pluginapi.Permission;
@@ -22,21 +23,23 @@ public class VoteAction extends RestartAction {
     private AtomicLong no = new AtomicLong();
     private AtomicLong yes = new AtomicLong();
     private final Scoreboard scoreboard = Scoreboard.getNew();
-    private final Objective sidebarObjective = Objective.createNew("reboot",AnnounceConfig.getInstance().getScoreboardTitle().getValue(), Criteria.Dummy);
+    private final Objective sidebarObjective = Objective.createNew(scoreboard,"reboot",AnnounceConfig.getInstance().getScoreboardTitle().getValue(), Criteria.Dummy);
     private final Score yesScore = sidebarObjective.getOrCreateScore("yes");
     private final Score noScore = sidebarObjective.getOrCreateScore("no");
     private final Score timeScore = sidebarObjective.getOrCreateScore("time");
     public VoteAction() {
-        super(RestartType.Vote);
+        super(RestartType.Vote, new TimeUnitValue(TimeUnit.SECONDS,VoteConfig.getInstance().getVotingTime().getValue()));
         //then the scoreboard
-        scoreboard.addObjective(sidebarObjective);
+        try{
+            //if this add fails, the objective was already a part of the scoreboard
+            scoreboard.addObjective(sidebarObjective);
+        }catch (IllegalArgumentException ignored){}
+        //this should never return an IllegalStateException, because we make sure above that the objective is registered.
         scoreboard.updateDisplaySlot(sidebarObjective,DisplaySlot.Sidebar);
     }
 
     @Override
     protected void intStart(boolean checkAnnounce){
-        timer.set(VoteConfig.getInstance().getVotingTime().getValue());
-        timerUnit.set(TimeUnit.SECONDS);
         showScoreboard();
         super.intStart(checkAnnounce);
     }
@@ -82,7 +85,11 @@ public class VoteAction extends RestartAction {
     protected void hideScoreboard(){
         if(AnnounceConfig.getInstance().getEnableScoreboard().getValue())
             API.runOnMain(()->{
-                scoreboard.clearSlot(DisplaySlot.Sidebar);
+                try{
+                    scoreboard.clearSlot(DisplaySlot.Sidebar);
+                }catch (NullPointerException ignored){
+                    getLogger().info("scoreboard in hideScoreboard in VoteAction was null");
+                }
                 for(val world:API.getServer().getWorlds()){
                     for(val player:world.getPlayers()){
                         player.getScoreboard().clearSlot(DisplaySlot.Sidebar);

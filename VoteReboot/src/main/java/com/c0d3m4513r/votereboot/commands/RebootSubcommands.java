@@ -9,6 +9,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+import java.util.ArrayDeque;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -34,7 +35,7 @@ public enum RebootSubcommands {
     @NonNull
     public final Supplier<String> perm;
     @NonNull
-    public final Function<Reboot,BiFunction<CommandSource,String[], CommandResult>> function;
+    public final Function<Reboot,BiFunction<CommandSource, ArrayDeque<String>, CommandResult>> function;
 
     public static String asString(RebootSubcommands subcommand){
         switch (subcommand){
