@@ -87,7 +87,9 @@ public class VoteAction extends RestartAction {
             API.runOnMain(()->{
                 try{
                     scoreboard.clearSlot(DisplaySlot.Sidebar);
-                }catch (NullPointerException ignored){}
+                }catch (NullPointerException ignored){
+                    getLogger().info("scoreboard in hideScoreboard in VoteAction was null");
+                }
                 for(val world:API.getServer().getWorlds()){
                     for(val player:world.getPlayers()){
                         player.getScoreboard().clearSlot(DisplaySlot.Sidebar);
