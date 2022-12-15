@@ -81,7 +81,7 @@ votereboot:
       - none
   permission:
     #Can that person execute any subcommands at all?
-    rebootCommand: votereboot.reboot
+    rebootCommand: votereboot.reboot.main
     #Can that person reload configs?
     reload: votereboot.reboot.reload
     #Can a vote be registered at all?

@@ -16,7 +16,7 @@ public class ConfigPermission implements IConfigLoadableSaveable {
     }
     @NonNull
     private  ConfigEntry<String> rebootCommand = new ConfigEntry<>(
-            new ClassValue<>("votereboot.reboot",String.class),
+            new ClassValue<>("votereboot.reboot.main",String.class),
             "votereboot.permission.rebootCommand");
     @NonNull
     private  ConfigEntry<String> reload = new ConfigEntry<>(
