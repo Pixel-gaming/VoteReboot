@@ -50,7 +50,7 @@ public class Config extends MainConfig implements IConfigLoadableSaveable {
         }
     };
     //DON'T move this above ConfigPermission init. That will cause issues.
-    public static final Map<String, RebootSubcommands> subcommandConversion = new HashMap<String, RebootSubcommands>() {
+    public static final Map<String, RebootSubcommands> subcommandConversion = Collections.unmodifiableMap(new HashMap<String, RebootSubcommands>() {
         {
             put("help", RebootSubcommands.help);
             put("h", RebootSubcommands.help);
@@ -70,7 +70,7 @@ public class Config extends MainConfig implements IConfigLoadableSaveable {
             put("reload", RebootSubcommands.reloadConfig);
             put("r", RebootSubcommands.reloadConfig);
         }
-    };
+    });
     @NonNull
     private ListConfigEntry<String> scheduledRestarts = new ListConfigEntry<>(new ClassValue<>(Arrays.asList("3h", "3h+30m", "4h"), String.class)
             , "votereboot.scheduledRestarts");
