@@ -3,6 +3,8 @@ package com.c0d3m4513r.votereboot.config;
 import com.c0d3m4513r.pluginapi.config.ClassValue;
 import com.c0d3m4513r.pluginapi.config.ConfigEntry.ConfigEntry;
 import com.c0d3m4513r.pluginapi.config.iface.IConfigLoadableSaveable;
+import com.c0d3m4513r.pluginapi.config.iface.Loadable;
+import com.c0d3m4513r.pluginapi.config.iface.Savable;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NonNull;
@@ -16,22 +18,32 @@ public class ConfigCommandStrings implements IConfigLoadableSaveable {
     }
 
     @NonNull
+    @Loadable
+    @Savable
     private ConfigEntry<String> shortDescription = new ConfigEntry<>(
             new ClassValue<>("Vote to Reboot the server", String.class),
             "votereboot.translate.shortDescription");
     @NonNull
+    @Loadable
+    @Savable
     private ConfigEntry<String> helpBase = new ConfigEntry<>(
             new ClassValue<>("This is the main command for managing server restarts.\n Arguments with <> are optional, whilst ones with [] are mandatory. \n - stands for the main command alias. By default /reboot or /restart", String.class),
             "votereboot.translate.help.rebootCommand");
     @NonNull
+    @Loadable
+    @Savable
     private ConfigEntry<String> helpReload = new ConfigEntry<>(new ClassValue<>(
             " - reloadConfig This will reload all of the configs from disk again, and apply them."
             , String.class), "votereboot.translate.help.reload");
     @NonNull
+    @Loadable
+    @Savable
     private ConfigEntry<String> helpRegisterVote = new ConfigEntry<>(new ClassValue<>(
             " - vote [yes/no/null/none] This will add a vote, on weather the server should be restarted or not."
             , String.class), "votereboot.translate.help.registervote");
     @NonNull
+    @Loadable
+    @Savable
     private RestartTypeActionConfig helpRestartTypeAction = new RestartTypeActionConfig(
             //vote
             "",
@@ -56,6 +68,8 @@ public class ConfigCommandStrings implements IConfigLoadableSaveable {
             //config root
             "votereboot.translate.help.type");
     @NonNull
+    @Loadable
+    @Savable
     private ActionConfig helpGeneralAction = new ActionConfig(
             " - time <Action> This will List all visible reboots, that are currently scheduled",
             "",
@@ -64,23 +78,4 @@ public class ConfigCommandStrings implements IConfigLoadableSaveable {
             //config root
             "votereboot.translate.help.general"
     );
-    @Override
-    public void loadValue() {
-        shortDescription.loadValue();
-        helpBase.loadValue();
-        helpReload.loadValue();
-        helpRegisterVote.loadValue();
-        helpRestartTypeAction.loadValue();
-        helpGeneralAction.loadValue();
-    }
-
-    @Override
-    public void saveValue() {
-        shortDescription.saveValue();
-        helpBase.saveValue();
-        helpReload.saveValue();
-        helpRegisterVote.saveValue();
-        helpRestartTypeAction.saveValue();
-        helpGeneralAction.saveValue();
-    }
 }
