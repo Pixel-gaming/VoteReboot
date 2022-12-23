@@ -17,6 +17,7 @@
     </properties>
 
     <modules>
+        <module>Logger</module>
         <module>API</module>
         <module>PluginDef</module>
         <module>spigot_v112</module>
