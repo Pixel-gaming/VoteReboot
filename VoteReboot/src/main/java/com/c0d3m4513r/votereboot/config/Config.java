@@ -62,8 +62,6 @@ public class Config extends MainConfig implements IConfigLoadableSaveable {
         {
             put("help", RebootSubcommands.help);
             put("h", RebootSubcommands.help);
-            put("usage", RebootSubcommands.usage);
-            put("u", RebootSubcommands.usage);
             put("vote", RebootSubcommands.vote);
             put("v", RebootSubcommands.vote);
             put("start", RebootSubcommands.start);
@@ -175,7 +173,7 @@ public class Config extends MainConfig implements IConfigLoadableSaveable {
 
     private void registerCommands() {
         getLogger().info("[VoteReboot] Register Commands");
-        API.getCommandRegistrar().register(new Reboot(), getAliasList().getValue());
+        API.getCommandRegistrar().register(Reboot.INSTANCE, getAliasList().getValue());
         getLogger().info("[VoteReboot] Register Commands Done");
     }
 
