@@ -83,7 +83,7 @@ public abstract class RestartAction implements Runnable{
         return new TimeUnitValue(timerUnit.get(),timer.get());
     }
 
-    protected static boolean hasPerm(Permission perm, RestartType restartType, Action action){
+    public static boolean hasPerm(Permission perm, RestartType restartType, Action action){
         return perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(restartType).getPermission(action))
                 || perm.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(RestartType.All).getPermission(action));
     }

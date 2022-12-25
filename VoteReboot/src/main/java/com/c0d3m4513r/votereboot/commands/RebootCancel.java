@@ -16,12 +16,11 @@ import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RebootCancel  implements Command {
-
     public static final RebootCancel INSTANCE = new RebootCancel();
 
     @Override
     public @NonNull CommandResult process(CommandSource source, String[] arguments) {
-        if (arguments.length < 1){
+        if (arguments.length < 1 || arguments[0] == null){
             val sendHelp = Reboot.sendHelp.apply(source);
             RestartTypeActionConfig restartTypeActionStrings = ConfigTranslateCommandHelp.getInstance().getHelpRestartTypeAction();
             RestartTypeActionConfig restartTypeActionPermissions = ConfigPermission.getInstance().getRestartTypeAction();
@@ -79,7 +78,31 @@ public class RebootCancel  implements Command {
 
     @Override
     public List<String> getSuggestions(CommandSource source, String[] arguments) {
-        var actions = Arrays.stream(Action.values()).map(Enum::name);
+        var list = new LinkedList<String>();
+        //If we do not have any arguments, we can suggest all the restart types.
+        //This is because we only accept a Restart Type as a first argument.
+        if (arguments.length < 1){
+            //add all Restart types, if we have permission to cancel timers, of that type
+            //we are not reading timers here. It should be theoretically possible to Cancel timers, even if you can't see them
+            list.addAll(
+                    Arrays.stream(RestartType.values())
+                    .filter(e->RestartAction.hasPerm(source,e,Action.Cancel))
+                    .map(Enum::name)
+                    .collect(Collectors.toList())
+            );
+        }else if (arguments[0] != null && Config.restartTypeConversion.get(arguments[0]) != null){
+            return Collections.emptyList();
+        }
+        //also suggest timers that we can cancel
+        list.addAll(RestartAction.getActions()
+                .stream()
+                .parallel()
+                .filter(e->RestartAction.hasPerm(source, e.getRestartType(), Action.Cancel))
+                .map(RestartAction::getId)
+                .map(Long::toString)
+                .collect(Collectors.toList()));
+
+        var actions = list.stream().parallel();
         if (arguments.length > 1)
             actions = actions.filter(e->e.startsWith(arguments[0]));
         return actions.collect(Collectors.toList());
