@@ -133,7 +133,6 @@ public class VoteAction extends RestartAction {
             getLogger().info("Voters: {}",votes.keySet());
             if (yes.get() >= VoteConfig.getInstance().getMinAgree().getValue() &&
                     percent >= VoteConfig.getInstance().getPercentToRestart().getValue()) {
-                restartType=RestartType.All;
                 long votingRestartTime = VoteConfig.getInstance().getVotingRestartTime().getValue();
                 timer.set(votingRestartTime);
                 API.getServer().sendMessage(ConfigTranslate.getInstance().getVoteRestartSuccess().getValue().replaceFirst("\\{}",Long.toString(votingRestartTime)).replaceFirst("\\{}","s"));
