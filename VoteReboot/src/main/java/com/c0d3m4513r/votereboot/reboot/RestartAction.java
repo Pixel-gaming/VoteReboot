@@ -28,6 +28,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.LongUnaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.c0d3m4513r.pluginapi.API.*;
 import static com.c0d3m4513r.pluginapi.API.getLogger;
@@ -70,7 +71,11 @@ public abstract class RestartAction implements Runnable{
     }
 
     public static Optional<RestartAction> getAction(RestartType type){
-        List<RestartAction> actionList = actions.stream().filter(a->a.getRestartType().equals(type))
+        Stream<RestartAction> actionListStream = actions.stream();
+        if (type != RestartType.All) {
+            actionListStream = actionListStream.filter(a->a.getRestartType().equals(type));
+        }
+        List<RestartAction> actionList = actionListStream
                 .sorted(Comparator.comparing(RestartAction::getTimer))
                 .collect(Collectors.toList());
         if(actionList.size() == 0){
