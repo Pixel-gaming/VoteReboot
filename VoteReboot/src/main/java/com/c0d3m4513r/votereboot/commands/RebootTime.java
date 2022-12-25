@@ -24,8 +24,9 @@ public class RebootTime implements Command {
         Consumer<RestartAction> print_restart_action = (ra) ->  {
             if(arguments.length>=1) {
                 RestartType restartType = Config.restartTypeConversion.get(arguments[0]);
-                //The timer type did not match the specified type. Hiding.
-                if (restartType!=null && ra.getRestartType()!=restartType) return;
+                //The timer type did not match the specified type and we didn't want to display all timers.
+                //Hiding this timer.
+                if (restartType!=null && restartType != RestartType.All&& ra.getRestartType()!=restartType) return;
             }
             Optional<TimeUnitValue> otimer = ra.getTimer(source);
             //We do not have read permissions. Don't print this timer.
