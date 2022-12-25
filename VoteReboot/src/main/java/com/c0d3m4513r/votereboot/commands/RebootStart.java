@@ -38,7 +38,7 @@ public class RebootStart implements Command {
     };
     @Override
     public @NonNull CommandResult process(CommandSource source, String[] arguments) throws CommandException {
-        if (arguments.length < 1 || arguments[0] != null){
+        if (arguments.length < 1 || arguments[0] == null){
             source.sendMessage(ConfigTranslate.getInstance().getRequiredArgs().getValue());
             return API.getCommandResult().error();
         }
