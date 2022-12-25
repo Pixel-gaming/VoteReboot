@@ -5,16 +5,22 @@ import com.c0d3m4513r.pluginapi.command.Command;
 import com.c0d3m4513r.pluginapi.command.CommandResult;
 import com.c0d3m4513r.pluginapi.command.CommandSource;
 import com.c0d3m4513r.pluginapi.config.TimeUnitValue;
+import com.c0d3m4513r.votereboot.Action;
 import com.c0d3m4513r.votereboot.config.Config;
 import com.c0d3m4513r.votereboot.config.ConfigPermission;
 import com.c0d3m4513r.votereboot.reboot.RestartAction;
 import com.c0d3m4513r.votereboot.reboot.RestartType;
 import lombok.NonNull;
 import lombok.val;
+import lombok.var;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class RebootTime implements Command {
     public final static RebootTime INSTANCE = new RebootTime();
@@ -55,7 +61,13 @@ public class RebootTime implements Command {
 
     @Override
     public List<String> getSuggestions(CommandSource source, String[] arguments) {
-        return null;
+        if(arguments.length <= 1){
+            var stream = Arrays.stream(RestartType.values()).map(Enum::name);
+            if (arguments.length == 1 && arguments[0]!= null)
+                stream = stream.filter(s->s.startsWith(arguments[0]));
+            return stream.collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 
     @Override
