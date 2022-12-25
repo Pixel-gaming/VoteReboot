@@ -136,10 +136,10 @@ public class VoteAction extends RestartAction {
                 restartType=RestartType.All;
                 long votingRestartTime = VoteConfig.getInstance().getVotingRestartTime().getValue();
                 timer.set(votingRestartTime);
-                API.getServer().sendMessage(ConfigStrings.getInstance().getVoteRestartSuccess().getValue().replaceFirst("\\{\\}",Long.toString(votingRestartTime)).replaceFirst("\\{\\}","s"));
+                API.getServer().sendMessage(ConfigTranslate.getInstance().getVoteRestartSuccess().getValue().replaceFirst("\\{}",Long.toString(votingRestartTime)).replaceFirst("\\{}","s"));
                 hideScoreboard();
             }else {
-                API.getServer().sendMessage(ConfigStrings.getInstance().getVoteRestartFailed().getValue());
+                API.getServer().sendMessage(ConfigTranslate.getInstance().getVoteRestartFailed().getValue());
                 hideScoreboard();
                 cancelTimer(true);
                 doReset();

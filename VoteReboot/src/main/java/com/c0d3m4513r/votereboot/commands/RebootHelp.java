@@ -6,7 +6,7 @@ import com.c0d3m4513r.pluginapi.command.CommandResult;
 import com.c0d3m4513r.pluginapi.command.CommandSource;
 import com.c0d3m4513r.votereboot.Action;
 import com.c0d3m4513r.votereboot.config.ActionConfig;
-import com.c0d3m4513r.votereboot.config.ConfigCommandStrings;
+import com.c0d3m4513r.votereboot.config.ConfigTranslateCommandHelp;
 import com.c0d3m4513r.votereboot.config.ConfigPermission;
 import com.c0d3m4513r.votereboot.config.RestartTypeActionConfig;
 import com.c0d3m4513r.votereboot.reboot.RestartType;
@@ -28,20 +28,20 @@ public class RebootHelp implements Command {
         val sendHelp = Reboot.sendHelp.apply(source);
         sendHelp.apply(
                 ConfigPermission.getInstance().getRebootCommand().getValue(),
-                ConfigCommandStrings.getInstance().getHelpBase().getValue()
+                ConfigTranslateCommandHelp.getInstance().getHelpBase().getValue()
         );
         sendHelp.apply(
                 ConfigPermission.getInstance().getReload().getValue(),
-                ConfigCommandStrings.getInstance().getHelpReload().getValue()
+                ConfigTranslateCommandHelp.getInstance().getHelpReload().getValue()
         );
         sendHelp.apply(
                 ConfigPermission.getInstance().getVoteRegister().getValue(),
-                ConfigCommandStrings.getInstance().getHelpRegisterVote().getValue()
+                ConfigTranslateCommandHelp.getInstance().getHelpRegisterVote().getValue()
         );
 
         RestartTypeActionConfig perm = ConfigPermission.getInstance().getRestartTypeAction();
-        RestartTypeActionConfig str = ConfigCommandStrings.getInstance().getHelpRestartTypeAction();
-        ActionConfig strGeneral = ConfigCommandStrings.getInstance().getHelpGeneralAction();
+        RestartTypeActionConfig str = ConfigTranslateCommandHelp.getInstance().getHelpRestartTypeAction();
+        ActionConfig strGeneral = ConfigTranslateCommandHelp.getInstance().getHelpGeneralAction();
 
         for (val a: Action.values()){
             final boolean include = Arrays.stream(RestartType.values())

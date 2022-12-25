@@ -8,7 +8,6 @@ import com.c0d3m4513r.pluginapi.command.CommandSource;
 import com.c0d3m4513r.votereboot.Action;
 import com.c0d3m4513r.votereboot.config.*;
 import com.c0d3m4513r.votereboot.reboot.VoteAction;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -34,12 +33,12 @@ public class RebootVote implements Command {
     @Override
     public @NonNull CommandResult process(CommandSource source, String[] arguments) throws CommandException {
         if (arguments.length < 1){
-            source.sendMessage(ConfigStrings.getInstance().getRequiredArgs().getValue());
+            source.sendMessage(ConfigTranslate.getInstance().getRequiredArgs().getValue());
             if (source.hasPerm(ConfigPermission.getInstance().getVoteRegister().getValue()))
-                source.sendMessage(ConfigCommandStrings.getInstance().getHelpRegisterVote().getValue());
+                source.sendMessage(ConfigTranslateCommandHelp.getInstance().getHelpRegisterVote().getValue());
             if (source.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.Vote).getPermission(Action.Start))
                     || source.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.All).getPermission(Action.Start)))
-                source.sendMessage(ConfigCommandStrings.getInstance().getHelpRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.Vote).getPermission(Action.Start));
+                source.sendMessage(ConfigTranslateCommandHelp.getInstance().getHelpRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.Vote).getPermission(Action.Start));
             return API.getCommandResult().error();
         }
         var arg0 = arguments[0];
@@ -60,40 +59,42 @@ public class RebootVote implements Command {
         if(vote != null)
             return addVote(source, vote);
         else {
-            source.sendMessage(ConfigStrings.getInstance().getUnrecognisedArgs().getValue());
+            source.sendMessage(ConfigTranslate.getInstance().getUnrecognisedArgs().getValue());
             return API.getCommandResult().error();
         }
     }
 
+    @NonNull
     private CommandResult startVote(CommandSource source) {
         if (voteAction==null) voteAction = new VoteAction();
         if( voteAction.isVoteInProgress()){
-            source.sendMessage(ConfigStrings.getInstance().getVoteAlreadyActive().getValue());
+            source.sendMessage(ConfigTranslate.getInstance().getVoteAlreadyActive().getValue());
             return API.getCommandResult().error();
         }
 
         if (voteAction.start(source)) {
             getLogger().debug("Started vote.");
-            source.sendMessage(ConfigStrings.getInstance().getVoteStartedReply().getValue());
-            API.getServer().sendMessage(ConfigStrings.getInstance().getVoteStartedAnnouncement().getValue());
+            source.sendMessage(ConfigTranslate.getInstance().getVoteStartedReply().getValue());
+            API.getServer().sendMessage(ConfigTranslate.getInstance().getVoteStartedAnnouncement().getValue());
             return API.getCommandResult().success();
         }else{
-            source.sendMessage(ConfigStrings.getInstance().getNoPermission().getValue());
+            source.sendMessage(ConfigTranslate.getInstance().getNoPermission().getValue());
             return API.getCommandResult().error();
         }
 
     }
 
+    @NonNull
     private CommandResult addVote(@NotNull CommandSource source, @NotNull Optional<Boolean> vote){
         if(voteAction == null || !voteAction.isVoteInProgress()){
-            source.sendMessage(ConfigStrings.getInstance().getNoVoteActive().getValue());
+            source.sendMessage(ConfigTranslate.getInstance().getNoVoteActive().getValue());
             return API.getCommandResult().error();
         }
         if (voteAction.addVote(source,source.getIdentifier(),vote)){
-            source.sendMessage(ConfigStrings.getInstance().getVoteSuccess().getValue().replaceFirst("\\{\\}", vote.map(Object::toString).orElse("none")));
+            source.sendMessage(ConfigTranslate.getInstance().getVoteSuccess().getValue().replaceFirst("\\{}", vote.map(Object::toString).orElse("none")));
             return API.getCommandResult().success();
         }
-        source.sendMessage(ConfigStrings.getInstance().getNoPermission().toString());
+        source.sendMessage(ConfigTranslate.getInstance().getNoPermission().toString());
         return API.getCommandResult().error();
     }
 

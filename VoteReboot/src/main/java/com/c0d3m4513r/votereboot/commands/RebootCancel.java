@@ -2,7 +2,6 @@ package com.c0d3m4513r.votereboot.commands;
 
 import com.c0d3m4513r.pluginapi.API;
 import com.c0d3m4513r.pluginapi.command.Command;
-import com.c0d3m4513r.pluginapi.command.CommandException;
 import com.c0d3m4513r.pluginapi.command.CommandResult;
 import com.c0d3m4513r.pluginapi.command.CommandSource;
 import com.c0d3m4513r.votereboot.Action;
@@ -24,12 +23,12 @@ public class RebootCancel  implements Command {
     public @NonNull CommandResult process(CommandSource source, String[] arguments) {
         if (arguments.length < 1){
             val sendHelp = Reboot.sendHelp.apply(source);
-            RestartTypeActionConfig restartTypeActionStrings = ConfigCommandStrings.getInstance().getHelpRestartTypeAction();
-            RestartTypeActionConfig restartTypeACtionPermissions = ConfigPermission.getInstance().getRestartTypeAction();
+            RestartTypeActionConfig restartTypeActionStrings = ConfigTranslateCommandHelp.getInstance().getHelpRestartTypeAction();
+            RestartTypeActionConfig restartTypeActionPermissions = ConfigPermission.getInstance().getRestartTypeAction();
             final boolean include = Arrays.stream(RestartType.values())
-                    .map(type -> sendHelp.apply(restartTypeACtionPermissions.getAction(type).getPermission(Action.Cancel),restartTypeActionStrings.getAction(type).getPermission(Action.Cancel)))
+                    .map(type -> sendHelp.apply(restartTypeActionPermissions.getAction(type).getPermission(Action.Cancel),restartTypeActionStrings.getAction(type).getPermission(Action.Cancel)))
                     .reduce(false,Boolean::logicalOr);
-            String generalCancel = ConfigCommandStrings.getInstance().getHelpGeneralAction().getPermission(Action.Cancel);
+            String generalCancel = ConfigTranslateCommandHelp.getInstance().getHelpGeneralAction().getPermission(Action.Cancel);
             if(include && !generalCancel.isEmpty()) source.sendMessage(generalCancel);
             return API.getCommandResult().error();
         }
@@ -40,18 +39,18 @@ public class RebootCancel  implements Command {
             Optional<RestartAction> oral = RestartAction.getAction(type);
 
             if (!oral.isPresent()){
-                source.sendMessage(ConfigStrings.getInstance().getNoActionRestartTimer()
-                        .getValue().replaceFirst("\\{\\}",RestartType.asString(type)));
+                source.sendMessage(ConfigTranslate.getInstance().getNoActionRestartTimer()
+                        .getValue().replaceFirst("\\{}",RestartType.asString(type)));
                 return API.getCommandResult().error();
             }
 
             if (!oral.get().cancelTimer(source)){
-                source.sendMessage(ConfigStrings.getInstance().getNoPermission().getValue());
+                source.sendMessage(ConfigTranslate.getInstance().getNoPermission().getValue());
                 return API.getCommandResult().error();
             }
 
-            source.sendMessage(ConfigStrings.getInstance().getCancelActionSuccess()
-                    .getValue().replaceFirst("\\{\\}",RestartType.asString(type)));
+            source.sendMessage(ConfigTranslate.getInstance().getCancelActionSuccess()
+                    .getValue().replaceFirst("\\{}",RestartType.asString(type)));
             return API.getCommandResult().success();
         }else {
             HashSet<Integer> ids = Arrays.stream(arguments).parallel().map((Function<String, Optional<Integer>>)  e->{
@@ -66,13 +65,13 @@ public class RebootCancel  implements Command {
                     .collect(Collectors.toCollection(HashSet::new));
             int n = RestartAction.cancel(source,ids);
             if (n>0){
-                source.sendMessage(ConfigStrings.getInstance().getCancelActionSuccessMultiple().getValue()
-                        .replaceFirst("\\{\\}",Integer.toString(n))
-                        .replaceFirst("\\{\\}",Integer.toString(ids.size()))
+                source.sendMessage(ConfigTranslate.getInstance().getCancelActionSuccessMultiple().getValue()
+                        .replaceFirst("\\{}",Integer.toString(n))
+                        .replaceFirst("\\{}",Integer.toString(ids.size()))
                 );
                 return API.getCommandResult().success();
             }else{
-                source.sendMessage(ConfigStrings.getInstance().getUnrecognisedArgs().getValue());
+                source.sendMessage(ConfigTranslate.getInstance().getUnrecognisedArgs().getValue());
                 return API.getCommandResult().error();
             }
         }

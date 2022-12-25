@@ -25,14 +25,4 @@ public enum Action {
     Action(long id){
         this.id=id;
     }
-
-    public static String toString(Action action){
-        switch (action){
-            case Read:return "read";
-            case Start:return "start";
-            case Modify:return "modify";
-            case Cancel:return "cancel";
-            default: throw new Error("Enum has more variants than expected");
-        }
-    }
 }

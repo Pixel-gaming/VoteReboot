@@ -1,6 +1,5 @@
 package com.c0d3m4513r.votereboot.reboot;
 
-import com.c0d3m4513r.pluginapi.Data.Point3D;
 import com.c0d3m4513r.pluginapi.TaskBuilder;
 import com.c0d3m4513r.pluginapi.command.CommandSource;
 import com.c0d3m4513r.pluginapi.config.TimeEntry;
@@ -9,19 +8,17 @@ import com.c0d3m4513r.pluginapi.convert.Convert;
 import com.c0d3m4513r.pluginapi.messages.Title;
 import com.c0d3m4513r.pluginapi.registry.Sound;
 import com.c0d3m4513r.votereboot.Action;
-import com.c0d3m4513r.pluginapi.API;
 import com.c0d3m4513r.pluginapi.Permission;
 import com.c0d3m4513r.pluginapi.Task;
 import com.c0d3m4513r.votereboot.config.AnnounceConfig;
 import com.c0d3m4513r.votereboot.config.Config;
 import com.c0d3m4513r.votereboot.config.ConfigPermission;
-import com.c0d3m4513r.votereboot.config.ConfigStrings;
+import com.c0d3m4513r.votereboot.config.ConfigTranslate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.val;
 
-import java.sql.Time;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -309,12 +306,12 @@ public abstract class RestartAction implements Runnable{
         long timer = this.timer.get();
         TimeUnit unit = timerUnit.get();
         getLogger().info("Announcing {} timer = {} {}",restartType,timer,unit);
-        String announcement = ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(restartType);
-        if (announcement.isEmpty()) announcement=ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(com.c0d3m4513r.votereboot.reboot.RestartType.All);
+        String announcement = ConfigTranslate.getInstance().getServerRestartAnnouncement().getPermission(restartType);
+        if (announcement.isEmpty()) announcement= ConfigTranslate.getInstance().getServerRestartAnnouncement().getPermission(com.c0d3m4513r.votereboot.reboot.RestartType.All);
         //Only do chat announcements, if really enabled.
         if(AnnounceConfig.getInstance().getEnableTimerChatAnnounce().getValue()){
-            getServer().sendMessage(announcement.replaceFirst("\\{\\}",Long.toString(timer))
-                .replaceFirst("\\{\\}", String.valueOf(unit)));
+            getServer().sendMessage(announcement.replaceFirst("\\{}",Long.toString(timer))
+                .replaceFirst("\\{}", String.valueOf(unit)));
             if (reason != null)
                 getServer().sendMessage("Reason: "+reason);
         }
@@ -325,11 +322,11 @@ public abstract class RestartAction implements Runnable{
                 for(val world: getServer().getWorlds()){
                     val title = new Title(
                             Optional.ofNullable(reason),
-                            Optional.of(ConfigStrings.getInstance()
+                            Optional.of(ConfigTranslate.getInstance()
                             .getServerRestartAnnouncement()
                             .getPermission(restartType)
-                            .replaceFirst("\\{\\}",Long.toString(timer))
-                            .replaceFirst("\\{\\}",unit.toString().toLowerCase()))
+                            .replaceFirst("\\{}",Long.toString(timer))
+                            .replaceFirst("\\{}",unit.toString().toLowerCase()))
                     );
                     world.sendTitle(title);
                 }
@@ -376,9 +373,7 @@ public abstract class RestartAction implements Runnable{
             switch (unit){
                 case DAYS: newUnit =TimeUnit.HOURS; break;
                 case HOURS: newUnit =TimeUnit.MINUTES; break;
-                case MINUTES:
-                case SECONDS:
-                    newUnit =TimeUnit.SECONDS; break;
+                case MINUTES: newUnit =TimeUnit.SECONDS; break;
                 default:throw new RuntimeException("TimeUnits smaller than Seconds are not supported.");
             }
             timer.getAndUpdate(t->newUnit.convert(t,unit));

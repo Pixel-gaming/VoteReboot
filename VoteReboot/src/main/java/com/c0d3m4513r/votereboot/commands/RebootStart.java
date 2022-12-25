@@ -8,9 +8,9 @@ import com.c0d3m4513r.pluginapi.command.CommandSource;
 import com.c0d3m4513r.pluginapi.config.TimeEntry;
 import com.c0d3m4513r.pluginapi.config.TimeUnitValue;
 import com.c0d3m4513r.votereboot.Action;
-import com.c0d3m4513r.votereboot.config.ConfigCommandStrings;
+import com.c0d3m4513r.votereboot.config.ConfigTranslateCommandHelp;
 import com.c0d3m4513r.votereboot.config.ConfigPermission;
-import com.c0d3m4513r.votereboot.config.ConfigStrings;
+import com.c0d3m4513r.votereboot.config.ConfigTranslate;
 import com.c0d3m4513r.votereboot.reboot.ManualAction;
 import com.c0d3m4513r.votereboot.reboot.RestartType;
 import lombok.AccessLevel;
@@ -31,15 +31,15 @@ import static com.c0d3m4513r.pluginapi.API.getLogger;
 public class RebootStart implements Command {
     public static final RebootStart INSTANCE = new RebootStart();
     Function<CommandSource ,CommandResult> error = source ->{
-        source.sendMessage(ConfigStrings.getInstance().getError().getValue());
+        source.sendMessage(ConfigTranslate.getInstance().getError().getValue());
         if (source.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.Manual).getPermission(Action.Start)))
-            source.sendMessage(ConfigCommandStrings.getInstance().getHelpRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.Manual).getPermission(Action.Start));
+            source.sendMessage(ConfigTranslateCommandHelp.getInstance().getHelpRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.Manual).getPermission(Action.Start));
         return API.getCommandResult().error();
     };
     @Override
     public @NonNull CommandResult process(CommandSource source, String[] arguments) throws CommandException {
         if (arguments.length < 1 || arguments[0] != null){
-            source.sendMessage(ConfigStrings.getInstance().getRequiredArgs().getValue());
+            source.sendMessage(ConfigTranslate.getInstance().getRequiredArgs().getValue());
             return API.getCommandResult().error();
         }
         var tryDelegateResult = tryDelegate(source, arguments);
@@ -57,7 +57,7 @@ public class RebootStart implements Command {
         }
         //at this point, something is wrong with the input.
         if (!teo.isPresent()){
-            source.sendMessage(ConfigStrings.getInstance().getUnrecognisedArgs().toString());
+            source.sendMessage(ConfigTranslate.getInstance().getUnrecognisedArgs().toString());
             return API.getCommandResult().error();
         }
 
@@ -66,13 +66,13 @@ public class RebootStart implements Command {
             if (reason.equals("")) reason = null;
             TimeUnitValue tuv = teo.get().getMaxUnit();
             if(!new ManualAction(reason,tuv).start(source)) {
-                source.sendMessage(ConfigStrings.getInstance().getNoPermission().getValue());
+                source.sendMessage(ConfigTranslate.getInstance().getNoPermission().getValue());
                 return API.getCommandResult().error();
             }
-            String announcement = ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(com.c0d3m4513r.votereboot.reboot.RestartType.Manual);
-            if (announcement.isEmpty()) announcement=ConfigStrings.getInstance().getServerRestartAnnouncement().getPermission(com.c0d3m4513r.votereboot.reboot.RestartType.All);
-            source.sendMessage(announcement.replaceFirst("\\{\\}",Long.toString(tuv.getValue()))
-                    .replaceFirst("\\{\\}", tuv.getUnit().toString()));
+            String announcement = ConfigTranslate.getInstance().getServerRestartAnnouncement().getPermission(com.c0d3m4513r.votereboot.reboot.RestartType.Manual);
+            if (announcement.isEmpty()) announcement= ConfigTranslate.getInstance().getServerRestartAnnouncement().getPermission(com.c0d3m4513r.votereboot.reboot.RestartType.All);
+            source.sendMessage(announcement.replaceFirst("\\{}",Long.toString(tuv.getValue()))
+                    .replaceFirst("\\{}", tuv.getUnit().toString()));
 
             return API.getCommandResult().success();
         }catch (NumberFormatException nfe){

@@ -2,7 +2,6 @@ package com.c0d3m4513r.votereboot.commands;
 
 import com.c0d3m4513r.pluginapi.API;
 import com.c0d3m4513r.pluginapi.command.Command;
-import com.c0d3m4513r.pluginapi.command.CommandException;
 import com.c0d3m4513r.pluginapi.command.CommandResult;
 import com.c0d3m4513r.pluginapi.command.CommandSource;
 import com.c0d3m4513r.pluginapi.config.TimeUnitValue;

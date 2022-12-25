@@ -2,12 +2,11 @@ package com.c0d3m4513r.votereboot.commands;
 
 import com.c0d3m4513r.pluginapi.API;
 import com.c0d3m4513r.pluginapi.command.Command;
-import com.c0d3m4513r.pluginapi.command.CommandException;
 import com.c0d3m4513r.pluginapi.command.CommandResult;
 import com.c0d3m4513r.pluginapi.command.CommandSource;
 import com.c0d3m4513r.votereboot.Action;
 import com.c0d3m4513r.votereboot.config.ConfigPermission;
-import com.c0d3m4513r.votereboot.config.ConfigStrings;
+import com.c0d3m4513r.votereboot.config.ConfigTranslate;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -24,14 +23,14 @@ public class RebootNow implements Command {
         if (source.hasPerm(ConfigPermission.getInstance().getRestartTypeAction().getAction(com.c0d3m4513r.votereboot.reboot.RestartType.Manual).getPermission(Action.Start)))
         {
             API.getServer().onRestart(Optional.of(String.join(" ",arguments)));
-            source.sendMessage(ConfigStrings.getInstance().getNowCommandResponse().getValue());
+            source.sendMessage(ConfigTranslate.getInstance().getNowCommandResponse().getValue());
             return API.getCommandResult().success();
         }
-        source.sendMessage(ConfigStrings.getInstance().getNoPermission().getValue());
+        source.sendMessage(ConfigTranslate.getInstance().getNoPermission().getValue());
         return API.getCommandResult().error();
     }
 
-    //We cannot/willnot provide suggestions for restart Reasons.
+    //We cannot/will not provide suggestions for restart Reasons.
     @Override
     public List<String> getSuggestions(CommandSource source, String[] arguments) {
         return Collections.emptyList();

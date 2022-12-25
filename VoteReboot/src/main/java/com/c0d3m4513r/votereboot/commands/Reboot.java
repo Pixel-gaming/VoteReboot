@@ -6,8 +6,8 @@ import com.c0d3m4513r.pluginapi.command.Command;
 import com.c0d3m4513r.pluginapi.command.CommandException;
 import com.c0d3m4513r.pluginapi.command.CommandResult;
 import com.c0d3m4513r.pluginapi.command.CommandSource;
-import com.c0d3m4513r.votereboot.config.ConfigCommandStrings;
-import com.c0d3m4513r.votereboot.config.ConfigStrings;
+import com.c0d3m4513r.votereboot.config.ConfigTranslateCommandHelp;
+import com.c0d3m4513r.votereboot.config.ConfigTranslate;
 import lombok.NonNull;
 import lombok.var;
 
@@ -39,7 +39,7 @@ public class Reboot implements Command {
                 //todo: allocating here every time is probably not the best thing. Can we do something about it, without majorly changing the api?
                 return subcommand.function.get().process(source, Arrays.copyOfRange(arguments, 1, arguments.length));
             } else {
-                throw new CommandException(ConfigStrings.getInstance().getNoPermission().getValue());
+                throw new CommandException(ConfigTranslate.getInstance().getNoPermission().getValue());
             }
         }else{
             source.sendMessage(getUsage(source));
@@ -68,7 +68,7 @@ public class Reboot implements Command {
 
     @Override
     public Optional<String> getShortDescription(CommandSource source) {
-        return Optional.of(ConfigCommandStrings.getInstance().getShortDescription().getValue());
+        return Optional.of(ConfigTranslateCommandHelp.getInstance().getShortDescription().getValue());
     }
 
     @Override

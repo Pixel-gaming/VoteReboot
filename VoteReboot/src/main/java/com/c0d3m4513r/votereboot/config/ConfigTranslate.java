@@ -9,8 +9,8 @@ import lombok.*;
 
 @Data
 @Setter(AccessLevel.NONE)
-public class ConfigStrings implements IConfigLoadableSaveable {
-    public static ConfigStrings getInstance(){
+public class ConfigTranslate implements IConfigLoadableSaveable {
+    public static ConfigTranslate getInstance(){
         return Config.getInstance().getConfigStrings();
     }
     @NonNull

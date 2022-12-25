@@ -118,11 +118,11 @@ public class Config extends MainConfig implements IConfigLoadableSaveable {
     @NonNull
     @Loadable
     @Savable
-    public ConfigStrings configStrings = new ConfigStrings();
+    public ConfigTranslate configStrings = new ConfigTranslate();
     @NonNull
     @Loadable
     @Savable
-    public ConfigCommandStrings configCommandStrings = new ConfigCommandStrings();
+    public ConfigTranslateCommandHelp configCommandStrings = new ConfigTranslateCommandHelp();
 
     public static Config getInstance() {
         return ((Config) API.getConfig());

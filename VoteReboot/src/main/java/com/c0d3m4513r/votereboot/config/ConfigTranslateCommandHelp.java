@@ -12,8 +12,8 @@ import lombok.Setter;
 
 @Data
 @Setter(AccessLevel.NONE)
-public class ConfigCommandStrings implements IConfigLoadableSaveable {
-    public static ConfigCommandStrings getInstance() {
+public class ConfigTranslateCommandHelp implements IConfigLoadableSaveable {
+    public static ConfigTranslateCommandHelp getInstance() {
         return Config.getInstance().getConfigCommandStrings();
     }
 
