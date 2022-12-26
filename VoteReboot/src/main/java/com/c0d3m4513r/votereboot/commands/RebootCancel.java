@@ -103,7 +103,7 @@ public class RebootCancel  implements Command {
                 .collect(Collectors.toList()));
 
         var actions = list.stream().parallel();
-        if (arguments.length > 1)
+        if (arguments.length > 0)
             actions = actions.filter(e->e.startsWith(arguments[0]));
         return actions.collect(Collectors.toList());
     }
