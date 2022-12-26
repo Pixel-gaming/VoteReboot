@@ -110,11 +110,12 @@ public class RebootVote implements Command {
 
     @Override
     public List<String> getSuggestions(CommandSource source, String[] arguments) {
-        if (arguments.length < 1 || arguments[0] == null) return Collections.emptyList();
-
-
-
-        return getPossibleArguments().stream().filter(e -> e.startsWith(arguments[0])).collect(Collectors.toList());
+        var stream = getPossibleArguments()
+                .stream()
+                .parallel();
+        if (arguments.length > 0 && arguments[0] != null)
+                stream = stream.filter(e -> e.startsWith(arguments[0]));
+        return stream.collect(Collectors.toList());
     }
 
     @Override
