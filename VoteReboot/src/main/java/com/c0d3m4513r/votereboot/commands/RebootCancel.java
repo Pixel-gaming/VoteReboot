@@ -81,7 +81,7 @@ public class RebootCancel  implements Command {
         var list = new LinkedList<String>();
         //If we do not have any arguments, we can suggest all the restart types.
         //This is because we only accept a Restart Type as a first argument.
-        if (arguments.length < 1){
+        if (arguments.length < 1 || arguments[0] == null || arguments[0].isEmpty() ){
             //add all Restart types, if we have permission to cancel timers, of that type
             //we are not reading timers here. It should be theoretically possible to Cancel timers, even if you can't see them
             list.addAll(
@@ -90,7 +90,7 @@ public class RebootCancel  implements Command {
                     .map(Enum::name)
                     .collect(Collectors.toList())
             );
-        }else if (arguments[0] != null && Config.restartTypeConversion.get(arguments[0]) != null){
+        }else if (Config.restartTypeConversion.get(arguments[0]) != null){
             return Collections.emptyList();
         }
         //also suggest timers that we can cancel
@@ -102,9 +102,12 @@ public class RebootCancel  implements Command {
                 .map(Long::toString)
                 .collect(Collectors.toList()));
 
-        var actions = list.stream().parallel();
+        var actions = list.stream().unordered();
         if (arguments.length > 0)
-            actions = actions.filter(e->e.startsWith(arguments[0]));
+            actions = actions.filter(e->e.startsWith(arguments[arguments.length-1]));
+        for (var arg: arguments) {
+            actions = actions.filter(e->!e.equals(arg));
+        }
         return actions.collect(Collectors.toList());
     }
 
