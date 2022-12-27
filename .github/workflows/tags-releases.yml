@@ -23,7 +23,7 @@ jobs:
       - name: Build with Maven
         run: mvn --batch-mode --update-snapshots package
       - name: Publish
-        uses: marvinpinto/action-automatic-releases@v4
+        uses: marvinpinto/action-automatic-releases@v1
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
