@@ -5,6 +5,8 @@ import com.c0d3m4513r.pluginapi.config.*;
 import com.c0d3m4513r.pluginapi.config.ClassValue;
 import com.c0d3m4513r.pluginapi.config.ConfigEntry.ConfigEntry;
 import com.c0d3m4513r.pluginapi.config.ConfigEntry.ListConfigEntry;
+import com.c0d3m4513r.pluginapi.config.iface.Loadable;
+import com.c0d3m4513r.pluginapi.config.iface.Savable;
 import com.c0d3m4513r.votereboot.commands.Reboot;
 import com.c0d3m4513r.pluginapi.API;
 import com.c0d3m4513r.pluginapi.config.iface.IConfigLoadableSaveable;
@@ -28,10 +30,16 @@ import static com.c0d3m4513r.pluginapi.API.getLogger;
 public class Config extends MainConfig implements IConfigLoadableSaveable {
     public static final boolean DEBUG = true;
     @NonNull
+    @Loadable
+    @Savable
     public static final VoteConfig voteConfig = new VoteConfig();
     @NonNull
+    @Loadable
+    @Savable
     public static final ConfigPermission configPermission = new ConfigPermission();
     @NonNull
+    @Loadable
+    @Savable
     public static final AnnounceConfig announceConfig = new AnnounceConfig();
     public static final Map<String, RestartType> restartTypeConversion = new HashMap<String, RestartType>() {
         {
@@ -50,12 +58,10 @@ public class Config extends MainConfig implements IConfigLoadableSaveable {
         }
     };
     //DON'T move this above ConfigPermission init. That will cause issues.
-    public static final Map<String, RebootSubcommands> subcommandConversion = new HashMap<String, RebootSubcommands>() {
+    public static final Map<String, RebootSubcommands> subcommandConversion = Collections.unmodifiableMap(new HashMap<String, RebootSubcommands>() {
         {
             put("help", RebootSubcommands.help);
             put("h", RebootSubcommands.help);
-            put("usage", RebootSubcommands.usage);
-            put("u", RebootSubcommands.usage);
             put("vote", RebootSubcommands.vote);
             put("v", RebootSubcommands.vote);
             put("start", RebootSubcommands.start);
@@ -70,35 +76,53 @@ public class Config extends MainConfig implements IConfigLoadableSaveable {
             put("reload", RebootSubcommands.reloadConfig);
             put("r", RebootSubcommands.reloadConfig);
         }
-    };
+    });
     @NonNull
+    @Loadable
+    @Savable
     private ListConfigEntry<String> scheduledRestarts = new ListConfigEntry<>(new ClassValue<>(Arrays.asList("3h", "3h+30m", "4h"), String.class)
             , "votereboot.scheduledRestarts");
 
     @NonNull
+    @Loadable
+    @Savable
     private ListConfigEntry<String> aliasList = new ListConfigEntry<>(
             new ClassValue<>(Arrays.asList("reboot", "restart"), String.class)
             , "votereboot.aliasList");
 
     @NonNull
+    @Loadable
+    @Savable
     private ConfigEntry<Boolean> kickEnabled = new ConfigEntry<>(new ClassValue<>(true, Boolean.class), "votereboot.kick.enabled");
     @NonNull
+    @Loadable
+    @Savable
     private ConfigEntry<Boolean> useCustomMessage = new ConfigEntry<>(new ClassValue<>(false, Boolean.class), "votereboot.kick.useCustomMessage");
     @NonNull
+    @Loadable
+    @Savable
     private ConfigEntry<String> customMessage = new ConfigEntry<>(new ClassValue<>(
             "The Server is Restarting!", String.class),
             "votereboot.kick.customMessage");
     @NonNull
+    @Loadable
+    @Savable
     private ConfigEntry<Boolean> actionsEnabled = new ConfigEntry<>(new ClassValue<>(true, Boolean.class), "votereboot.actions.enabled");
     @NonNull
+    @Loadable
+    @Savable
     private ListConfigEntry<String> rebootCommands = new ListConfigEntry<>(
             new ClassValue<>(Collections.singletonList("save-all"), String.class)
             , "votereboot.actions.commands");
 
     @NonNull
-    public ConfigStrings configStrings = new ConfigStrings();
+    @Loadable
+    @Savable
+    public ConfigTranslate configStrings = new ConfigTranslate();
     @NonNull
-    public ConfigCommandStrings configCommandStrings = new ConfigCommandStrings();
+    @Loadable
+    @Savable
+    public ConfigTranslateCommandHelp configCommandStrings = new ConfigTranslateCommandHelp();
 
     public static Config getInstance() {
         return ((Config) API.getConfig());
@@ -107,36 +131,14 @@ public class Config extends MainConfig implements IConfigLoadableSaveable {
     @Override
     public void loadValue() {
         getLogger().info("[VoteReboot] Load Config");
-        voteConfig.loadValue();
-        configPermission.loadValue();
-        announceConfig.loadValue();
-        scheduledRestarts.loadValue();
-        aliasList.loadValue();
-        kickEnabled.loadValue();
-        useCustomMessage.loadValue();
-        customMessage.loadValue();
-        actionsEnabled.loadValue();
-        rebootCommands.loadValue();
-        configStrings.loadValue();
-        configCommandStrings.loadValue();
+        super.loadValue();
         getLogger().info("[VoteReboot] Load Config Done");
     }
 
     @Override
     public void saveValue() {
         getLogger().info("[VoteReboot] Save Config");
-        voteConfig.saveValue();
-        configPermission.saveValue();
-        announceConfig.saveValue();
-        scheduledRestarts.saveValue();
-        aliasList.saveValue();
-        kickEnabled.saveValue();
-        useCustomMessage.saveValue();
-        customMessage.saveValue();
-        actionsEnabled.saveValue();
-        rebootCommands.saveValue();
-        configStrings.saveValue();
-        configCommandStrings.saveValue();
+        super.saveValue();
         getLogger().info("[VoteReboot] Save Config Done");
     }
 
@@ -171,7 +173,7 @@ public class Config extends MainConfig implements IConfigLoadableSaveable {
 
     private void registerCommands() {
         getLogger().info("[VoteReboot] Register Commands");
-        API.getCommandRegistrar().register(new Reboot(), getAliasList().getValue());
+        API.getCommandRegistrar().register(Reboot.INSTANCE, getAliasList().getValue());
         getLogger().info("[VoteReboot] Register Commands Done");
     }
 

@@ -7,20 +7,23 @@ votereboot:
   announceRestarts:
     #Should restarts be announced.
     enabled:
-      #in chat?
+      #should restart announcements happen in chat?
       chat: true
-      #with a sound?
+      #should restart announcements happen with a sound?
       sound: true
+      #should votes display the amount of votes in the scoreboard? (it is hidden automatically after the vote finished)
       scoreboard: true
+      #should a big message be displayed in the middle of the screen to remind the player of the restart?
       title: true
     sound:
       #Does this sound play once per world, or once at every player location
       playGlobal: true
       #The sound being played
       id: block.note.pling
-      #volume. Please turn this down, when not using playGlobal.
+      #volume. Please turn this down, when not using playGlobal (but I think it is automatically turned down)
       volume: 4000
     scoreboard:
+      #The title of the scoreboard
       title: Restart Vote
     #This list should be ordered earliest to latest announce.
     #The format here is like (long,TimeUnit)[+(long,TimeUnit)]*
@@ -38,16 +41,22 @@ votereboot:
       - 2s
       - 1s
   #Requires restart to apply, because the commands need to be re-registered.
+  #This configures which commands are registered for this plugin. By defalault it is `reboot` and `restart`
   aliasList:
     - reboot
     - restart
   actions:
+    #Should commands be executed when the server restarts?
     enabled: true
+    #Which commands to be executed
     commands:
       - save-all
   kick:
+    #Should players be kicked when the server restarts?
     enabled: true
+    #Should the custom message be used?
     useCustomMessage: false
+    #The message to be optionally displayed to the player
     customMessage: The Server is Restarting!
   vote:
     #The minimum percent of people required to restart the server (This gets parsed as a float)
@@ -62,26 +71,27 @@ votereboot:
     #The timer can also be cancelled and modified, but only with permission specified in 'votereboot.vote.permissions.type.all'
     #todo: add time unit
     votingRestartTime: 30
-    #Vote yes
+    #Which arguments should be counted as yes Votes
     yesList:
       - 'yes'
       - ye
       - y
       - t
       - true
-    #Vote no
+    #Which arguments should be counted as no Votes
     noList:
       - 'no'
       - n
       - f
       - false
     #Allows users to exclude their vote after they already voted
+    #Which arguments should be counted as abstaining Votes
     noneList:
       - 'null'
       - none
   permission:
     #Can that person execute any subcommands at all?
-    rebootCommand: votereboot.reboot
+    rebootCommand: votereboot.reboot.main
     #Can that person reload configs?
     reload: votereboot.reboot.reload
     #Can a vote be registered at all?
@@ -155,6 +165,14 @@ votereboot:
     error: There was an internal error whilst trying to execute the Command. Please refer to the usage again.
     shortDescription: Vote to Reboot the server
     #https://yaml-multiline.info/
+    short-description:
+      time: "'reboot time': View all timers, and their remaining time"
+      vote: "'reboot vote': You can vote yes, no or abstain to restart the server"
+      start: "'reboot start': Launches Other Actions, or manually sets a time after which the server will restart."
+      cancel: "'reboot cancel': Cancels a currently active Reboot timer."
+      now: "'reboot now': Restart the server Instantly"
+      reload: "'reboot reload': Reloads the configs for the VoteReboot plugin"
+      help: "'reboot help': Gets the help for the Reboot command."
     help:
       rebootCommand: "This is the main command for managing server restarts.\n
         Arguments with <> are optional, whilst ones with [] are mandatory.\n

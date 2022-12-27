@@ -18,12 +18,12 @@ public class ActionConfig implements IConfigLoadableSaveable, ActionPerm {
         ConfigEntry<String> action;
         Action type;
         public SinglularActionPerm(String permRoot, String configRoot, Action action){
-            this.action=new ConfigEntry<>(new ClassValue<>(permRoot+"."+action.toString(action),String.class),configRoot+"."+action.toString(action));
+            this.action=new ConfigEntry<>(new ClassValue<>(permRoot+"."+action.name().toLowerCase(),String.class),configRoot+"."+action.name().toLowerCase());
             type=action;
         }
 
-        public SinglularActionPerm(String value, String configRoot, Action action, boolean unused){
-            this.action=new ConfigEntry<>(new ClassValue<>(value,String.class),configRoot+"."+action.toString(action));
+        public SinglularActionPerm(String value, String configRoot, Action action, boolean ignoreUnused){
+            this.action=new ConfigEntry<>(new ClassValue<>(value,String.class),configRoot+"."+action.name().toLowerCase());
             type=action;
         }
 

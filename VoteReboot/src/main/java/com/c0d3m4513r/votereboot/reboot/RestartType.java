@@ -2,7 +2,6 @@ package com.c0d3m4513r.votereboot.reboot;
 
 import com.c0d3m4513r.votereboot.Action;
 import lombok.AccessLevel;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
@@ -15,7 +14,6 @@ public enum RestartType {
     Scheduled(2),
     All(3);
 
-    @NonNull
     public final long id;
 
     /***
