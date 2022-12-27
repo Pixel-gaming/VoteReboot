@@ -165,6 +165,14 @@ votereboot:
     error: There was an internal error whilst trying to execute the Command. Please refer to the usage again.
     shortDescription: Vote to Reboot the server
     #https://yaml-multiline.info/
+    short-description:
+      time: "'reboot time': View all timers, and their remaining time"
+      vote: "'reboot vote': You can vote yes, no or abstain to restart the server"
+      start: "'reboot start': Launches Other Actions, or manually sets a time after which the server will restart."
+      cancel: "'reboot cancel': Cancels a currently active Reboot timer."
+      now: "'reboot now': Restart the server Instantly"
+      reload: "'reboot reload': Reloads the configs for the VoteReboot plugin"
+      help: "'reboot help': Gets the help for the Reboot command."
     help:
       rebootCommand: "This is the main command for managing server restarts.\n
         Arguments with <> are optional, whilst ones with [] are mandatory.\n

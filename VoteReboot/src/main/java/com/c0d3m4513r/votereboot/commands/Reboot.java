@@ -68,7 +68,14 @@ public class Reboot implements Command {
 
     @Override
     public Optional<String> getShortDescription(CommandSource source) {
-        return Optional.of(ConfigTranslateCommandHelp.getInstance().getShortDescription().getValue());
+        String subcommands = Arrays.stream(RebootSubcommands.values())
+                .filter(sc -> source.hasPerm(sc.perm.get()))
+                .map(e->e.function.get().getShortDescription(source))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(s->!s.isEmpty())
+                .collect(Collectors.joining("\n"));
+        return Optional.of(subcommands);
     }
 
     @Override

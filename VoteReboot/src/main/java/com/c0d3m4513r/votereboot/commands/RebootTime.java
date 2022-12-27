@@ -8,6 +8,7 @@ import com.c0d3m4513r.pluginapi.config.TimeUnitValue;
 import com.c0d3m4513r.votereboot.Action;
 import com.c0d3m4513r.votereboot.config.Config;
 import com.c0d3m4513r.votereboot.config.ConfigPermission;
+import com.c0d3m4513r.votereboot.config.ShortDescription;
 import com.c0d3m4513r.votereboot.reboot.RestartAction;
 import com.c0d3m4513r.votereboot.reboot.RestartType;
 import lombok.NonNull;
@@ -72,7 +73,7 @@ public class RebootTime implements Command {
 
     @Override
     public Optional<String> getShortDescription(CommandSource source) {
-        return Optional.empty();
+        return Optional.of(ShortDescription.getInstance().getShortDescriptionTime().getValue());
     }
 
     @Override

@@ -120,7 +120,7 @@ public class RebootVote implements Command {
 
     @Override
     public Optional<String> getShortDescription(CommandSource source) {
-        return Optional.of("Here you can vote yes, no or abstain to restart the server");
+        return Optional.of(ShortDescription.getInstance().getShortDescriptionVote().getValue());
     }
 
     @Override

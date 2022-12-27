@@ -5,10 +5,7 @@ import com.c0d3m4513r.pluginapi.command.Command;
 import com.c0d3m4513r.pluginapi.command.CommandResult;
 import com.c0d3m4513r.pluginapi.command.CommandSource;
 import com.c0d3m4513r.votereboot.Action;
-import com.c0d3m4513r.votereboot.config.ActionConfig;
-import com.c0d3m4513r.votereboot.config.ConfigTranslateCommandHelp;
-import com.c0d3m4513r.votereboot.config.ConfigPermission;
-import com.c0d3m4513r.votereboot.config.RestartTypeActionConfig;
+import com.c0d3m4513r.votereboot.config.*;
 import com.c0d3m4513r.votereboot.reboot.RestartType;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -61,7 +58,7 @@ public class RebootHelp implements Command {
 
     @Override
     public Optional<String> getShortDescription(CommandSource source) {
-        return Optional.of("Gets the help for the Reboot commmand");
+        return Optional.of(ShortDescription.getInstance().getShortDescriptionHelp().getValue());
     }
 
     @Override

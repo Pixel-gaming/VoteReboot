@@ -7,6 +7,7 @@ import com.c0d3m4513r.pluginapi.command.CommandSource;
 import com.c0d3m4513r.votereboot.Action;
 import com.c0d3m4513r.votereboot.config.ConfigPermission;
 import com.c0d3m4513r.votereboot.config.ConfigTranslate;
+import com.c0d3m4513r.votereboot.config.ShortDescription;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -38,7 +39,7 @@ public class RebootNow implements Command {
 
     @Override
     public Optional<String> getShortDescription(CommandSource source) {
-        return Optional.of("Restarts the server Instantly");
+        return Optional.of(ShortDescription.getInstance().getShortDescriptionNow().getValue());
     }
 
     @Override

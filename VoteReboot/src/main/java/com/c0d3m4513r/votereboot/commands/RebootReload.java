@@ -46,7 +46,7 @@ public class RebootReload implements Command {
 
     @Override
     public Optional<String> getShortDescription(CommandSource source) {
-        return Optional.of("Reloads the configs for the VoteReboot plugin");
+        return Optional.of(ShortDescription.getInstance().getShortDescriptionReload().getValue());
     }
 
     @Override

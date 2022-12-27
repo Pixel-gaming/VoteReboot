@@ -133,4 +133,9 @@ public class ConfigTranslate implements IConfigLoadableSaveable {
             new ClassValue<>("There was an internal error whilst trying to execute the Command. Please refer to the usage again.",String.class),
             "votereboot.translate.error");
 
+    @NonNull
+    @Loadable
+    @Savable
+    private ShortDescription shortDescription = new ShortDescription();
+
 }

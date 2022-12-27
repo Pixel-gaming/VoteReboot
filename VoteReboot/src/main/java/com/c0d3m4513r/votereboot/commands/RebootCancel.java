@@ -113,7 +113,7 @@ public class RebootCancel  implements Command {
 
     @Override
     public Optional<String> getShortDescription(CommandSource source) {
-        return Optional.of("Cancels a currently active Reboot timer.");
+        return Optional.of(ShortDescription.getInstance().getShortDescriptionCancel().getValue());
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.c0d3m4513r.votereboot.Action;
 import com.c0d3m4513r.votereboot.config.ConfigTranslateCommandHelp;
 import com.c0d3m4513r.votereboot.config.ConfigPermission;
 import com.c0d3m4513r.votereboot.config.ConfigTranslate;
+import com.c0d3m4513r.votereboot.config.ShortDescription;
 import com.c0d3m4513r.votereboot.reboot.ManualAction;
 import com.c0d3m4513r.votereboot.reboot.RestartType;
 import lombok.AccessLevel;
@@ -118,7 +119,7 @@ public class RebootStart implements Command {
 
     @Override
     public Optional<String> getShortDescription(CommandSource source) {
-        return Optional.of("Launches Other Actions, or manually sets a time after which the server will restart.");
+        return Optional.of(ShortDescription.getInstance().getShortDescriptionStart().getValue());
     }
 
     @Override
