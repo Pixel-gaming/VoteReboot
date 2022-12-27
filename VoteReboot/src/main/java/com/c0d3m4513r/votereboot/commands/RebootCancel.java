@@ -123,6 +123,6 @@ public class RebootCancel  implements Command {
 
     @Override
     public String getUsage(CommandSource source) {
-        return "[ids:uint/Action]";
+        return "/reboot cancel [ids:uint/Action]";
     }
 }

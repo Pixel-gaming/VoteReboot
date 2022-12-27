@@ -56,6 +56,6 @@ public class RebootReload implements Command {
 
     @Override
     public String getUsage(CommandSource source) {
-        return "";
+        return "/reboot reload";
     }
 }

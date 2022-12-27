@@ -82,6 +82,6 @@ public class RebootTime implements Command {
 
     @Override
     public String getUsage(CommandSource source) {
-        return null;
+        return "/reboot time [type/id]";
     }
 }

@@ -128,6 +128,6 @@ public class RebootStart implements Command {
 
     @Override
     public String getUsage(CommandSource source) {
-        return "[TimeEntry] <Reason:String>";
+        return "/reboot start [TimeEntry] <Reason:String>";
     }
 }

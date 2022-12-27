@@ -130,6 +130,6 @@ public class RebootVote implements Command {
 
     @Override
     public String getUsage(CommandSource source) {
-        return "["+ String.join("/", getPossibleArguments()) +"]";
+        return "/reboot vote ["+ String.join("/", getPossibleArguments()) +"]";
     }
 }

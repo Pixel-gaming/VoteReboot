@@ -71,6 +71,6 @@ public class RebootHelp implements Command {
 
     @Override
     public String getUsage(CommandSource source) {
-        return "";
+        return "/reboot help";
     }
 }

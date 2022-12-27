@@ -48,6 +48,6 @@ public class RebootNow implements Command {
 
     @Override
     public String getUsage(CommandSource source) {
-        return "reboot now <reason>";
+        return "/reboot now <reason>";
     }
 }

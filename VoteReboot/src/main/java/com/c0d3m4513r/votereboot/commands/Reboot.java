@@ -80,8 +80,10 @@ public class Reboot implements Command {
 
     @Override
     public String getUsage(CommandSource source) {
-        List<String> subcommands = Arrays.stream(RebootSubcommands.values()).filter(sc -> source.hasPerm(sc.perm.get()))
-                .map(RebootSubcommands::name).collect(Collectors.toList());
-        return "Valid Subcommands are '"+ subcommands +"'.";
+        String subcommands = Arrays.stream(RebootSubcommands.values())
+                .filter(sc -> source.hasPerm(sc.perm.get()))
+                .map(e->e.function.get().getUsage(source))
+                .collect(Collectors.joining("\n"));
+        return "Valid Usages are: \n'"+ subcommands;
     }
 }
