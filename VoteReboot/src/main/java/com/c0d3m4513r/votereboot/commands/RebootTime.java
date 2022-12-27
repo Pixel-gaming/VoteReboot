@@ -5,7 +5,6 @@ import com.c0d3m4513r.pluginapi.command.Command;
 import com.c0d3m4513r.pluginapi.command.CommandResult;
 import com.c0d3m4513r.pluginapi.command.CommandSource;
 import com.c0d3m4513r.pluginapi.config.TimeUnitValue;
-import com.c0d3m4513r.votereboot.Action;
 import com.c0d3m4513r.votereboot.config.Config;
 import com.c0d3m4513r.votereboot.config.ConfigPermission;
 import com.c0d3m4513r.votereboot.config.ShortDescription;
@@ -15,11 +14,7 @@ import lombok.NonNull;
 import lombok.val;
 import lombok.var;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -28,12 +23,23 @@ public class RebootTime implements Command {
 
     @Override
     public @NonNull CommandResult process(CommandSource source, String[] arguments) {
+        List<Long> ids = Arrays.stream(arguments)
+                .map(arg -> {
+                    try{
+                        return Long.parseLong(arg);
+                    }catch (NumberFormatException e) {
+                return null;
+                }
+        }).filter(Objects::nonNull)
+            .collect(Collectors.toList());
         Consumer<RestartAction> print_restart_action = (ra) ->  {
             if(arguments.length>=1) {
                 RestartType restartType = Config.restartTypeConversion.get(arguments[0]);
-                //The timer type did not match the specified type and we didn't want to display all timers.
+                //The timer type did not match the specified type, and we didn't want to display all timers.
+                //If id's were specified, we only display the specified id's.
                 //Hiding this timer.
-                if (restartType!=null && restartType != RestartType.All&& ra.getRestartType()!=restartType) return;
+                if (ids.size() > 0 && !ids.contains((long)ra.getId())) return;
+                if (restartType!=null && restartType != RestartType.All && ra.getRestartType()!=restartType) return;
             }
             Optional<TimeUnitValue> otimer = ra.getTimer(source);
             //We do not have read permissions. Don't print this timer.
